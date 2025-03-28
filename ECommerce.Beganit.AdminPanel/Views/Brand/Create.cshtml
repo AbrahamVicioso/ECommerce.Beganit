@@ -1,0 +1,188 @@
+﻿@model ECommerce.Beganit.AdminPanel.Models.ViewModels.BrandViewModel
+
+@{
+    ViewData["Title"] = "Create New Brand";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                    <div>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-1">
+                                <li class="breadcrumb-item"><a asp-controller="Brand" asp-action="Index">Brands</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">Create New</li>
+                            </ol>
+                        </nav>
+                        <h1 class="h3 mb-0">Create New Brand</h1>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <form asp-controller="Brand" asp-action="Create" method="post" enctype="multipart/form-data" id="createBrandForm">
+                        @Html.AntiForgeryToken()
+
+                        <div class="row">
+                            <!-- Brand Logo Upload -->
+                            <div class="col-md-4 mb-4">
+                                <div class="card h-100 border-0 bg-light">
+                                    <div class="card-body text-center d-flex flex-column justify-content-center align-items-center" style="min-height: 250px;">
+                                        <div id="logoPreviewContainer" class="mb-3 d-none position-relative">
+                                            <img id="logoPreview" src="#" alt="Logo Preview" class="img-fluid rounded shadow-sm" style="max-height: 150px; max-width: 100%;">
+                                            <button type="button" id="removeLogo" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+
+                                        <div id="uploadPlaceholder">
+                                            <i class="fas fa-building text-primary mb-3" style="font-size: 3rem;"></i>
+                                            <h5>Brand Logo</h5>
+                                            <p class="text-muted small">Upload a high-quality logo<br>Recommended: 400×400px</p>
+
+                                            <div class="mt-3">
+                                                <label for="Image" class="btn btn-outline-primary">
+                                                    <i class="fas fa-upload me-2"></i> Upload Logo
+                                                </label>
+                                                <input type="file" name="Image" id="Image" class="d-none" accept="image/*" />
+                                            </div>
+                                        </div>
+
+                                        <div class="mt-3 small text-danger">
+                                            @Html.ValidationMessageFor(model => model.Image)
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Brand Details -->
+                            <div class="col-md-8 mb-4">
+                                <div class="card h-100 border-0">
+                                    <div class="card-body">
+                                        <h5 class="card-title mb-4">Brand Information</h5>
+
+                                        <div class="mb-3">
+                                            <label for="Name" class="form-label">
+                                                Brand Name <span class="text-danger">*</span>
+                                            </label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="fas fa-tag"></i></span>
+                                                @Html.TextBoxFor(model => model.Name, new { @class = "form-control", placeholder = "e.g. Apple, Samsung, Nike" })
+                                            </div>
+                                            <div class="text-danger mt-1">
+                                                @Html.ValidationMessageFor(model => model.Name)
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="Description" class="form-label">Brand Description</label>
+                                            @Html.TextAreaFor(model => model.Description, new { @class = "form-control", rows = 5, placeholder = "Provide a brief description of the brand..." })
+                                            <div class="text-danger mt-1">
+                                                @Html.ValidationMessageFor(model => model.Description)
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info d-flex align-items-center" role="alert">
+                            <i class="fas fa-info-circle me-2 fs-4"></i>
+                            <div>
+                                <strong>Brand Guidelines:</strong>
+                                <ul class="mb-0 ps-3">
+                                    <li>Brand names should be unique and recognizable</li>
+                                    <li>Use high-quality logos with transparent backgrounds when possible</li>
+                                    <li>Provide a concise but informative description</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card-footer bg-white d-flex justify-content-between py-3">
+                    <a asp-controller="Brand" asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i> Back to Brands
+                    </a>
+                    <button type="submit" form="createBrandForm" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i> Create Brand
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Initialize tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
+
+            // Auto-generate slug from name
+            $("#Name").on("keyup change", function() {
+                if ($("#Slug").val() === "" || $("#Slug").data("auto-generated") === true) {
+                    var slug = $(this).val()
+                        .toLowerCase()
+                        .replace(/[^\w\s-]/g, "") // Remove special chars except hyphens and underscores
+                        .replace(/\s+/g, "-")     // Replace spaces with hyphens
+                        .replace(/--+/g, "-")     // Replace multiple hyphens with single hyphen
+                        .trim();
+
+                    $("#Slug").val(slug).data("auto-generated", true);
+                }
+            });
+
+            // When user manually edits slug, stop auto-generation
+            $("#Slug").on("keyup change", function() {
+                $(this).data("auto-generated", false);
+            });
+
+            // Logo preview functionality
+            $("#Image").change(function() {
+                if (this.files && this.files[0]) {
+                    var reader = new FileReader();
+
+                    reader.onload = function(e) {
+                        $("#logoPreview").attr("src", e.target.result);
+                        $("#logoPreviewContainer").removeClass("d-none");
+                        $("#uploadPlaceholder").addClass("d-none");
+                    }
+
+                    reader.readAsDataURL(this.files[0]);
+
+                    // Validate file size
+                    var fileSize = this.files[0].size / 1024 / 1024; // in MB
+                    if (fileSize > 2) {
+                        alert("File size exceeds 2MB. Please choose a smaller file.");
+                        $(this).val(""); // Clear the file input
+                        $("#logoPreviewContainer").addClass("d-none");
+                        $("#uploadPlaceholder").removeClass("d-none");
+                    }
+                }
+            });
+
+            // Remove logo button
+            $("#removeLogo").click(function() {
+                $("#Image").val("");
+                $("#logoPreviewContainer").addClass("d-none");
+                $("#uploadPlaceholder").removeClass("d-none");
+            });
+
+            // Form validation
+            $("#createBrandForm").submit(function(e) {
+                if ($("#Name").val() === "") {
+                    e.preventDefault();
+                    alert("Brand name is required.");
+                    $("#Name").focus();
+                    return false;
+                }
+
+                return true;
+            });
+        });
+    </script>
+}

@@ -1,4 +1,7 @@
+using CloudinaryDotNet;
 using ECommerce.Beganit.AdminPanel.Data;
+using ECommerce.Beganit.AdminPanel.Mapper;
+using ECommerce.Beganit.AdminPanel.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,6 +22,15 @@ namespace ECommerce.Beganit.AdminPanel
             builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ECommerceDBContext>();
             builder.Services.AddControllersWithViews();
+
+            Cloudinary cloudinary = new Cloudinary(builder.Configuration.GetConnectionString("CLOUDINARY_URL"));
+            cloudinary.Api.Secure = true;
+
+            builder.Services.AddSingleton<Cloudinary>(cloudinary);
+
+            builder.Services.AddScoped<UploadImageService>();
+
+            builder.Services.AddScoped<CategoryMapper>();
 
             var app = builder.Build();
 

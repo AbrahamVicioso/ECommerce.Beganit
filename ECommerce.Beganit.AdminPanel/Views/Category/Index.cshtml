@@ -1,0 +1,101 @@
+﻿@model IEnumerable<ECommerce.Beganit.AdminPanel.Models.ViewModels.CategoryViewModel>
+
+@{
+    ViewData["Title"] = "Category Management";
+    var childCategories = ViewBag.ChildCategories as Dictionary<int?, List<ECommerce.Beganit.AdminPanel.Models.ViewModels.CategoryViewModel>>;
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h1>Category Management</h1>
+            <p>Manage your store categories</p>
+        </div>
+        <div class="col-auto d-flex align-items-center">
+            <button class="btn btn-outline-secondary me-2" id="expandAll">
+                <i class="fas fa-expand-alt"></i> Expand All
+            </button>
+            <button class="btn btn-outline-secondary me-2" id="collapseAll">
+                <i class="fas fa-compress-alt"></i> Collapse All
+            </button>
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add New Category
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th style="width: 30%">Category Name</th>
+                        <th>Slug</th>
+                        <th>Order</th>
+                        <th>Status</th>
+                        <th>Last Updated</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var category in Model)
+                    {
+                        @await Html.PartialAsync("_CategoryTreeItem", new { Category = category, ChildCategories = childCategories, Level = 0 })
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Toggle child categories
+            $('.toggle-children').on('click', function(e) {
+                e.preventDefault();
+                const $this = $(this);
+                const $icon = $this.find('i');
+                const $children = $this.closest('tr').nextUntil('.parent-category', '.child-category[data-parent="' + $this.data('id') + '"]');
+
+                if ($icon.hasClass('fa-chevron-right')) {
+                    $icon.removeClass('fa-chevron-right').addClass('fa-chevron-down');
+                    $children.removeClass('d-none');
+                    // Also show any expanded children
+                    $children.each(function() {
+                        const childId = $(this).data('id');
+                        const $expandedChildren = $('.child-category[data-parent="' + childId + '"]');
+                        if ($(this).find('.toggle-children i').hasClass('fa-chevron-down')) {
+                            $expandedChildren.removeClass('d-none');
+                        }
+                    });
+                } else {
+                    $icon.removeClass('fa-chevron-down').addClass('fa-chevron-right');
+                    $children.addClass('d-none');
+                    // Also hide all descendants
+                    hideAllDescendants($this.data('id'));
+                }
+            });
+
+            // Expand all categories
+            $('#expandAll').on('click', function() {
+                $('.toggle-children i').removeClass('fa-chevron-right').addClass('fa-chevron-down');
+                $('.child-category').removeClass('d-none');
+            });
+
+            // Collapse all categories
+            $('#collapseAll').on('click', function() {
+                $('.toggle-children i').removeClass('fa-chevron-down').addClass('fa-chevron-right');
+                $('.child-category').addClass('d-none');
+            });
+
+            function hideAllDescendants(parentId) {
+                const $children = $('.child-category[data-parent="' + parentId + '"]');
+                $children.addClass('d-none');
+                $children.each(function() {
+                    hideAllDescendants($(this).data('id'));
+                });
+            }
+        });
+    </script>
+}

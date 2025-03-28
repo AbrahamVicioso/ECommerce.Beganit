@@ -18,6 +18,9 @@ namespace ECommerce.Beganit.AdminPanel.Data.Configurations
 
             entity.HasIndex(e => e.Sku, "UQ__Products__CA1ECF0D3C0BFE4D").IsUnique();
 
+            entity.Property(e => e.IsActive).HasDefaultValue(false);
+            entity.Property(e => e.IsFeatured).HasDefaultValue(false);
+
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.DiscountPrice).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.Height).HasColumnType("decimal(10, 2)");

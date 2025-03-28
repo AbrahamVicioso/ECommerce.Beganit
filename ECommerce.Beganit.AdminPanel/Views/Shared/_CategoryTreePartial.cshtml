@@ -1,0 +1,44 @@
+﻿@using ECommerce.Beganit.AdminPanel.Models.ViewModels
+@model IEnumerable<ECommerce.Beganit.AdminPanel.Models.ViewModels.CategoryViewModel>
+
+@foreach (var item in Model)
+{
+    var hasChildren = ViewContext.ViewData["AllCategories"] is IEnumerable<CategoryViewModel> categories
+        && categories.Any(c => c.ParentId == item.Id);
+
+    <div class="category-row" data-category-id="@item.Id">
+        <div class="category-item d-flex align-items-center">
+            @if (hasChildren)
+            {
+                <span class="toggle-children mr-2 text-muted cursor-pointer">
+                    <i class="fas fa-chevron-right"></i>
+                </span>
+            }
+            <span class="category-info">
+                @item.Name
+                @if (!item.IsActive)
+                {
+                    <small class="text-muted">(Inactiva)</small>
+                }
+            </span>
+            <div class="category-actions ml-auto">
+                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary mr-1">Editar</a>
+                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info mr-1">Detalles</a>
+                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">Eliminar</a>
+            </div>
+        </div>
+
+        @{
+            var childCategories = ViewContext.ViewData["AllCategories"] is IEnumerable<CategoryViewModel> categoriesList
+            ? categoriesList.Where(c => c.ParentId == item.Id).OrderBy(c => c.DisplayOrder)
+            : Enumerable.Empty<CategoryViewModel>();
+        }
+
+        @if (childCategories.Any())
+        {
+            <div class="child-categories pl-4" style="display:none;">
+                @await Html.PartialAsync("_CategoryTreePartial", childCategories)
+            </div>
+        }
+    </div>
+}

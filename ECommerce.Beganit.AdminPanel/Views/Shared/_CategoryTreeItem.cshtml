@@ -1,0 +1,82 @@
+﻿@using ECommerce.Beganit.AdminPanel.Models.ViewModels
+@model dynamic
+@{
+    var category = Model.Category as CategoryViewModel;
+    var childCategories = Model.ChildCategories as Dictionary<int?, List<CategoryViewModel>>;
+    var level = (int)(Model.Level ?? 0);
+    var paddingLeft = level * 20; // 20px padding for each level
+
+    var hasChildren = childCategories != null &&
+                      childCategories.ContainsKey(category.Id) &&
+                      childCategories[category.Id].Count > 0;
+}
+<tr class="@(level == 0 ? "parent-category" : "child-category")"
+    data-id="@category.Id"
+    data-parent="@(category.ParentId ?? 0)"
+@(level > 0 ? "style=background-color:#f9f9f9" : "")
+@(level > 0 ? "class=d-none" : "")>
+    <td>
+        <div class="d-flex align-items-center" style="padding-left: @(paddingLeft)px;">
+            @if (hasChildren)
+            {
+                <a href="#" class="toggle-children me-2" data-id="@category.Id">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            }
+            else
+            {
+                <span class="me-2" style="width: 16px;"></span>
+            }
+            @if (!string.IsNullOrEmpty(category.ImageUrl))
+            {
+                <img src="@category.ImageUrl" alt="@category.Name" class="img-thumbnail me-2" style="width: 30px; height: 30px;" />
+            }
+            else
+            {
+                <div class="bg-secondary rounded me-2" style="width: 30px; height: 30px;"></div>
+            }
+            <span>@category.Name</span>
+        </div>
+        @if (!string.IsNullOrEmpty(category.Description))
+        {
+            <small class="text-muted d-block" style="padding-left: @(paddingLeft + 40)px;">@category.Description</small>
+        }
+    </td>
+    <td>@category.Slug</td>
+    <td>@category.DisplayOrder</td>
+    <td>
+        @if (category.IsActive == true)
+        {
+            <span class="badge bg-success">Active</span>
+        }
+        else
+        {
+            <span class="badge bg-secondary">Inactive</span>
+        }
+    </td>
+    <td>
+        @(category.UpdatedAt?.ToString("MMM dd, yyyy") ?? category.CreatedAt?.ToString("MMM dd, yyyy"))
+        <br />
+        <small class="text-muted">by @(category.UpdatedBy ?? category.CreatedBy)</small>
+    </td>
+    <td>
+        <div class="btn-group">
+            <a asp-action="Edit" asp-route-id="@category.Id" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-pencil-fill"></i>
+            </a>
+            @* <a asp-action="Details" asp-route-id="@category.Id" class="btn btn-sm btn-outline-info"> *@
+            @*         <i class="bi bi-info-circle"></i> *@
+            @* </a> *@
+            @* <a asp-action="Delete" asp-route-id="@category.Id" class="btn btn-sm btn-outline-danger"> *@
+            @*         <i class="bi bi-ban"></i> *@
+            </a>
+        </div>
+    </td>
+</tr>
+@if (hasChildren)
+{
+    foreach (var childCategory in childCategories[category.Id])
+    {
+        @await Html.PartialAsync("_CategoryTreeItem", new { Category = childCategory, ChildCategories = childCategories, Level = level + 1 })
+    }
+}

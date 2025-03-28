@@ -1,0 +1,93 @@
+﻿@model Tuple<ECommerce.Beganit.AdminPanel.Models.ViewModels.CategoryViewModel, int, Dictionary<int?, List<ECommerce.Beganit.AdminPanel.Models.ViewModels.CategoryViewModel>>>
+
+@{
+    var category = Model.Item1;
+    var level = Model.Item2;
+    var categoriesByParent = Model.Item3;
+    var hasChildren = categoriesByParent.ContainsKey(category.Id);
+    var indentClass = level > 0 ? $"ms-{level * 3}" : "";
+}
+
+<tr data-category-id="@category.Id" class="category-row">
+    <td>
+        <div class="@indentClass d-flex align-items-center">
+            @if (hasChildren)
+            {
+                <button class="btn btn-sm btn-link text-decoration-none p-0 me-1 toggle-children" data-parent-id="@category.Id">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+            }
+            else
+            {
+                <span class="ms-3"></span>
+            }
+
+            @if (string.IsNullOrEmpty(category.ImageUrl))
+            {
+                <i class="bi bi-folder text-muted"></i>
+            }
+            else
+            {
+                <img src="@category.ImageUrl" alt="@category.Name" class="img-thumbnail" style="width: 30px; height: 30px; object-fit: cover;" />
+            }
+        </div>
+    </td>
+    <td>
+        <div class="@indentClass">
+            <span class="fw-medium">@category.Name</span>
+            @if (!string.IsNullOrEmpty(category.Description))
+            {
+                <div class="small text-muted text-truncate" style="max-width: 250px;">@category.Description</div>
+            }
+        </div>
+    </td>
+    <td>
+        <code>@category.Slug</code>
+    </td>
+    <td>
+        @category.DisplayOrder
+    </td>
+    <td>
+        @if (category.IsActive == true)
+        {
+            <span class="badge bg-success">Active</span>
+        }
+        else
+        {
+            <span class="badge bg-secondary">Inactive</span>
+        }
+    </td>
+    <td>
+        <div>@(category.UpdatedAt?.ToString("MMM d, yyyy") ?? "—")</div>
+        <small class="text-muted">by @(category.UpdatedBy)</small>
+    </td>
+    <td>
+        <div class="btn-group">
+            <a asp-action="Edit" asp-route-id="@category.Id" class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-pencil"></i>
+            </a>
+            <a asp-action="Details" asp-route-id="@category.Id" class="btn btn-sm btn-outline-info">
+                <i class="bi bi-eye"></i>
+            </a>
+            <button type="button" class="btn btn-sm btn-outline-danger"
+                    data-bs-toggle="modal" data-bs-target="#deleteModal"
+                    data-id="@category.Id" data-name="@category.Name">
+                <i class="bi bi-trash"></i>
+            </button>
+        </div>
+    </td>
+</tr>
+
+@if (hasChildren)
+{
+    <tr class="child-container" data-parent-id="@category.Id" style="display: none;">
+        <td colspan="7" class="p-0">
+            <div class="child-rows">
+                @foreach (var child in categoriesByParent[category.Id])
+                {
+                    @await Html.PartialAsync("_CategoryRow", new Tuple<ECommerce.Beganit.AdminPanel.Models.ViewModels.CategoryViewModel, int, Dictionary<int?, List<ECommerce.Beganit.AdminPanel.Models.ViewModels.CategoryViewModel>>>(child, level + 1, categoriesByParent))
+                }
+            </div>
+        </td>
+    </tr>
+}

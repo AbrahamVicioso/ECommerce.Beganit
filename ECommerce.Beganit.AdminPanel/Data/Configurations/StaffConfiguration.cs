@@ -21,6 +21,8 @@ namespace ECommerce.Beganit.AdminPanel.Data.Configurations
             entity.HasOne(e => e.User).WithMany().HasForeignKey(e => e.UserId)
             .OnDelete(DeleteBehavior.NoAction);
 
+            entity.HasIndex(e => e.UserId).IsUnique();
+
             entity.HasMany(d => d.Roles).WithMany(p => p.Staff)
                 .UsingEntity<Dictionary<string, object>>(
                     "StaffRole",

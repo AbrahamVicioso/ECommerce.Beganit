@@ -1,0 +1,321 @@
+﻿@model IEnumerable<ECommerce.Beganit.AdminPanel.Models.ViewModels.BrandViewModel>
+
+@{
+    ViewData["Title"] = "Brand Management";
+}
+
+<div class="container-fluid py-4">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">Brand Management</h1>
+            <p class="text-muted">Manage your store brands and manufacturers</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-1"></i> Add New Brand
+            </a>
+        </div>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form id="filterForm" method="get" class="row g-3">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <input type="text" name="searchTerm" class="form-control" placeholder="Search brands..." 
+                               value="@Context.Request.Query["searchTerm"]">
+                        <button class="btn btn-outline-secondary" type="submit">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <select name="status" class="form-select" onchange="this.form.submit()">
+                        <option value="">All Statuses</option>
+                        @* <option value="active" @(Context.Request.Query["status"] == "active" ? "selected" : "")>Active Only</option> *@
+                        @* <option value="inactive" @(Context.Request.Query["status"] == "inactive" ? "selected" : "")>Inactive Only</option> *@
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-outline-secondary w-100" onclick="resetFilters()">
+                        <i class="bi bi-x-circle me-1"></i> Reset
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Brands Grid View -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4 mb-4">
+        @foreach (var brand in Model)
+        {
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <div class="position-relative">
+                        @if (!string.IsNullOrEmpty(brand.LogoUrl))
+                        {
+                            <img src="@brand.LogoUrl" class="card-img-top p-3" alt="@brand.Name logo" 
+                                 style="height: 160px; object-fit: contain;">
+                        }
+                        else
+                        {
+                            <div class="text-center bg-light p-4" style="height: 160px;">
+                                <i class="bi bi-building text-muted" style="font-size: 4rem;"></i>
+                                <p class="text-muted mt-2">No logo available</p>
+                            </div>
+                        }
+                        
+                        @if (brand.IsActive)
+                        {
+                            <span class="position-absolute top-0 end-0 badge bg-success m-2">Active</span>
+                        }
+                        else
+                        {
+                            <span class="position-absolute top-0 end-0 badge bg-secondary m-2">Inactive</span>
+                        }
+                    </div>
+                    
+                    <div class="card-body">
+                        <h5 class="card-title">@brand.Name</h5>
+                        @if (!string.IsNullOrEmpty(brand.Description))
+                        {
+                            <p class="card-text text-muted">@(brand.Description.Length > 100 ? brand.Description.Substring(0, 97) + "..." : brand.Description)</p>
+                        }
+                    </div>
+                    
+                    <div class="card-footer bg-transparent">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                Updated: @(brand.UpdatedAt?.ToString("MMM d, yyyy") ?? "N/A")
+                            </small>
+                            <div class="btn-group">
+                                <a asp-action="Edit" asp-route-id="@brand.Id" class="btn btn-sm btn-outline-primary" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a asp-action="Details" asp-route-id="@brand.Id" class="btn btn-sm btn-outline-info" title="Details">
+                                    <i class="bi bi-info-circle"></i>
+                                </a>
+                                <button type="button" class="btn btn-sm btn-outline-danger" title="Delete"
+                                        data-bs-toggle="modal" data-bs-target="#deleteModal" 
+                                        data-id="@brand.Id" data-name="@brand.Name">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        
+        @if (!Model.Any())
+        {
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-body text-center py-5">
+                        <div class="text-muted mb-3">
+                            <i class="bi bi-building-x" style="font-size: 3rem;"></i>
+                        </div>
+                        <h4>No brands found</h4>
+                        <p class="text-muted">Get started by adding your first brand</p>
+                        <a asp-action="Create" class="btn btn-primary">
+                            <i class="bi bi-plus-circle me-1"></i> Add New Brand
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Alternative Table View (Togglable) -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Brands List View</h5>
+                <button class="btn btn-sm btn-outline-secondary" id="toggleViewBtn">
+                    <i class="bi bi-grid"></i> Switch to Grid View
+                </button>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 60px;"></th>
+                            <th>Brand Name</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                            <th>Last Updated</th>
+                            <th style="width: 150px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var brand in Model)
+                        {
+                            <tr>
+                                <td class="text-center">
+                                    @if (!string.IsNullOrEmpty(brand.LogoUrl))
+                                    {
+                                        <img src="@brand.LogoUrl" alt="@brand.Name logo" class="img-thumbnail" 
+                                             style="width: 40px; height: 40px; object-fit: contain;">
+                                    }
+                                    else
+                                    {
+                                        <div class="bg-light d-flex align-items-center justify-content-center" 
+                                             style="width: 40px; height: 40px;">
+                                            <i class="bi bi-building text-muted"></i>
+                                        </div>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="fw-medium">@brand.Name</span>
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(brand.Description))
+                                    {
+                                        <span class="text-truncate d-inline-block" style="max-width: 300px;">
+                                            @brand.Description
+                                        </span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (brand.IsActive)
+                                    {
+                                        <span class="badge bg-success">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Inactive</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div>@(brand.UpdatedAt?.ToString("MMM d, yyyy") ?? "—")</div>
+                                    <small class="text-muted">by @(brand.UpdatedBy)</small>
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a asp-action="Edit" asp-route-id="@brand.Id" class="btn btn-sm btn-outline-primary" title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a asp-action="Details" asp-route-id="@brand.Id" class="btn btn-sm btn-outline-info" title="Details">
+                                            <i class="bi bi-info-circle"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" title="Delete"
+                                                data-bs-toggle="modal" data-bs-target="#deleteModal" 
+                                                data-id="@brand.Id" data-name="@brand.Name">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                        
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center py-5">
+                                    <div class="text-muted mb-2">
+                                        <i class="bi bi-building-x" style="font-size: 2rem;"></i>
+                                    </div>
+                                    <h5>No brands found</h5>
+                                    <p class="text-muted">Try adjusting your search or filter criteria</p>
+                                    <a asp-action="Create" class="btn btn-primary">Add your first brand</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination (if needed) -->
+    @if (ViewBag.TotalPages != null && ViewBag.TotalPages > 1)
+    {
+        <div class="d-flex justify-content-between align-items-center mt-4">
+            <div class="text-muted">
+                Showing @ViewBag.StartRecord to @ViewBag.EndRecord of @ViewBag.TotalRecords brands
+            </div>
+            <nav>
+                <ul class="pagination">
+                    @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                            <a class="page-link" href="?page=@i&searchTerm=@Context.Request.Query["searchTerm"]&status=@Context.Request.Query["status"]">@i</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        </div>
+    }
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the brand "<span id="brandName"></span>"?</p>
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <strong>Warning:</strong> This may affect products associated with this brand.
+                </div>
+                <p class="text-danger">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" asp-action="Delete" method="post">
+                    <input type="hidden" id="brandId" name="id" />
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Handle delete modal
+            $('#deleteModal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget);
+                var id = button.data('id');
+                var name = button.data('name');
+                
+                $('#brandId').val(id);
+                $('#brandName').text(name);
+            });
+            
+            // Toggle between grid and list view
+            const $gridView = $('.row-cols-1');
+            const $tableView = $('.card-body.p-0').closest('.card');
+            const $toggleBtn = $('#toggleViewBtn');
+            
+            // Initially hide table view
+            $tableView.hide();
+            
+            $toggleBtn.on('click', function() {
+                if ($gridView.is(':visible')) {
+                    $gridView.hide();
+                    $tableView.show();
+                    $toggleBtn.html('<i class="bi bi-grid"></i> Switch to Grid View');
+                } else {
+                    $tableView.hide();
+                    $gridView.show();
+                    $toggleBtn.html('<i class="bi bi-list"></i> Switch to List View');
+                }
+            });
+        });
+        
+        // Reset filters
+        function resetFilters() {
+            window.location = '@Url.Action("Index")';
+        }
+    </script>
+}

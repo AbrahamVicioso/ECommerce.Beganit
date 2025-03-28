@@ -39,9 +39,9 @@ public partial class Product
 
     public int? BrandId { get; set; }
 
-    public bool? IsActive { get; set; }
+    public bool IsActive { get; set; }
 
-    public bool? IsFeatured { get; set; }
+    public bool IsFeatured { get; set; }
 
     public DateTime? CreatedAt { get; set; }
 

@@ -1,0 +1,254 @@
+﻿@model ECommerce.Beganit.AdminPanel.Models.Product
+
+@{
+    ViewData["Title"] = "Disable Product";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-danger text-white d-flex align-items-center">
+                    <i class="fas fa-exclamation-triangle me-2 fs-4"></i>
+                    <h3 class="mb-0">Disable Product</h3>
+                </div>
+
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <div class="d-flex">
+                            <div class="me-3">
+                                <i class="fas fa-exclamation-circle fs-1 text-warning"></i>
+                            </div>
+                            <div>
+                                <h4 class="alert-heading">Are you sure you want to disable this product?</h4>
+                                <p>This product will no longer be visible to customers, but all data will be preserved in the system. You can re-enable it later if needed.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <img src="@Model.ProductImages.Where(x => x.IsActive == true).FirstOrDefault().ImageUrl" alt="@Model.Name" class="img-fluid rounded mb-3" style="max-height: 200px;">
+                                    <h5 class="card-title">@Model.Name</h5>
+                                    <p class="card-text text-muted">SKU: @Model.Sku</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="badge bg-@(Model.IsActive ? "success" : "secondary") px-3 py-2">
+                                            @(Model.IsActive ? "Active" : "Inactive")
+                                        </span>
+                                        <span class="fw-bold fs-5">
+                                            @if (Model.DiscountPrice.HasValue && Model.DiscountPrice < Model.RegularPrice)
+                                            {
+                                                <span class="text-danger">$@Model.DiscountPrice.Value.ToString("N2")</span>
+                                                <small class="text-muted text-decoration-line-through">$@Model.RegularPrice.ToString("N2")</small>
+                                            }
+                                            else
+                                            {
+                                                <span>$@Model.RegularPrice.ToString("N2")</span>
+                                            }
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-8">
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Product Details</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row mb-2">
+                                        <div class="col-md-4 fw-bold text-muted">Name:</div>
+                                        <div class="col-md-8">@Model.Name</div>
+                                    </div>
+                                    <div class="row mb-2">
+                                        <div class="col-md-4 fw-bold text-muted">Slug:</div>
+                                        <div class="col-md-8">@Model.Slug</div>
+                                    </div>
+                                    <div class="row mb-2">
+                                        <div class="col-md-4 fw-bold text-muted">Brand:</div>
+                                        <div class="col-md-8">
+                                            @if (Model.Brand != null)
+                                            {
+                                                @Model.Brand.Name
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">Not specified</span>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="row mb-2">
+                                        <div class="col-md-4 fw-bold text-muted">Short Description:</div>
+                                        <div class="col-md-8">
+                                            @if (!string.IsNullOrEmpty(Model.ShortDescription))
+                                            {
+                                                @Model.ShortDescription
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">No description</span>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="row mb-2">
+                                        <div class="col-md-4 fw-bold text-muted">Stock Quantity:</div>
+                                        <div class="col-md-8">
+                                            <span class="badge bg-@(Model.Quantity > 0 ? (Model.Quantity < 10 ? "warning" : "success") : "danger") text-white px-3 py-2">
+                                                @Model.Quantity units
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-2">
+                                        <div class="col-md-4 fw-bold text-muted">Featured:</div>
+                                        <div class="col-md-8">
+                                            @if (Model.IsFeatured)
+                                            {
+                                                <span class="badge bg-primary px-3 py-2">Featured</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary px-3 py-2">Not Featured</span>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="card mb-4">
+                                        <div class="card-header bg-light">
+                                            <h5 class="mb-0">Pricing</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row mb-2">
+                                                <div class="col-6 fw-bold text-muted">Regular Price:</div>
+                                                <div class="col-6">$@Model.RegularPrice.ToString("N2")</div>
+                                            </div>
+                                            <div class="row mb-2">
+                                                <div class="col-6 fw-bold text-muted">Discount Price:</div>
+                                                <div class="col-6">
+                                                    @if (Model.DiscountPrice.HasValue)
+                                                    {
+                                                        <span>$@Model.DiscountPrice.Value.ToString("N2")</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">N/A</span>
+                                                    }
+                                                </div>
+                                            </div>
+                                            <div class="row mb-2">
+                                                <div class="col-6 fw-bold text-muted">Discount Period:</div>
+                                                <div class="col-6">
+                                                    @if (Model.DiscountStartDate.HasValue && Model.DiscountEndDate.HasValue)
+                                                    {
+                                                        <small>@Html.DisplayFor(m => m.DiscountStartDate) - @Html.DisplayFor(m => m.DiscountEndDate)</small>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">N/A</span>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="card mb-4">
+                                        <div class="card-header bg-light">
+                                            <h5 class="mb-0">Dimensions</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row mb-2">
+                                                <div class="col-6 fw-bold text-muted">Weight:</div>
+                                                <div class="col-6">@Model.Weight kg</div>
+                                            </div>
+                                            <div class="row mb-2">
+                                                <div class="col-6 fw-bold text-muted">Dimensions:</div>
+                                                <div class="col-6">
+                                                    @Model.Length × @Model.Width × @Model.Height cm
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mt-3">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Administrative Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="row mb-2">
+                                        <div class="col-md-4 fw-bold text-muted">Created By:</div>
+                                        <div class="col-md-8">
+                                            
+                                        </div>
+                                    </div>
+                                    <div class="row mb-2">
+                                        <div class="col-md-4 fw-bold text-muted">Created At:</div>
+                                        <div class="col-md-8">@Html.DisplayFor(m => m.CreatedAt)</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="row mb-2">
+                                        <div class="col-md-4 fw-bold text-muted">Updated By:</div>
+                                        <div class="col-md-8">
+                                            
+                                        </div>
+                                    </div>
+                                    <div class="row mb-2">
+                                        <div class="col-md-4 fw-bold text-muted">Updated At:</div>
+                                        <div class="col-md-8">@Html.DisplayFor(m => m.UpdatedAt)</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer bg-light d-flex justify-content-between py-3">
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i> Back to List
+                    </a>
+
+                    <form asp-action="DisableProduct" class="d-inline">
+                        <input type="hidden" asp-for="Id" />
+                        <button type="button" class="btn btn-outline-secondary me-2" data-bs-toggle="modal" data-bs-target="#confirmDisableModal">
+                            <i class="fas fa-ban me-1"></i> Disable Product
+                        </button>
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="confirmDisableModal" tabindex="-1" aria-labelledby="confirmDisableModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header bg-danger text-white">
+                                        <h5 class="modal-title" id="confirmDisableModalLabel">Confirm Disable</h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Are you absolutely sure you want to disable <strong>@Model.Name</strong>?</p>
+                                        <p>This product will no longer be visible to customers.</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <button type="submit" class="btn btn-danger">Disable Product</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

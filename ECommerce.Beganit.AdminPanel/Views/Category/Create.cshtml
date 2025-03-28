@@ -1,0 +1,242 @@
+﻿@model ECommerce.Beganit.AdminPanel.Models.ViewModels.CategoryViewModel
+
+@{
+    ViewData["Title"] = "Create Category";
+}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="card-title mb-0">Create New Category</h2>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post" enctype="multipart/form-data">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="Name" class="control-label">Category Name</label>
+                                    <input asp-for="Name" class="form-control" />
+                                    <span asp-validation-for="Name" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="ParentId" class="control-label">Parent Category</label>
+                                    <select asp-for="ParentId" class="form-control">
+                                        <option value="">-- Select Parent Category --</option>
+                                        @* Populate with existing categories *@
+                                        @* You would typically pass a SelectList from the controller *@
+                                        @if (ViewBag.Categories != null)
+                                        {
+                                            foreach (Category category in ViewBag.Categories)
+                                            {
+                                                <option value="@category.Id">@category.Name</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Description" class="control-label">Description</label>
+                            <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="Slug" class="control-label">URL Slug</label>
+                                    <input asp-for="Slug" class="form-control" />
+                                    <span asp-validation-for="Slug" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="DisplayOrder" class="control-label">Display Order</label>
+                                    <input asp-for="DisplayOrder" class="form-control" type="number" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="Image" class="control-label">Category Image</label>
+                                    <div class="input-group mb-2">
+                                        <input asp-for="Image" class="form-control" type="file" id="categoryImage" accept="image/*" />
+                                    </div>
+                                    <!-- Image Preview Area -->
+                                    <div id="imagePreviewContainer" class="mt-2 d-none">
+                                        <div class="card">
+                                            <div class="card-body p-2 text-center">
+                                                <img id="imagePreview" src="#" alt="Category image preview" class="img-fluid mb-2" style="max-height: 150px;" />
+                                                <button type="button" class="btn btn-sm btn-outline-danger" id="removeImage">Remove Image</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label d-block mb-2">Active</label>
+                                    <!-- Fixed Toggle Switch for Nullable Boolean -->
+                                    <div class="toggle-container">
+                                        <!-- Use a regular input instead of asp-for for the visual toggle -->
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="isActiveToggle" @(Model?.IsActive == true ? "checked" : "") />
+                                            <span class="slider round"></span>
+                                        </label>
+                                        <span id="statusText" class="ms-2">@(Model?.IsActive == true ? "Active" : "Inactive")</span>
+
+                                        <!-- Hidden input to store the actual value -->
+                                        <input type="hidden" name="IsActive" id="isActiveHidden" value="@(Model?.IsActive == true ? "true" : "false")" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        @* <div class="form-group mb-3"> *@
+                        @*     <label asp-for="ImageUrl" class="control-label">Image URL (Optional)</label> *@
+                        @*     <input asp-for="ImageUrl" class="form-control" id="imageUrl" /> *@
+                        @*     <span asp-validation-for="ImageUrl" class="text-danger"></span> *@
+                        @*     <!-- URL Image Preview --> *@
+                        @*     <div id="urlImagePreviewContainer" class="mt-2 d-none"> *@
+                        @*         <div class="card"> *@
+                        @*             <div class="card-body p-2 text-center"> *@
+                        @*                 <img id="urlImagePreview" src="#" alt="URL image preview" class="img-fluid" style="max-height: 150px;" /> *@
+                        @*             </div> *@
+                        @*         </div> *@
+                        @*     </div> *@
+                        @* </div> *@
+
+                        <div class="form-group mt-4 d-flex">
+                            <input type="submit" value="Create Category" class="btn btn-primary" />
+                            <a asp-action="Index" class="btn btn-secondary ms-2">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add this CSS to your layout or in a style tag -->
+<style>
+    /* Custom Toggle Switch Styles */
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+    }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+    }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+        }
+
+    input:checked + .slider {
+        background-color: #2196F3;
+    }
+
+    input:focus + .slider {
+        box-shadow: 0 0 1px #2196F3;
+    }
+
+    input:checked + .slider:before {
+        transform: translateX(26px);
+    }
+
+    /* Rounded sliders */
+    .slider.round {
+        border-radius: 34px;
+    }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+
+    .toggle-container {
+        display: flex;
+        align-items: center;
+    }
+</style>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function() {
+            // File image preview functionality
+            $("#categoryImage").change(function() {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        $("#imagePreview").attr("src", e.target.result);
+                        $("#imagePreviewContainer").removeClass("d-none");
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Remove image preview
+            $("#removeImage").click(function() {
+                $("#categoryImage").val("");
+                $("#imagePreviewContainer").addClass("d-none");
+            });
+
+            // URL image preview
+            $("#imageUrl").on("change paste keyup", function() {
+                const url = $(this).val().trim();
+                if (url) {
+                    $("#urlImagePreview").attr("src", url);
+                    $("#urlImagePreviewContainer").removeClass("d-none");
+
+                    // Check if image loads correctly
+                    $("#urlImagePreview").on("error", function() {
+                        $("#urlImagePreviewContainer").addClass("d-none");
+                    });
+                } else {
+                    $("#urlImagePreviewContainer").addClass("d-none");
+                }
+            });
+
+            // Toggle switch functionality for nullable boolean
+            $("#isActiveToggle").change(function() {
+                if ($(this).is(":checked")) {
+                    $("#statusText").text("Active");
+                    $("#isActiveHidden").val("true");
+                } else {
+                    $("#statusText").text("Inactive");
+                    $("#isActiveHidden").val("false");
+                }
+            });
+        });
+    </script>
+}

@@ -14,6 +14,8 @@ namespace ECommerce.Beganit.AdminPanel.Data.Configurations
         {
             entity.HasKey(e => e.Id).HasName("PK__Brands__3214EC07F6798360");
 
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.LogoUrl).HasMaxLength(255);
             entity.Property(e => e.Name)

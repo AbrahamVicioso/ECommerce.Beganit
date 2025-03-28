@@ -1,0 +1,241 @@
+﻿@using ECommerce.Beganit.AdminPanel.Models.ViewModels;
+@model ECommerce.Beganit.AdminPanel.Models.ViewModels.CategoryViewModel
+@{
+    ViewData["Title"] = "Edit Category";
+}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-10 col-xl-8 mx-auto">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-pencil-square fs-4 me-2"></i>
+                        <h2 class="card-title mb-0">Edit Category</h2>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Edit" method="post" enctype="multipart/form-data" id="categoryForm">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            <span>Please correct the errors below</span>
+                        </div>
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="ImageUrl" />
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-7">
+                                <div class="form-floating mb-3">
+                                    <input asp-for="Name" class="form-control" placeholder="Category Name" />
+                                    <label asp-for="Name">
+                                        <i class="bi bi-tag me-1"></i> Category Name
+                                    </label>
+                                    <span asp-validation-for="Name" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-floating mb-3">
+                                    <select asp-for="ParentId" class="form-select" aria-label="Parent Category">
+                                        <option value="@null">-- None (Top Level Category) --</option>
+                                        @if (ViewBag.Categories != null)
+                                        {
+                                            foreach (var category in ViewBag.Categories)
+                                            {
+                                                <option value="@category.Id">@category.Name</option>
+                                            }
+                                        }
+                                    </select>
+                                    <label asp-for="ParentId">
+                                        <i class="bi bi-diagram-3 me-1"></i> Parent Category
+                                    </label>
+                                </div>
+
+                                <div class="form-floating mb-3">
+                                    <textarea asp-for="Description" class="form-control" placeholder="Description" style="height: 100px"></textarea>
+                                    <label asp-for="Description">
+                                        <i class="bi bi-file-text me-1"></i> Description
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-5">
+                                <div class="card h-100 bg-light">
+                                    <div class="card-body text-center d-flex flex-column">
+                                        <h5 class="card-title">
+                                            <i class="bi bi-image me-1"></i> Category Image
+                                        </h5>
+
+                                        <div class="image-preview-container flex-grow-1 d-flex align-items-center justify-content-center mb-3">
+                                            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                                            {
+                                                <img src="@Model.ImageUrl" id="currentImage" alt="Category Image"
+                                                     class="img-fluid rounded shadow-sm" style="max-height: 180px;" />
+                                            }
+                                            else
+                                            {
+                                                <div class="text-muted">
+                                                    <i class="bi bi-image fs-1"></i>
+                                                    <p>No image uploaded</p>
+                                                </div>
+                                            }
+                                            <img id="imagePreview" src="#" alt="Preview" class="img-fluid rounded shadow-sm d-none" style="max-height: 180px;" />
+                                        </div>
+
+                                        <div class="input-group mb-2">
+                                            <input asp-for="Image" class="form-control" type="file" id="imageUpload" accept="image/*" />
+                                            <label class="input-group-text" for="Image">
+                                                <i class="bi bi-upload"></i>
+                                            </label>
+                                        </div>
+
+                                        <div class="progress mb-2 d-none" id="uploadProgress">
+                                            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                                        </div>
+
+                                        <div class="form-check form-switch d-flex justify-content-center align-items-center">
+                                            <input asp-for="IsActive" class="form-check-input me-2" type="checkbox" role="switch" id="isActiveSwitch">
+                                            <label class="form-check-label" for="isActiveSwitch">
+                                                <span class="badge bg-success" id="statusBadge">Active</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input asp-for="Slug" class="form-control" placeholder="URL Slug" />
+                                    <label asp-for="Slug">
+                                        <i class="bi bi-link-45deg me-1"></i> URL Slug
+                                    </label>
+                                    <span asp-validation-for="Slug" class="text-danger"></span>
+                                    <div class="form-text">
+                                        <i class="bi bi-info-circle me-1"></i> The URL-friendly version of the name
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input asp-for="DisplayOrder" class="form-control" type="number" placeholder="Display Order" />
+                                    <label asp-for="DisplayOrder">
+                                        <i class="bi bi-sort-numeric-down me-1"></i> Display Order
+                                    </label>
+                                    <div class="form-text">
+                                        <i class="bi bi-info-circle me-1"></i> Lower numbers appear first
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-floating mb-4">
+                            <input asp-for="ImageUrl" class="form-control" placeholder="Image URL" />
+                            <label asp-for="ImageUrl">
+                                <i class="bi bi-link me-1"></i> External Image URL (Optional)
+                            </label>
+                            <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                            <div class="form-text">
+                                <i class="bi bi-info-circle me-1"></i> You can provide an external image URL instead of uploading a file
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-1"></i> Back to List
+                            </a>
+                            <div>
+                                <button type="reset" class="btn btn-outline-danger me-2">
+                                    <i class="bi bi-x-circle me-1"></i> Reset
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-save me-1"></i> Save Changes
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer bg-light text-muted">
+                    <small>
+                        <i class="bi bi-clock me-1"></i> Last updated:
+                        @(Model.UpdatedAt?.ToString("MMM dd, yyyy HH:mm") ?? "Never")
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function() {
+            // Image preview functionality
+            $("#imageUpload").change(function() {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        $("#currentImage").addClass("d-none");
+                        $("#imagePreview").attr("src", e.target.result).removeClass("d-none");
+
+                        // Simulate upload progress
+                        $("#uploadProgress").removeClass("d-none");
+                        let progress = 0;
+                        const interval = setInterval(function() {
+                            progress += 10;
+                            $("#uploadProgress .progress-bar").css("width", progress + "%");
+                            if (progress >= 100) {
+                                clearInterval(interval);
+                                setTimeout(function() {
+                                    $("#uploadProgress").addClass("d-none");
+                                }, 500);
+                            }
+                        }, 100);
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Status badge update
+            $("#isActiveSwitch").change(function() {
+                if ($(this).is(":checked")) {
+                    $("#statusBadge").removeClass("bg-danger").addClass("bg-success").text("Active");
+                } else {
+                    $("#statusBadge").removeClass("bg-success").addClass("bg-danger").text("Inactive");
+                }
+            });
+
+            // Initialize status badge
+            if (!$("#isActiveSwitch").is(":checked")) {
+                $("#statusBadge").removeClass("bg-success").addClass("bg-danger").text("Inactive");
+            }
+
+            // Auto-generate slug from name
+            $("#Name").on("input", function() {
+                if ($("#Slug").val() === "" || $("#Slug").data("auto-generated")) {
+                    const slug = $(this).val()
+                        .toLowerCase()
+                        .replace(/[^\w\s-]/g, "")
+                        .replace(/\s+/g, "-")
+                        .replace(/-+/g, "-");
+                    $("#Slug").val(slug).data("auto-generated", true);
+                }
+            });
+
+            $("#Slug").on("input", function() {
+                $(this).data("auto-generated", false);
+            });
+
+            // Enable tooltips
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+
+            // Form validation styling enhancement
+            $("#categoryForm").on("submit", function() {
+                $(this).addClass("was-validated");
+            });
+        });
+    </script>
+}

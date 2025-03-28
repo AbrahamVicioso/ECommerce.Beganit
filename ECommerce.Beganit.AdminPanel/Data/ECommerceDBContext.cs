@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using ECommerce.Beganit.AdminPanel.ViewModels;
+using ECommerce.Beganit.AdminPanel.Models.ViewModels;
 #nullable disable
 
 namespace ECommerce.Beganit.AdminPanel.Data;
@@ -116,5 +116,7 @@ public partial class ECommerceDBContext : IdentityDbContext
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 
-public DbSet<ECommerce.Beganit.AdminPanel.ViewModels.StaffViewModelBase> StaffViewModelBase { get; set; } = default!;
+public DbSet<ECommerce.Beganit.AdminPanel.Models.ViewModels.CategoryViewModel> CategoryViewModel { get; set; } = default!;
+
+public DbSet<ECommerce.Beganit.AdminPanel.Models.ViewModels.BrandViewModel> BrandViewModel { get; set; } = default!;
 }

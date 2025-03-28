@@ -1,0 +1,343 @@
+﻿@model IEnumerable<ECommerce.Beganit.AdminPanel.Models.Product>
+
+@{
+    ViewData["Title"] = "Products";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid py-4">
+    <div class="card shadow-sm border-0">
+        <!-- Header -->
+        <div class="card-header bg-white d-flex flex-column flex-md-row justify-content-between align-items-md-center py-3">
+            <div class="d-flex align-items-center mb-3 mb-md-0">
+                <h1 class="h3 mb-0">Products</h1>
+                <span class="badge bg-primary rounded-pill ms-2">@Model.Count()</span>
+            </div>
+            <div class="d-flex gap-2">
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-file-export me-1"></i> Export
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+                        <li><a class="dropdown-item" href="#"><i class="far fa-file-excel me-2"></i>Excel</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="far fa-file-pdf me-2"></i>PDF</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="far fa-file-csv me-2"></i>CSV</a></li>
+                    </ul>
+                </div>
+                <button class="btn btn-outline-secondary">
+                    <i class="fas fa-file-import me-1"></i> Import
+                </button>
+                <a asp-action="CreateProduct" class="btn btn-primary">
+                    Create new Product
+                </a>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="card-body border-bottom bg-light py-3">
+            <form id="productFilters">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label for="searchProduct" class="form-label small text-muted mb-1">Search</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white"><i class="fas fa-search"></i></span>
+                            <input type="text" class="form-control" id="searchProduct" placeholder="Search by name, SKU or description">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="categoryFilter" class="form-label small text-muted mb-1">Category</label>
+                        <select class="form-select" id="categoryFilter">
+                            <option value="" selected>All Categories</option>
+                            <!-- Add categories here -->
+                            <option value="1">Electronics</option>
+                            <option value="2">Clothing</option>
+                            <option value="3">Home & Kitchen</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="statusFilter" class="form-label small text-muted mb-1">Status</label>
+                        <select class="form-select" id="statusFilter">
+                            <option value="" selected>All Statuses</option>
+                            <option value="1">Available</option>
+                            <option value="0">Disabled</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="stockFilter" class="form-label small text-muted mb-1">Stock</label>
+                        <select class="form-select" id="stockFilter">
+                            <option value="" selected>All Stock</option>
+                            <option value="in">In Stock</option>
+                            <option value="low">Low Stock</option>
+                            <option value="out">Out of Stock</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            Apply Filters
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Bulk Actions -->
+        <div class="card-body border-bottom py-2">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <div class="bulk-actions d-flex align-items-center" id="bulkActionsContainer" style="display: none !important;">
+                        <div class="me-3">
+                            <span class="selected-count fw-bold">0</span> items selected
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="bulkActionsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                Bulk Actions
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="bulkActionsDropdown">
+                                <li><a class="dropdown-item text-success" href="#"><i class="fas fa-check-circle me-2"></i>Activate</a></li>
+                                <li><a class="dropdown-item text-warning" href="#"><i class="fas fa-pause-circle me-2"></i>Disable</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-trash me-2"></i>Delete</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-md-end align-items-center">
+                        <div class="me-3 text-muted small">
+                            <span>Show</span>
+                            <select class="form-select form-select-sm d-inline-block w-auto mx-1">
+                                <option>10</option>
+                                <option>25</option>
+                                <option>50</option>
+                                <option>100</option>
+                            </select>
+                            <span>entries</span>
+                        </div>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-secondary btn-sm active">
+                                <i class="fas fa-table"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-th-large"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Table -->
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th width="40">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="selectAll">
+                                    <label class="form-check-label" for="selectAll"></label>
+                                </div>
+                            </th>
+                            <th width="60"></th> <!-- Image column -->
+                            <th>
+                                <a href="#" class="text-decoration-none text-dark d-flex align-items-center">
+                                    @Html.DisplayNameFor(model => model.Name)
+                                    <i class="fas fa-sort ms-1 text-muted"></i>
+                                </a>
+                            </th>
+                            <th>
+                                <a href="#" class="text-decoration-none text-dark d-flex align-items-center">
+                                    Status
+                                    <i class="fas fa-sort ms-1 text-muted"></i>
+                                </a>
+                            </th>
+                            <th>
+                                <a href="#" class="text-decoration-none text-dark d-flex align-items-center">
+                                    Stock
+                                    <i class="fas fa-sort ms-1 text-muted"></i>
+                                </a>
+                            </th>
+                            <th>
+                                <a href="#" class="text-decoration-none text-dark d-flex align-items-center">
+                                    Price
+                                    <i class="fas fa-sort ms-1 text-muted"></i>
+                                </a>
+                            </th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input product-select" value="@item.Id">
+                                        <label class="form-check-label"></label>
+                                    </div>
+                                </td>
+                                <td>
+                                    @if (item.ProductImages.Count > 0)
+                                    {
+                                        <div class="product-image">
+                                            <img src="@item.ProductImages.ToList()[0].ImageUrl" alt="@item.Name" class="img-thumbnail" width="50" height="50">
+                                        </div>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="d-flex flex-column">
+                                        <a href="#" class="fw-medium text-decoration-none text-reset">@item.Name</a>
+                                        <div class="product-sku text-muted small">SKU: @item.Sku</div>
+                                    </div>
+                                </td>
+                                <td>
+                                    @if (item.IsActive)
+                                    {
+                                        <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill">
+                                            <i class="fas fa-circle me-1 small"></i> Available
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary-subtle text-secondary px-3 py-2 rounded-pill">
+                                            <i class="fas fa-circle me-1 small"></i> Disabled
+                                        </span>
+                                    }
+                                </td>
+                                <td>
+                                    @{
+                                        string stockClass = "text-success";
+                                        if (item.Quantity <= 0)
+                                        {
+                                            stockClass = "text-danger";
+                                        }
+                                        else if (item.Quantity < 10)
+                                        {
+                                            stockClass = "text-warning";
+                                        }
+                                    }
+                                    <span class="fw-medium @stockClass">@item.Quantity</span>
+                                </td>
+                                <td>
+                                    <div class="product-price">
+                                        @if (item.DiscountPrice.HasValue && item.DiscountPrice < item.RegularPrice)
+                                        {
+                                            <div class="d-flex flex-column">
+                                                <span class="fw-medium">$@item.DiscountPrice.Value.ToString("N2")</span>
+                                                <span class="text-muted small text-decoration-line-through">$@item.RegularPrice.ToString("N2")</span>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="fw-medium">$@item.RegularPrice.ToString("N2")</span>
+                                        }
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex justify-content-end gap-1">
+                                        <a asp-action="EditProduct" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="Edit">
+                                            <i class="bi bi-pencil-fill"></i>   
+                                        </a>
+                                        <a asp-action="ProductDetail" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info" data-bs-toggle="tooltip" title="Details">
+                                            <i class="bi bi-info-circle"></i>
+                                        </a>
+                                        <a asp-action="DisableProduct" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" title="Disable">
+                                            <i class="bi bi-ban"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="card-footer bg-white d-flex justify-content-between align-items-center py-3">
+            <div class="text-muted small">
+                Showing <span class="fw-medium">1</span> to <span class="fw-medium">@Model.Count()</span> of <span class="fw-medium">@Model.Count()</span> entries
+            </div>
+            <nav aria-label="Product pagination">
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this product? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a href="#" id="confirmDelete" class="btn btn-danger">Delete</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Initialize tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
+
+            // Select all checkbox functionality
+            $("#selectAll").change(function() {
+                $(".product-select").prop('checked', $(this).prop('checked'));
+                updateBulkActionsVisibility();
+            });
+
+            // Individual checkbox change handler
+            $(".product-select").change(function() {
+                if (!$(this).prop('checked')) {
+                    $("#selectAll").prop('checked', false);
+                } else if ($(".product-select:checked").length === $(".product-select").length) {
+                    $("#selectAll").prop('checked', true);
+                }
+                updateBulkActionsVisibility();
+            });
+
+            // Update bulk actions visibility
+            function updateBulkActionsVisibility() {
+                var selectedCount = $(".product-select:checked").length;
+                $(".selected-count").text(selectedCount);
+
+                if (selectedCount > 0) {
+                    $("#bulkActionsContainer").show();
+                } else {
+                    $("#bulkActionsContainer").hide();
+                }
+            }
+
+            // Handle delete confirmation modal
+            $('#deleteModal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget);
+                var id = button.data('id');
+                var confirmDeleteBtn = document.getElementById('confirmDelete');
+                confirmDeleteBtn.href = '@Url.Action("Delete")/' + id;
+            });
+        });
+    </script>
+}

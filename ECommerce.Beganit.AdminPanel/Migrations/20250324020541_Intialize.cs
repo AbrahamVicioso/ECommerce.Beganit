@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ECommerce.Beganit.AdminPanel.Migrations
 {
     /// <inheritdoc />
-    public partial class initialize : Migration
+    public partial class Intialize : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -220,6 +220,21 @@ namespace ECommerce.Beganit.AdminPanel.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK__Shipping__3214EC073E40B005", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "StaffViewModelBase",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StaffViewModelBase", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -1128,7 +1143,9 @@ namespace ECommerce.Beganit.AdminPanel.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Staff_UserId",
                 table: "Staff",
-                column: "UserId");
+                column: "UserId",
+                unique: true,
+                filter: "[UserId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_StaffRoles_RoleId",
@@ -1226,6 +1243,9 @@ namespace ECommerce.Beganit.AdminPanel.Migrations
 
             migrationBuilder.DropTable(
                 name: "StaffRoles");
+
+            migrationBuilder.DropTable(
+                name: "StaffViewModelBase");
 
             migrationBuilder.DropTable(
                 name: "WishlistNotifications");

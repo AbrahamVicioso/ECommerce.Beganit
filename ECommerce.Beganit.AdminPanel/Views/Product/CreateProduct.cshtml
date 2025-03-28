@@ -1,107 +1,201 @@
 ﻿@model ECommerce.Beganit.AdminPanel.Models.Product
 
 @{
-    ViewData["Title"] = "CreateProduct";
+    ViewData["Title"] = "Create Product";
 }
 
-<h1>CreateProduct</h1>
+<div class="container py-4">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">Create New Product</h3>
+        </div>
+        <div class="card-body">
+            <form asp-action="CreateProduct" class="needs-validation" novalidate>
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
-<h4>Product</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="CreateProduct">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Slug" class="control-label"></label>
-                <input asp-for="Slug" class="form-control" />
-                <span asp-validation-for="Slug" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ShortDescription" class="control-label"></label>
-                <input asp-for="ShortDescription" class="form-control" />
-                <span asp-validation-for="ShortDescription" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Sku" class="control-label"></label>
-                <input asp-for="Sku" class="form-control" />
-                <span asp-validation-for="Sku" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="RegularPrice" class="control-label"></label>
-                <input asp-for="RegularPrice" class="form-control" />
-                <span asp-validation-for="RegularPrice" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DiscountPrice" class="control-label"></label>
-                <input asp-for="DiscountPrice" class="form-control" />
-                <span asp-validation-for="DiscountPrice" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DiscountStartDate" class="control-label"></label>
-                <input asp-for="DiscountStartDate" class="form-control" />
-                <span asp-validation-for="DiscountStartDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DiscountEndDate" class="control-label"></label>
-                <input asp-for="DiscountEndDate" class="form-control" />
-                <span asp-validation-for="DiscountEndDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Weight" class="control-label"></label>
-                <input asp-for="Weight" class="form-control" />
-                <span asp-validation-for="Weight" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Length" class="control-label"></label>
-                <input asp-for="Length" class="form-control" />
-                <span asp-validation-for="Length" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Width" class="control-label"></label>
-                <input asp-for="Width" class="form-control" />
-                <span asp-validation-for="Width" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Height" class="control-label"></label>
-                <input asp-for="Height" class="form-control" />
-                <span asp-validation-for="Height" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="BrandId" class="control-label"></label>
-                <select asp-for="BrandId" class ="form-control" asp-items="ViewBag.BrandId"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="CreatedBy" class="control-label"></label>
-                <input asp-for="CreatedBy" class="form-control" />
-                <span asp-validation-for="CreatedBy" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UpdatedBy" class="control-label"></label>
-                <input asp-for="UpdatedBy" class="form-control" />
-                <span asp-validation-for="UpdatedBy" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+                <div class="row">
+                    <!-- Basic Information -->
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Basic Information</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label asp-for="Name" class="form-label fw-bold">Name</label>
+                                    <input asp-for="Name" class="form-control" placeholder="Product name" />
+                                    <span asp-validation-for="Name" class="text-danger"></span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="Slug" class="form-label fw-bold">Slug</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">url/</span>
+                                        <input asp-for="Slug" class="form-control" placeholder="product-name" />
+                                    </div>
+                                    <span asp-validation-for="Slug" class="text-danger"></span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="Sku" class="form-label fw-bold">SKU</label>
+                                    <input asp-for="Sku" class="form-control" placeholder="SKU-12345" />
+                                    <span asp-validation-for="Sku" class="text-danger"></span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="BrandId" class="form-label fw-bold">Brand</label>
+                                    <select asp-for="BrandId" class="form-select">
+                                        <option value="">-- Select Brand --</option>
+                                        @if(ViewBag.Brands != null){
+                                            @foreach (Brand brand in ViewBag.Brands)
+                                            {
+                                                <option value="@brand.Id">@brand.Name</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pricing and Discounts -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Pricing and Discounts</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label asp-for="RegularPrice" class="form-label fw-bold">Regular Price</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <input asp-for="RegularPrice" class="form-control" placeholder="0.00" />
+                                    </div>
+                                    <span asp-validation-for="RegularPrice" class="text-danger"></span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="DiscountPrice" class="form-label fw-bold">Discount Price</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <input asp-for="DiscountPrice" class="form-control" placeholder="0.00" />
+                                    </div>
+                                    <span asp-validation-for="DiscountPrice" class="text-danger"></span>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="DiscountStartDate" class="form-label fw-bold">Discount Start Date</label>
+                                        <input asp-for="DiscountStartDate" type="date" class="form-control" />
+                                        <span asp-validation-for="DiscountStartDate" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="DiscountEndDate" class="form-label fw-bold">Discount End Date</label>
+                                        <input asp-for="DiscountEndDate" type="date" class="form-control" />
+                                        <span asp-validation-for="DiscountEndDate" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div class="col-md-6">
+                        <!-- Description -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Description</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label asp-for="ShortDescription" class="form-label fw-bold">Short Description</label>
+                                    <textarea asp-for="ShortDescription" class="form-control" rows="2" placeholder="Brief product description"></textarea>
+                                    <span asp-validation-for="ShortDescription" class="text-danger"></span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="Description" class="form-label fw-bold">Full Description</label>
+                                    <textarea asp-for="Description" class="form-control" rows="5" placeholder="Detailed product description"></textarea>
+                                    <span asp-validation-for="Description" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Dimensions -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Dimensions and Weight</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label asp-for="Weight" class="form-label fw-bold">Weight (kg)</label>
+                                    <input asp-for="Weight" class="form-control" placeholder="0.00" />
+                                    <span asp-validation-for="Weight" class="text-danger"></span>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label asp-for="Length" class="form-label fw-bold">Length (cm)</label>
+                                        <input asp-for="Length" class="form-control" placeholder="0.00" />
+                                        <span asp-validation-for="Length" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label asp-for="Width" class="form-label fw-bold">Width (cm)</label>
+                                        <input asp-for="Width" class="form-control" placeholder="0.00" />
+                                        <span asp-validation-for="Width" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label asp-for="Height" class="form-label fw-bold">Height (cm)</label>
+                                        <input asp-for="Height" class="form-control" placeholder="0.00" />
+                                        <span asp-validation-for="Height" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Administrative Information -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Administrative Information</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="CreatedBy" class="form-label fw-bold">Created By</label>
+                                        <input asp-for="CreatedBy" class="form-control" />
+                                        <span asp-validation-for="CreatedBy" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="UpdatedBy" class="form-label fw-bold">Updated By</label>
+                                        <input asp-for="UpdatedBy" class="form-control" />
+                                        <span asp-validation-for="UpdatedBy" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-flex justify-content-between mt-4">
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Back to List
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Create Product
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        // Optional: To initialize datepickers or add client-side validation
+        $(document).ready(function() {
+            // You can add additional JavaScript code here
+        });
+    </script>
 }

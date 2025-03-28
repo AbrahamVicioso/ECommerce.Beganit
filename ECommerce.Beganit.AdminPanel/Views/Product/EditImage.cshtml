@@ -1,0 +1,251 @@
+﻿@model ECommerce.Beganit.AdminPanel.Models.ViewModels.UploadProductImageViewModel
+@{
+    ViewData["Title"] = "Upload Product Image";
+}
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <a asp-action="Edit" asp-controller="Product" asp-route-id="@Model.ProductId" class="btn btn-outline-secondary me-2">
+                        <i class="bi bi-arrow-left"></i> Back to Product
+                    </a>
+                </div>
+                <h4 class="m-0">@(Model.ImageId > 0 ? "Edit" : "Upload") Product Image</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <div class="row">
+                        <!-- Current image or preview column -->
+                        <div class="col-md-6 mb-4 mb-md-0">
+                            <div class="card h-100 bg-light border-0">
+                                <div class="card-body">
+                                    <h5 class="card-title mb-3">
+                                        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                                        {
+                                            <span>Current Image</span>
+                                        }
+                                        else
+                                        {
+                                            <span>Preview</span>
+                                        }
+                                    </h5>
+
+                                    <div class="text-center mb-3">
+                                        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                                        {
+                                            <img src="@Model.ImageUrl"
+                                                 alt="@Model.AltText"
+                                                 id="currentImage"
+                                                 class="img-fluid rounded border"
+                                                 style="max-height: 300px; object-fit: contain;" />
+                                        }
+                                        else
+                                        {
+                                            <div id="imagePreviewPlaceholder" class="d-flex flex-column align-items-center justify-content-center p-5 border rounded bg-white" style="min-height: 300px;">
+                                                <i class="bi bi-image fs-1 text-muted mb-3"></i>
+                                                <p class="text-muted">No image selected</p>
+                                            </div>
+                                            <img id="imagePreview" src="#" alt="Preview" class="img-fluid rounded border d-none" style="max-height: 300px; object-fit: contain;" />
+                                        }
+                                    </div>
+
+                                    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                                    {
+                                        <div class="card bg-white border-0 shadow-sm p-3 mt-3">
+                                            <div class="d-flex flex-column">
+                                                <div class="mb-2">
+                                                    <span class="fw-semibold text-muted">Alt Text:</span>
+                                                    <span>@(string.IsNullOrEmpty(Model.AltText) ? "Not specified" : Model.AltText)</span>
+                                                </div>
+                                                <div class="mb-2">
+                                                    <span class="fw-semibold text-muted">Display Order:</span>
+                                                    <span>@Model.DisplayOrder</span>
+                                                </div>
+                                                <div>
+                                                    <span class="fw-semibold text-muted">Primary Image:</span>
+                                                    <span>@(Model.IsPrimary ? "Yes" : "No")</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form column -->
+                        <div class="col-md-6">
+                            <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                                <input type="hidden" asp-for="ProductId" />
+                                <input type="hidden" asp-for="ImageId" />
+                                <input type="hidden" asp-for="ImageUrl" />
+
+                                <div class="mb-4">
+                                    <label asp-for="Image" class="form-label fw-semibold">Select Image <span class="text-danger">*</span></label>
+                                    <div class="input-group mb-2">
+                                        <input asp-for="Image" class="form-control" type="file" accept="image/*" id="imageInput" required />
+                                        <button type="button" class="btn btn-outline-secondary" id="clearImageBtn">
+                                            <i class="bi bi-x-lg"></i>
+                                        </button>
+                                    </div>
+                                    <span asp-validation-for="Image" class="text-danger"></span>
+                                    <div class="form-text">
+                                        <i class="bi bi-info-circle me-1"></i> Recommended formats: JPG, PNG. Maximum size: 5MB.
+                                    </div>
+                                </div>
+
+                                <div class="alert alert-info py-2 mb-4">
+                                    <div class="d-flex">
+                                        <i class="bi bi-lightbulb-fill me-2"></i>
+                                        <div>
+                                            <small>Product images should have a white background and a minimum resolution of 800x800 pixels for best results.</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label asp-for="AltText" class="form-label fw-semibold">Alt Text <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <input asp-for="AltText" class="form-control" id="altTextInput" placeholder="E.g.: Blue cotton t-shirt front view" required />
+                                        <button type="button" class="btn btn-outline-secondary" id="generateAltBtn" title="Generate from filename">
+                                            <i class="bi bi-magic"></i>
+                                        </button>
+                                    </div>
+                                    <span asp-validation-for="AltText" class="text-danger"></span>
+                                    <div class="form-text">
+                                        <i class="bi bi-info-circle me-1"></i> Brief description of the image for accessibility and SEO.
+                                    </div>
+                                </div>
+
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <label asp-for="DisplayOrder" class="form-label fw-semibold">Display Order</label>
+                                        <input asp-for="DisplayOrder" class="form-control" type="number" min="1" value="@(Model.DisplayOrder > 0 ? Model.DisplayOrder : 1)" />
+                                        <span asp-validation-for="DisplayOrder" class="text-danger"></span>
+                                        <div class="form-text">
+                                            <i class="bi bi-info-circle me-1"></i> Determines the order of appearance in the gallery.
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check form-switch mt-4">
+                                            <input asp-for="IsPrimary" class="form-check-input" id="isPrimarySwitch" />
+                                            <label asp-for="IsPrimary" class="form-check-label fw-semibold">Primary Image</label>
+                                        </div>
+                                        <div class="form-text">
+                                            <i class="bi bi-info-circle me-1"></i> The primary image appears first in the gallery.
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-between mt-4 pt-4 border-top">
+                                    <a asp-action="Edit" asp-controller="Product" asp-route-id="@Model.ProductId" class="btn btn-outline-secondary">
+                                        <i class="bi bi-x-lg me-1"></i> Cancel
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-cloud-upload me-1"></i> @(Model.ImageId > 0 ? "Update" : "Upload") Image
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Bootstrap form validation
+        (function () {
+            'use strict'
+            var forms = document.querySelectorAll('.needs-validation')
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })()
+
+        // Image preview functionality
+        const imageInput = document.getElementById('imageInput');
+        const imagePreview = document.getElementById('imagePreview');
+        const imagePreviewPlaceholder = document.getElementById('imagePreviewPlaceholder');
+        const clearImageBtn = document.getElementById('clearImageBtn');
+        const altTextInput = document.getElementById('altTextInput');
+        const generateAltBtn = document.getElementById('generateAltBtn');
+
+        if (imageInput && imagePreview && imagePreviewPlaceholder) {
+            imageInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+
+                    reader.onload = function(e) {
+                        imagePreview.src = e.target.result;
+                        imagePreview.classList.remove('d-none');
+                        imagePreviewPlaceholder.classList.add('d-none');
+                    }
+
+                    reader.readAsDataURL(this.files[0]);
+
+                    // Auto-generate alt text from filename
+                    generateAltTextFromFilename();
+                }
+            });
+
+            clearImageBtn.addEventListener('click', function() {
+                imageInput.value = '';
+                imagePreview.classList.add('d-none');
+                imagePreviewPlaceholder.classList.remove('d-none');
+            });
+        }
+
+        // Generate alt text from filename
+        function generateAltTextFromFilename() {
+            if (imageInput && imageInput.files && imageInput.files[0] && altTextInput) {
+                let filename = imageInput.files[0].name;
+
+                // Remove file extension
+                filename = filename.replace(/\.[^/.]+$/, "");
+
+                // Replace hyphens and underscores with spaces
+                filename = filename.replace(/[-_]/g, " ");
+
+                // Capitalize first letter of each word
+                filename = filename.replace(/\b\w/g, function(l) { return l.toUpperCase() });
+
+                // Set as alt text
+                altTextInput.value = filename;
+            }
+        }
+
+        // Generate alt text button
+        if (generateAltBtn) {
+            generateAltBtn.addEventListener('click', generateAltTextFromFilename);
+        }
+
+        // Warning when changing primary image
+        const isPrimarySwitch = document.getElementById('isPrimarySwitch');
+        if (isPrimarySwitch) {
+            isPrimarySwitch.addEventListener('change', function() {
+                if (this.checked) {
+                    if (!confirm('Are you sure you want to set this as the primary image? This will change the current primary image.')) {
+                        this.checked = false;
+                    }
+                }
+            });
+        }
+    </script>
+}

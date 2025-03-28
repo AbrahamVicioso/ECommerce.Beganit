@@ -1,47 +1,87 @@
-﻿@model ECommerce.Beganit.AdminPanel.ViewModels.StaffViewModelBase
+﻿@using Microsoft.AspNetCore.Identity
+@model ECommerce.Beganit.AdminPanel.Models.ViewModels.StaffViewModelBase
 
 @{
-    ViewData["Title"] = "CreateStaff";
-    var users = ViewBag.Users;
+    ViewData["Title"] = "Add User To Staff";
+    List<IdentityUser> users = ViewBag.Users;
 }
 
-<h1>CreateStaff</h1>
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white py-3 border-0">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h4 class="mb-0 fw-bold text-dark">Add User To Staff</h4>
+                        </div>
+                        <div class="col-auto">
+                            <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                                <i class="bi bi-arrow-left me-1"></i> Back to List
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row">
+                        <div class="col-md-6 mx-auto">
+                            <form asp-action="CreateStaff" method="post" class="needs-validation" novalidate>
+                                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 mb-4" role="alert"></div>
 
-<h4>StaffViewModelBase</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="CreateStaff">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="CreatedAt" class="control-label"></label>
-                <input asp-for="CreatedAt" class="form-control" />
-                <span asp-validation-for="CreatedAt" class="text-danger"></span>
+                                <div class="mb-4">
+                                    <label asp-for="UserId" class="form-label fw-semibold">Select User</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-end-0">
+                                            <i class="bi bi-person"></i>
+                                        </span>
+                                        <select class="form-select border-start-0" asp-for="UserId" required>
+                                            <option value="" selected disabled>-- Select a user --</option>
+                                            @foreach (IdentityUser user in users)
+                                            {
+                                                <option value="@user.Id">@user.UserName</option>
+                                            }
+                                        </select>
+                                    </div>
+                                    <span asp-validation-for="UserId" class="text-danger small"></span>
+                                    <div class="form-text">
+                                        The selected user will be added to the staff with basic permissions.
+                                    </div>
+                                </div>
+
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-primary py-2">
+                                        <i class="bi bi-person-plus-fill me-2"></i> Add to Staff
+                                    </button>
+                                    <a asp-action="Index" class="btn btn-light py-2">Cancel</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="UpdatedAt" class="control-label"></label>
-                <input asp-for="UpdatedAt" class="form-control" />
-                <span asp-validation-for="UpdatedAt" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UserId" class="control-label"></label>
-                <select class="form-select" asp-for="UserId">
-                    @foreach(var user in users){
-                        <option value="@user" >@user</option>
-                    }
-                </select>
-                <span asp-validation-for="UserId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
-
-
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
+@section Scripts {
+    <script>
+        // Bootstrap form validation
+        (function () {
+            'use strict'
+            var forms = document.querySelectorAll('.needs-validation')
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })()
+    </script>
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
