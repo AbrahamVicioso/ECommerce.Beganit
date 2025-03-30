@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.General;
 
 namespace ECommerce.Beganit.AdminPanel.Controllers
 {
+    [ApiExplorerSettings(IgnoreApi = true)]
     public class StaffController : Controller
     {
         private readonly ECommerceDBContext eCommerceDBContext;

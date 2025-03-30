@@ -1,0 +1,398 @@
+﻿@model ECommerce.Beganit.AdminPanel.Models.ViewModels.BrandViewModel
+
+@{
+    ViewData["Title"] = "Edit Brand";
+}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <!-- Header Card -->
+            <div class="card bg-primary text-white shadow mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="display-icon bg-white text-primary rounded-circle p-3 me-3">
+                            <i class="bi bi-award fs-1"></i>
+                        </div>
+                        <div>
+                            <h1 class="mb-0">@(string.IsNullOrEmpty(Model.Name) ? "New Brand" : Model.Name)</h1>
+                            <p class="mb-0 opacity-75">
+                                <i class="bi bi-pencil-square me-1"></i> Edit brand details and appearance
+                            </p>
+                        </div>
+                        <div class="ms-auto">
+                            @if (!string.IsNullOrEmpty(Model.LogoUrl))
+                            {
+                                <img src="@Model.LogoUrl" alt="@Model.Name Logo" class="img-thumbnail bg-white" style="max-height: 60px; max-width: 120px;">
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <form asp-action="Edit" method="post" enctype="multipart/form-data" id="brandForm">
+                <input asp-for="Id" type="hidden" />
+
+                <div class="row g-4">
+                    <!-- Left Column - Brand Details -->
+                    <div class="col-md-8">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-header bg-light">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-info-circle-fill text-primary me-2"></i>
+                                    <h5 class="card-title mb-0">Brand Information</h5>
+                                </div>
+                            </div>
+                            <div class="card-body p-4">
+                                <div class="row g-3">
+                                    <div class="col-md-12">
+                                        <div class="form-floating mb-3">
+                                            <input asp-for="Name" class="form-control form-control-lg" placeholder="Brand Name" required />
+                                            <label asp-for="Name">
+                                                <i class="bi bi-tag-fill me-1"></i> Brand Name
+                                            </label>
+                                            <span asp-validation-for="Name" class="text-danger"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-12">
+                                        <div class="form-floating mb-3">
+                                            <textarea asp-for="Description" class="form-control" placeholder="Description" style="height: 120px"></textarea>
+                                            <label asp-for="Description">
+                                                <i class="bi bi-file-text-fill me-1"></i> Description
+                                            </label>
+                                            <span asp-validation-for="Description" class="text-danger"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-12">
+                                        <div class="input-group mb-3">
+                                            <span class="input-group-text bg-light">
+                                                <i class="bi bi-link-45deg"></i>
+                                            </span>
+                                            <div class="form-floating flex-grow-1">
+                                                <input asp-for="LogoUrl" class="form-control" placeholder="Logo URL" id="logoUrlInput" />
+                                                <label asp-for="LogoUrl">External Logo URL</label>
+                                            </div>
+                                            <button class="btn btn-outline-secondary" type="button" id="previewUrlBtn" data-bs-toggle="tooltip" title="Preview URL">
+                                                <i class="bi bi-eye-fill"></i>
+                                            </button>
+                                            <span asp-validation-for="LogoUrl" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Metadata Section -->
+                                @if (Model.CreatedAt.HasValue)
+                                {
+                                    <div class="card bg-light mt-4">
+                                        <div class="card-body p-3">
+                                            <h6 class="card-subtitle mb-3 text-muted">
+                                                <i class="bi bi-clock-history me-1"></i> Brand History
+                                            </h6>
+                                            <div class="row g-3">
+                                                <div class="col-md-6">
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="timeline-icon bg-success text-white rounded-circle p-2 me-2">
+                                                            <i class="bi bi-plus-circle"></i>
+                                                        </div>
+                                                        <div>
+                                                            <small class="text-muted d-block">Created</small>
+                                                            <strong>@Model.CreatedAt?.ToString("MMM dd, yyyy HH:mm")</strong>
+                                                            @if (Model.CreatedBy.HasValue)
+                                                            {
+                                                                <small class="text-muted d-block">by User #@Model.CreatedBy</small>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="timeline-icon bg-info text-white rounded-circle p-2 me-2">
+                                                            <i class="bi bi-pencil"></i>
+                                                        </div>
+                                                        <div>
+                                                            <small class="text-muted d-block">Last Updated</small>
+                                                            <strong>@(Model.UpdatedAt?.ToString("MMM dd, yyyy HH:mm") ?? "Never")</strong>
+                                                            @if (Model.UpdatedBy.HasValue)
+                                                            {
+                                                                <small class="text-muted d-block">by User #@Model.UpdatedBy</small>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column - Logo and Status -->
+                    <div class="col-md-4">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-header bg-light">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-image-fill text-primary me-2"></i>
+                                    <h5 class="card-title mb-0">Brand Logo & Status</h5>
+                                </div>
+                            </div>
+                            <div class="card-body p-4">
+                                <!-- Logo Preview -->
+                                <div class="text-center mb-4">
+                                    <div class="logo-preview-container bg-light rounded p-3 mb-3 d-flex align-items-center justify-content-center" style="height: 200px;">
+                                        @if (!string.IsNullOrEmpty(Model.LogoUrl))
+                                        {
+                                            <img src="@Model.LogoUrl" id="currentLogo" alt="Brand Logo" class="img-fluid" style="max-height: 180px;" />
+                                        }
+                                        else
+                                        {
+                                            <div class="text-muted">
+                                                <i class="bi bi-image fs-1"></i>
+                                                <p>No logo uploaded</p>
+                                            </div>
+                                        }
+                                        <img id="logoPreview" src="#" alt="Preview" class="img-fluid d-none" style="max-height: 180px;" />
+                                    </div>
+
+                                    <div class="upload-container">
+                                        <label for="Image" class="btn btn-outline-primary w-100 mb-2">
+                                            <i class="bi bi-cloud-arrow-up me-1"></i> Upload New Logo
+                                        </label>
+                                        <input name="Image" class="form-control d-none" type="file" accept="image/*" id="logoUpload" />
+
+                                        <div class="progress mb-3 d-none" id="uploadProgress">
+                                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: 0%"></div>
+                                        </div>
+
+                                        <small class="text-muted d-block">
+                                            <i class="bi bi-info-circle me-1"></i> Recommended size: 400x200 pixels
+                                        </small>
+                                    </div>
+                                </div>
+
+                                <!-- Brand Status -->
+                                <div class="card bg-light mb-3">
+                                    <div class="card-body">
+                                        <h6 class="card-subtitle mb-3">
+                                            <i class="bi bi-toggle-on me-1"></i> Brand Status
+                                        </h6>
+
+                                        <div class="form-check form-switch d-flex justify-content-between align-items-center p-0">
+                                            <label class="form-check-label" for="isActiveSwitch">
+                                                <span id="statusText" class="fw-bold">
+                                                    @(Model.IsActive == true ? "Active" : "Inactive")
+                                                </span>
+                                                <small class="text-muted d-block" id="statusDescription">
+                                                    @(Model.IsActive == true ? "Brand is visible to customers" : "Brand is hidden from customers")
+                                                </small>
+                                            </label>
+                                            <div class="form-check form-switch form-switch-lg">
+                                                <input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch" id="isActiveSwitch">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-flex justify-content-between mt-4">
+                    <a asp-action="Index" class="btn btn-outline-secondary btn">
+                        <i class="bi bi-arrow-left me-1"></i> Back to List
+                    </a>
+                    <div>
+                        <button type="reset" class="btn btn-outline-danger btn me-2">
+                            <i class="bi bi-x-circle me-1"></i> Reset
+                        </button>
+                        <button type="submit" class="btn btn-primary btn">
+                            <i class="bi bi-save me-1"></i> Save Changes
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .display-icon {
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .timeline-icon {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .form-switch-lg .form-check-input {
+            width: 3em;
+            height: 1.5em;
+            margin-left: 0;
+        }
+
+        .logo-preview-container {
+            border: 2px dashed #dee2e6;
+            transition: all 0.3s ease;
+        }
+
+            .logo-preview-container:hover {
+                border-color: #6c757d;
+            }
+
+        /* Animation for status change */
+        /* keyframes pulse { */
+        /*     0% */
+
+        /* { */
+        /*     transform: scale(1); */
+        /* } */
+
+        /* 50% { */
+        /*     transform: scale(1.05); */
+        /* } */
+
+        /* 100% { */
+        /*     transform: scale(1); */
+        /* } */
+
+        /* } */
+
+        .pulse {
+            animation: pulse 0.5s;
+        }
+    </style>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function() {
+            // Initialize tooltips
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+
+            // Logo preview functionality
+            $("#logoUpload").change(function() {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        $("#currentLogo").addClass("d-none");
+                        $("#logoPreview").attr("src", e.target.result).removeClass("d-none");
+                        $(".logo-preview-container").addClass("border-primary");
+
+                        // Simulate upload progress
+                        $("#uploadProgress").removeClass("d-none");
+                        let progress = 0;
+                        const interval = setInterval(function() {
+                            progress += 10;
+                            $("#uploadProgress .progress-bar").css("width", progress + "%");
+                            if (progress >= 100) {
+                                clearInterval(interval);
+                                setTimeout(function() {
+                                    $("#uploadProgress").addClass("d-none");
+                                }, 500);
+                            }
+                        }, 100);
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Preview URL button
+            $("#previewUrlBtn").click(function() {
+                const url = $("#logoUrlInput").val();
+                if (url) {
+                    $("#currentLogo").addClass("d-none");
+                    $("#logoPreview").attr("src", url).removeClass("d-none");
+                    $(".logo-preview-container").addClass("border-primary");
+                }
+            });
+
+            // Status switch functionality
+            $("#isActiveSwitch").change(function() {
+                if ($(this).is(":checked")) {
+                    $("#statusText").text("Active").addClass("text-success").removeClass("text-danger");
+                    $("#statusDescription").text("Brand is visible to customers");
+                } else {
+                    $("#statusText").text("Inactive").addClass("text-danger").removeClass("text-success");
+                    $("#statusDescription").text("Brand is hidden from customers");
+                }
+
+                // Add animation
+                $(".card-subtitle").addClass("pulse");
+                setTimeout(function() {
+                    $(".card-subtitle").removeClass("pulse");
+                }, 500);
+            });
+
+            // Initialize status text color
+            if ($("#isActiveSwitch").is(":checked")) {
+                $("#statusText").addClass("text-success");
+            } else {
+                $("#statusText").addClass("text-danger");
+            }
+
+            // Form validation styling enhancement
+            $("#brandForm").on("submit", function() {
+                $(this).addClass("was-validated");
+            });
+
+            // Drag and drop for logo upload
+            $(".logo-preview-container").on({
+                dragover: function(e) {
+                    e.preventDefault();
+                    $(this).addClass("border-primary");
+                },
+                dragleave: function(e) {
+                    e.preventDefault();
+                    $(this).removeClass("border-primary");
+                },
+                drop: function(e) {
+                    e.preventDefault();
+                    $(this).removeClass("border-primary");
+
+                    const file = e.originalEvent.dataTransfer.files[0];
+                    if (file && file.type.match('image.*')) {
+                        $("#logoUpload")[0].files = e.originalEvent.dataTransfer.files;
+
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            $("#currentLogo").addClass("d-none");
+                            $("#logoPreview").attr("src", e.target.result).removeClass("d-none");
+
+                            // Simulate upload progress
+                            $("#uploadProgress").removeClass("d-none");
+                            let progress = 0;
+                            const interval = setInterval(function() {
+                                progress += 10;
+                                $("#uploadProgress .progress-bar").css("width", progress + "%");
+                                if (progress >= 100) {
+                                    clearInterval(interval);
+                                    setTimeout(function() {
+                                        $("#uploadProgress").addClass("d-none");
+                                    }, 500);
+                                }
+                            }, 100);
+                        }
+                        reader.readAsDataURL(file);
+                    }
+                }
+            });
+        });
+    </script>
+}

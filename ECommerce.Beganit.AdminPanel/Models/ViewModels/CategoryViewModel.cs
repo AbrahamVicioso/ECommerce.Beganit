@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Swashbuckle.AspNetCore.Annotations;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -25,9 +26,6 @@ namespace ECommerce.Beganit.AdminPanel.Models.ViewModels
         public bool IsActive { get; set; }
 
         public int? DisplayOrder { get; set; }
-
-        [NotMapped]
-        public IFormFile? Image { get; set; }
 
         public DateTime? CreatedAt { get; set; }
 

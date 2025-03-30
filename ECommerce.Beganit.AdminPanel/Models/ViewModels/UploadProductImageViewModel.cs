@@ -4,8 +4,6 @@
     {
         public int ProductId { get; set; }
 
-        public IFormFile Image { get; set; }
-
         public int ImageId { get; set; }
 
         public string ImageUrl { get; set; }

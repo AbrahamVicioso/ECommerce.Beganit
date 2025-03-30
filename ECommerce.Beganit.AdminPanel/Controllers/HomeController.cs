@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerce.Beganit.AdminPanel.Controllers
 {
+    [ApiExplorerSettings(IgnoreApi = true)]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;

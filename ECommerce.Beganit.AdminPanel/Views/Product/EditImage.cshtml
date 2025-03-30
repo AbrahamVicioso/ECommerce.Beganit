@@ -87,15 +87,14 @@
                                 <input type="hidden" asp-for="ImageUrl" />
 
                                 <div class="mb-4">
-                                    <label asp-for="Image" class="form-label fw-semibold">Select Image <span class="text-danger">*</span></label>
+                                    <label class="form-label fw-semibold">Select Image <span class="text-danger">*</span></label>
                                     <div class="input-group mb-2">
-                                        <input asp-for="Image" class="form-control" type="file" accept="image/*" id="imageInput" required />
+                                        <input name="Image" class="form-control" type="file" accept="image/*" id="imageInput" required />
                                         <button type="button" class="btn btn-outline-secondary" id="clearImageBtn">
                                             <i class="bi bi-x-lg"></i>
                                         </button>
                                     </div>
-                                    <span asp-validation-for="Image" class="text-danger"></span>
-                                    <div class="form-text">
+=                                    <div class="form-text">
                                         <i class="bi bi-info-circle me-1"></i> Recommended formats: JPG, PNG. Maximum size: 5MB.
                                     </div>
                                 </div>

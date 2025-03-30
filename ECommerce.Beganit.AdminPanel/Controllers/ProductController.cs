@@ -3,25 +3,30 @@ using ECommerce.Beganit.AdminPanel.Data;
 using ECommerce.Beganit.AdminPanel.Models;
 using ECommerce.Beganit.AdminPanel.Models.ViewModels;
 using ECommerce.Beganit.AdminPanel.Services;
+using MapsterMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 
 namespace ECommerce.Beganit.AdminPanel.Controllers
 {
+    [ApiExplorerSettings(IgnoreApi = true)]
     public class ProductController : Controller
     {
         private readonly ECommerceDBContext _context;
         private readonly UploadImageService _uploadImageService;
+        private readonly IMapper _mapper;
         private readonly ILogger<ProductController> _logger;
 
         public ProductController(
             ECommerceDBContext context,
             UploadImageService uploadImageService,
+            IMapper mapper,
             ILogger<ProductController> logger)
         {
             _context = context;
             _uploadImageService = uploadImageService;
+            this._mapper = mapper;
             _logger = logger;
         }
 
@@ -92,49 +97,55 @@ namespace ECommerce.Beganit.AdminPanel.Controllers
         {
             var product = await _context.Products
                 .Include(p => p.ProductImages)
+                .Include(p => p.Categories)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (product == null)
                 return NotFound();
 
-            ViewData["Brands"] = await _context.Brands.ToListAsync();
+
+            ViewData["AllCategories"] = await _context.Categories.AsNoTracking().ToListAsync();
+            ViewData["Brands"] = await _context.Brands.AsNoTracking().ToListAsync();
             ViewData["Product"] = product;
-            return View(product);
+
+            var model = _mapper.Map<ProductViewModel>(product);
+            model.Categories = product.Categories.Select(x => x.Name).ToList();
+            return View(model);
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditProduct(int id, Product product)
+        public async Task<IActionResult> EditProduct(ProductViewModel model)
         {
-            if (id != product.Id)
-                return BadRequest();
+            Product product = _context.Products
+                .Include(x => x.Categories)
+                .Where(x => x.Id == model.Id).FirstOrDefault();
 
-            if (!ModelState.IsValid)
+            if (product == null)
             {
-                ViewData["Brands"] = await _context.Brands.ToListAsync();
-                return View(product);
+                return NotFound();
             }
 
-            try
+            _mapper.Map(model,product);
+
+            if (product.Categories.Count > 0)
             {
-                _context.Update(product);
-                await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = "Product updated successfully";
-                return RedirectToAction(nameof(Index));
+                product.Categories.Clear();
+
+                foreach(string category in model.Categories)
+                {
+                    Category categoryCurrent = _context.Categories.FirstOrDefault(x => x.Name == category);
+                    if (categoryCurrent != null)
+                    {
+                        product.Categories.Add(categoryCurrent);
+                    }
+                }
             }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ProductExists(product.Id))
-                    return NotFound();
-                throw;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error updating product");
-                ModelState.AddModelError(string.Empty, "An error occurred while updating the product.");
-                ViewData["Brands"] = await _context.Brands.ToListAsync();
-                return View(product);
-            }
+
+            _context.Products.Update(product);
+
+            _context.SaveChanges();
+
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpGet("[controller]/[action]/{id}")]
@@ -182,11 +193,11 @@ namespace ECommerce.Beganit.AdminPanel.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UploadImage(UploadProductImageViewModel model)
+        public async Task<IActionResult> UploadImage([FromForm] IFormFile Image,UploadProductImageViewModel model)
         {
             IEnumerable<ProductImage> images = _context.ProductImages.Where(x => x.ProductId == model.ProductId);
 
-            ImageUploadResult result = await _uploadImageService.Upload(model.Image);
+            ImageUploadResult result = await _uploadImageService.Upload(Image);
 
             _context.ProductImages.Add(new ProductImage()
             {
@@ -219,14 +230,14 @@ namespace ECommerce.Beganit.AdminPanel.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditImage(UploadProductImageViewModel model)
+        public async Task<IActionResult> EditImage([FromForm] IFormFile Image, UploadProductImageViewModel model)
         {
             if (!ModelState.IsValid)
                 return View(model);
 
             try
             {
-                var result = await _uploadImageService.Upload(model.Image);
+                var result = await _uploadImageService.Upload(Image);
 
                 var productImage = _context.ProductImages.Where(x => x.Id == model.ImageId).First();
                 productImage.ProductId = model.ProductId;

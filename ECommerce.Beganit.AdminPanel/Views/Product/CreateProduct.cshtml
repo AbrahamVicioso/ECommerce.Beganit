@@ -23,7 +23,7 @@
                             <div class="card-body">
                                 <div class="mb-3">
                                     <label asp-for="Name" class="form-label fw-bold">Name</label>
-                                    <input asp-for="Name" class="form-control" placeholder="Product name" />
+                                    <input id="nameInput" asp-for="Name" class="form-control" placeholder="Product name" />
                                     <span asp-validation-for="Name" class="text-danger"></span>
                                 </div>
 
@@ -31,7 +31,10 @@
                                     <label asp-for="Slug" class="form-label fw-bold">Slug</label>
                                     <div class="input-group">
                                         <span class="input-group-text">url/</span>
-                                        <input asp-for="Slug" class="form-control" placeholder="product-name" />
+                                        <input asp-for="Slug" id="productSlug" class="form-control" placeholder="product-name" />
+                                        <button type="button" id="generateSlugBtn" class="btn btn-secondary">
+                                            <i class="bi bi-magic"></i> Generate
+                                        </button>
                                     </div>
                                     <span asp-validation-for="Slug" class="text-danger"></span>
                                 </div>
@@ -193,9 +196,26 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
     <script>
-        // Optional: To initialize datepickers or add client-side validation
-        $(document).ready(function() {
-            // You can add additional JavaScript code here
+        document.addEventListener('DOMContentLoaded', function() {
+            const productNameInput = document.getElementById('nameInput');
+            const productSlugInput = document.getElementById('productSlug');
+            const generateSlugBtn = document.getElementById('generateSlugBtn');
+
+            function generateSlug(text) {
+                return text
+                    .toLowerCase()           // Convert to lowercase
+                    .trim()                  // Remove leading/trailing whitespace
+                    .replace(/[^\w\s-]/g, '') // Remove non-word chars (except spaces and hyphens)
+                    .replace(/[\s_-]+/g, '-') // Replace spaces, underscores, multiple hyphens with single hyphen
+                    .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
+            }
+
+            generateSlugBtn.addEventListener('click', function() {
+                const productName = productNameInput.value;
+                if (productName) {
+                    productSlugInput.value = generateSlug(productName);
+                }
+            });
         });
     </script>
 }

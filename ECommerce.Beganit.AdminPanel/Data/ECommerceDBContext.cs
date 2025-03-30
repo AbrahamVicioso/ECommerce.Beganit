@@ -116,7 +116,5 @@ public partial class ECommerceDBContext : IdentityDbContext
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 
-public DbSet<ECommerce.Beganit.AdminPanel.Models.ViewModels.CategoryViewModel> CategoryViewModel { get; set; } = default!;
-
-public DbSet<ECommerce.Beganit.AdminPanel.Models.ViewModels.BrandViewModel> BrandViewModel { get; set; } = default!;
+public DbSet<ECommerce.Beganit.AdminPanel.Models.ViewModels.IdentityRoleViewModel> IdentityRoleViewModel { get; set; } = default!;
 }

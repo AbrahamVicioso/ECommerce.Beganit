@@ -1,0 +1,564 @@
+﻿@model List<ECommerce.Beganit.AdminPanel.Models.ViewModels.ProductVariantViewModel>
+@{
+    ViewBag.Title = "Product Variants";
+    var products = ViewData["Products"] as List<Product>;
+
+    // Calculate statistics
+    var totalVariants = Model.Count;
+    var activeVariants = Model.Count(v => v.IsActive);
+    var totalStock = Model.Sum(v => v.Quantity);
+    var lowStockCount = Model.Count(v => v.Quantity < 10 && v.Quantity > 0);
+    var outOfStockCount = Model.Count(v => v.Quantity <= 0);
+    var totalValue = Model.Sum(v => v.Price * v.Quantity);
+}
+
+<div class="container-fluid py-4">
+    <!-- Header Section -->
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center mb-4">
+        <div>
+            <h1 class="display-5 fw-bold mb-1">
+                <i class="bi bi-boxes text-primary me-2"></i>Product Variants
+            </h1>
+            <p class="text-muted mb-0">Manage your product variants inventory and pricing</p>
+        </div>
+        <div class="mt-3 mt-lg-0">
+            <a href="@Url.Action("Create")" class="btn btn-primary btn rounded-pill shadow-sm">
+                <i class="bi bi-plus-circle me-2"></i> Create New Variant
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100 bg-primary bg-opacity-10">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="stats-icon bg-primary text-white rounded-circle p-3 me-3">
+                            <i class="bi bi-collection fs-4"></i>
+                        </div>
+                        <h5 class="card-title mb-0">Total Variants</h5>
+                    </div>
+                    <h2 class="display-6 fw-bold mb-0">@totalVariants</h2>
+                    <div class="d-flex align-items-center mt-2">
+                        <span class="badge bg-success rounded-pill me-2">@activeVariants Active</span>
+                        <span class="badge bg-danger rounded-pill">@(totalVariants - activeVariants) Inactive</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100 bg-success bg-opacity-10">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="stats-icon bg-success text-white rounded-circle p-3 me-3">
+                            <i class="bi bi-box-seam fs-4"></i>
+                        </div>
+                        <h5 class="card-title mb-0">Total Stock</h5>
+                    </div>
+                    <h2 class="display-6 fw-bold mb-0">@totalStock</h2>
+                    <div class="d-flex align-items-center mt-2">
+                        <span class="badge bg-warning rounded-pill me-2">@lowStockCount Low Stock</span>
+                        <span class="badge bg-danger rounded-pill">@outOfStockCount Out of Stock</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100 bg-info bg-opacity-10">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="stats-icon bg-info text-white rounded-circle p-3 me-3">
+                            <i class="bi bi-currency-dollar fs-4"></i>
+                        </div>
+                        <h5 class="card-title mb-0">Inventory Value</h5>
+                    </div>
+                    <h2 class="display-6 fw-bold mb-0">@totalValue.ToString("C0")</h2>
+                    <div class="d-flex align-items-center mt-2">
+                        <span class="text-muted">Based on current stock levels</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100 bg-warning bg-opacity-10">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="stats-icon bg-warning text-white rounded-circle p-3 me-3">
+                            <i class="bi bi-graph-up fs-4"></i>
+                        </div>
+                        <h5 class="card-title mb-0">Avg. Price</h5>
+                    </div>
+                    <h2 class="display-6 fw-bold mb-0">@(Model.Any() ? Model.Average(v => v.Price).ToString("C2") : "$0.00")</h2>
+                    <div class="d-flex align-items-center mt-2">
+                        <span class="text-muted">Average price across all variants</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Card -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <ul class="nav nav-pills" id="variantTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab">
+                                <i class="bi bi-grid-3x3-gap me-1"></i> All Variants
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="active-tab" data-bs-toggle="tab" data-bs-target="#active" type="button" role="tab">
+                                <i class="bi bi-check-circle me-1"></i> Active
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="inactive-tab" data-bs-toggle="tab" data-bs-target="#inactive" type="button" role="tab">
+                                <i class="bi bi-x-circle me-1"></i> Inactive
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="low-stock-tab" data-bs-toggle="tab" data-bs-target="#low-stock" type="button" role="tab">
+                                <i class="bi bi-exclamation-triangle me-1"></i> Low Stock
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex justify-content-md-end mt-3 mt-md-0">
+                        <div class="dropdown me-2">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-download me-1"></i> Export
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+                                <li><a class="dropdown-item" href="#" id="exportCSV"><i class="bi bi-filetype-csv me-2"></i>CSV</a></li>
+                                <li><a class="dropdown-item" href="#" id="exportExcel"><i class="bi bi-file-earmark-excel me-2"></i>Excel</a></li>
+                                <li><a class="dropdown-item" href="#" id="exportPDF"><i class="bi bi-file-earmark-pdf me-2"></i>PDF</a></li>
+                            </ul>
+                        </div>
+                        <button class="btn btn-outline-primary" id="refreshTable">
+                            <i class="bi bi-arrow-clockwise"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="tab-content" id="variantTabsContent">
+                <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all-tab">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle border-bottom" id="variantsTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4">ID</th>
+                                    <th>Image</th>
+                                    <th>Product</th>
+                                    <th>SKU</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Status</th>
+                                    <th class="text-end pe-4">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var variant in Model)
+                                {
+                                    var parentProduct = products.FirstOrDefault(p => p.Id == variant.ProductId);
+                                    var stockStatus = variant.Quantity <= 0 ? "out-of-stock" :
+                                    variant.Quantity < 10 ? "low-stock" : "in-stock";
+
+                                    <tr class="variant-row @(variant.IsActive ? "" : "table-secondary")" data-status="@(variant.IsActive ? "active" : "inactive")" data-stock="@stockStatus">
+                                        <td class="ps-4">@variant.Id</td>
+                                        <td>
+                                            @if (parentProduct != null && parentProduct.ProductImages != null && parentProduct.ProductImages.Any(x => x.IsPrimary ?? false))
+                                            {
+                                                <div class="product-img-wrapper">
+                                                    <img src="@parentProduct.ProductImages.First(x => x.IsPrimary == true).ImageUrl"
+                                                         alt="@parentProduct.ProductImages.First(x => x.IsPrimary == true).AltText"
+                                                         class="product-img rounded" />
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="product-img-wrapper bg-light rounded d-flex align-items-center justify-content-center">
+                                                    <i class="bi bi-image text-muted"></i>
+                                                </div>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (parentProduct != null)
+                                            {
+                                                <div>
+                                                    <span class="fw-bold">@parentProduct.Name</span>
+                                                    @if (!string.IsNullOrEmpty(parentProduct.Description))
+                                                    {
+                                                        <small class="d-block text-muted text-truncate" style="max-width: 200px;">
+                                                            @parentProduct.Description
+                                                        </small>
+                                                    }
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">No Product</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-light text-dark border">@variant.Sku</span>
+                                        </td>
+                                        <td>
+                                            <span class="fw-bold text-primary">@variant.Price.ToString("C2")</span>
+                                        </td>
+                                        <td>
+                                            @if (variant.Quantity <= 0)
+                                            {
+                                                <div class="d-flex align-items-center">
+                                                    <span class="badge bg-danger me-2">@variant.Quantity</span>
+                                                    <span class="text-danger small">Out of Stock</span>
+                                                </div>
+                                            }
+                                            else if (variant.Quantity < 10)
+                                            {
+                                                <div class="d-flex align-items-center">
+                                                    <span class="badge bg-warning text-dark me-2">@variant.Quantity</span>
+                                                    <span class="text-warning small">Low Stock</span>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="d-flex align-items-center">
+                                                    <span class="badge bg-success me-2">@variant.Quantity</span>
+                                                    <span class="text-success small">In Stock</span>
+                                                </div>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (variant.IsActive)
+                                            {
+                                                <div class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">
+                                                    <i class="bi bi-check-circle-fill me-1"></i> Active
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2">
+                                                    <i class="bi bi-x-circle-fill me-1"></i> Inactive
+                                                </div>
+                                            }
+                                        </td>
+                                        <td>
+                                            <div class="d-flex justify-content-end pe-4">
+                                                <a href="@Url.Action("Edit", new { id = variant.Id })" class="btn btn-sm btn-outline-primary me-2" data-bs-toggle="tooltip" title="Edit Variant">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                                <a href="@Url.Action("Details", new { id = variant.Id })" class="btn btn-sm btn-outline-info me-2" data-bs-toggle="tooltip" title="View Details">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal@(variant.Id)" title="Delete Variant">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+
+                                                <!-- Delete Confirmation Modal -->
+                                                <div class="modal fade" id="deleteModal@(variant.Id)" tabindex="-1" aria-labelledby="deleteModalLabel@(variant.Id)" aria-hidden="true">
+                                                    <div class="modal-dialog modal-dialog-centered">
+                                                        <div class="modal-content border-0 shadow">
+                                                            <div class="modal-header bg-danger text-white">
+                                                                <h5 class="modal-title" id="deleteModalLabel@(variant.Id)">
+                                                                    <i class="bi bi-exclamation-triangle-fill me-2"></i>Confirm Deletion
+                                                                </h5>
+                                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                            </div>
+                                                            <div class="modal-body p-4">
+                                                                <div class="d-flex">
+                                                                    <div class="display-icon bg-danger-subtle text-danger rounded-circle p-3 me-3">
+                                                                        <i class="bi bi-trash fs-3"></i>
+                                                                    </div>
+                                                                    <div>
+                                                                        <h5>Delete Product Variant</h5>
+                                                                        <p class="mb-0">Are you sure you want to delete this variant with SKU <strong>@variant.Sku</strong>?</p>
+                                                                        <p class="text-danger mb-0"><strong>Warning:</strong> This action cannot be undone.</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="modal-footer bg-light">
+                                                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                                                    <i class="bi bi-x-circle me-2"></i>Cancel
+                                                                </button>
+                                                                <form action="@Url.Action("Delete", new { id = variant.Id })" method="post">
+                                                                    @Html.AntiForgeryToken()
+                                                                    <button type="submit" class="btn btn-danger">
+                                                                        <i class="bi bi-trash me-2"></i>Delete Permanently
+                                                                    </button>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Other tabs will be handled by DataTables filtering -->
+                <div class="tab-pane fade" id="active" role="tabpanel" aria-labelledby="active-tab">
+                    <!-- Content loaded dynamically -->
+                </div>
+                <div class="tab-pane fade" id="inactive" role="tabpanel" aria-labelledby="inactive-tab">
+                    <!-- Content loaded dynamically -->
+                </div>
+                <div class="tab-pane fade" id="low-stock" role="tabpanel" aria-labelledby="low-stock-tab">
+                    <!-- Content loaded dynamically -->
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer bg-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="text-muted">Showing <span id="visibleCount">@totalVariants</span> of @totalVariants variants</span>
+                </div>
+                <div>
+                    <a href="@Url.Action("Index", "Product")" class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-box me-1"></i> Manage Products
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap5.min.css">
+
+    <style>
+        /* Custom styling */
+        .stats-icon {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .product-img-wrapper {
+            width: 60px;
+            height: 60px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .product-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .display-icon {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Tab styling */
+        .nav-pills .nav-link {
+            color: #6c757d;
+            padding: 0.5rem 1rem;
+            border-radius: 50rem;
+            margin-right: 0.5rem;
+        }
+
+            .nav-pills .nav-link.active {
+                background-color: #0d6efd;
+                color: white;
+            }
+
+        /* Animation for row hover */
+        .variant-row {
+            transition: all 0.2s ease;
+        }
+
+            .variant-row:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                z-index: 10;
+                position: relative;
+            }
+
+        /* DataTables customization */
+        .dataTables_wrapper .dataTables_filter input {
+            border-radius: 50rem;
+            padding: 0.375rem 0.75rem;
+            border: 1px solid #dee2e6;
+        }
+
+        .dataTables_wrapper .dataTables_length select {
+            border-radius: 0.25rem;
+            padding: 0.375rem 1.75rem 0.375rem 0.75rem;
+            border: 1px solid #dee2e6;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: #0d6efd !important;
+            color: white !important;
+            border: none;
+            border-radius: 50rem;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background: #0a58ca !important;
+            color: white !important;
+            border: none;
+        }
+
+        /* Status badges */
+        .bg-success-subtle {
+            background-color: rgba(25, 135, 84, 0.1);
+        }
+
+        .bg-danger-subtle {
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+
+        /* Animation for refresh button */
+        @@keyframes spin {
+            from
+
+        {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+
+        }
+
+        .spin {
+            animation: spin 1s linear;
+        }
+    </style>
+}
+
+@section Scripts {
+    @* <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script> *@
+    @* <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script> *@
+    @* <script src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js"></script> *@
+    @* <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.bootstrap5.min.js"></script> *@
+    @* <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js"></script> *@
+    @* <script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script> *@
+    @* <script src="https://cdn.datatables.net/responsive/2.2.9/js/responsive.bootstrap5.min.js"></script> *@
+    @* <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script> *@
+    @* <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script> *@
+    @* <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script> *@
+
+    <script>
+        $(document).ready(function() {
+            // Initialize tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+
+            // Initialize DataTable
+            var table = $('#variantsTable').DataTable({
+                responsive: true,
+                pageLength: 10,
+                lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+                dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rtip',
+                language: {
+                    search: "",
+                    searchPlaceholder: "Search variants...",
+                    lengthMenu: "_MENU_ variants per page"
+                },
+                drawCallback: function() {
+                    $('#visibleCount').text(table.page.info().recordsDisplay);
+                }
+            });
+
+            // Custom filtering for tabs
+            $('#variantTabs .nav-link').on('shown.bs.tab', function (e) {
+                var target = $(e.target).attr("id");
+
+                if (target === 'all-tab') {
+                    table.search('').columns().search('').draw();
+                } else if (target === 'active-tab') {
+                    table.columns().search('').column(6).search('Active', true, false).draw();
+                } else if (target === 'inactive-tab') {
+                    table.columns().search('').column(6).search('Inactive', true, false).draw();
+                } else if (target === 'low-stock-tab') {
+                    table.columns().search('').column(5).search('Low Stock|Out of Stock', true, false).draw();
+                }
+            });
+
+            // Export buttons functionality
+            $('#exportCSV').click(function() {
+                var buttons = $.fn.dataTable.Buttons(table, {
+                    buttons: [
+                        { extend: 'csv', text: 'Export CSV', className: 'btn-primary' }
+                    ]
+                });
+                buttons.container().appendTo('body');
+                $('.dt-button').click();
+                buttons.container().remove();
+            });
+
+            $('#exportExcel').click(function() {
+                var buttons = $.fn.dataTable.Buttons(table, {
+                    buttons: [
+                        { extend: 'excel', text: 'Export Excel', className: 'btn-primary' }
+                    ]
+                });
+                buttons.container().appendTo('body');
+                $('.dt-button').click();
+                buttons.container().remove();
+            });
+
+            $('#exportPDF').click(function() {
+                var buttons = $.fn.dataTable.Buttons(table, {
+                    buttons: [
+                        { extend: 'pdf', text: 'Export PDF', className: 'btn-primary' }
+                    ]
+                });
+                buttons.container().appendTo('body');
+                $('.dt-button').click();
+                buttons.container().remove();
+            });
+
+            // Refresh button animation
+            $('#refreshTable').click(function() {
+                var $icon = $(this).find('i');
+                $icon.addClass('spin');
+
+                setTimeout(function() {
+                    table.ajax.reload(null, false);
+                    $icon.removeClass('spin');
+                }, 1000);
+            });
+
+            // Custom search box styling
+            $('.dataTables_filter input').addClass('form-control');
+            $('.dataTables_filter input').attr('placeholder', 'Search variants...');
+            $('.dataTables_filter label').contents().filter(function() {
+                return this.nodeType === 3;
+            }).remove();
+            $('.dataTables_filter label').prepend('<i class="bi bi-search me-2"></i>');
+            $('.dataTables_filter label').addClass('d-flex align-items-center');
+
+            // Custom length menu styling
+            $('.dataTables_length select').addClass('form-select');
+        });
+    </script>
+}

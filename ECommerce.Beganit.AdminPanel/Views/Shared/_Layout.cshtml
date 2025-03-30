@@ -1,62 +1,498 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - ECommerce.Beganit.AdminPanel</title>
+    <title>@ViewData["Title"] - ECommerce Admin</title>
+    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ECommerce.Beganit.AdminPanel.styles.css" asp-append-version="true" />
+    <!-- ApexCharts for dashboard graphs -->
+    <link href="https://cdn.jsdelivr.net/npm/apexcharts@3.41.0/dist/apexcharts.min.css" rel="stylesheet">
     @await RenderSectionAsync("Styles", required: false)
-
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">ECommerce AdminPanel</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
+    <div class="admin-layout d-flex">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <i class="bi bi-shop fs-3 text-primary"></i>
+                    <span class="logo-text">Beganit Panel</span>
+                </div>
+                <button class="btn btn-sm sidebar-toggle d-md-none" id="sidebarToggle">
+                    <i class="bi bi-x-lg"></i>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Product" asp-action="Index">Product</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Brand" asp-action="Index">Brand</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Category" asp-action="Index">Category</a>
-                        </li>
-                    </ul>
-                    <partial name="_LoginPartial" />
+            </div>
+
+            <!-- User Profile -->
+            <div class="sidebar-user">
+                <div class="user-avatar">
+                    <img src="/placeholder.svg?height=40&width=40" alt="User Avatar" class="rounded-circle">
+                    <span class="status-indicator bg-success"></span>
+                </div>
+                <div class="user-info">
+                    <h6 class="user-name mb-0">@(User.Identity.Name ?? "Guest")</h6>
+                    <span class="user-role">@(User.Identity.Name?? "Guest")</span>
                 </div>
             </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+
+            <!-- Sidebar Navigation -->
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <h6 class="nav-section-title">MAIN NAVIGATION</h6>
+                    <ul class="nav-items">
+                        <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")">
+                            <a asp-controller="Home" asp-action="Index" class="nav-link">
+                                <i class="bi bi-speedometer2"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Order" ? "active" : "")">
+                            <a asp-controller="Order" asp-action="Index" class="nav-link">
+                                <i class="bi bi-cart3"></i>
+                                <span>Orders</span>
+                                <span class="badge bg-primary rounded-pill ms-auto">New</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="nav-section">
+                    <h6 class="nav-section-title">CATALOG</h6>
+                    <ul class="nav-items">
+                        <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Product" ? "active" : "")">
+                            <a asp-controller="Product" asp-action="Index" class="nav-link">
+                                <i class="bi bi-box-seam"></i>
+                                <span>Products</span>
+                            </a>
+                        </li>
+                        <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "ProductVariant" ? "active" : "")">
+                            <a asp-controller="ProductVariant" asp-action="Index" class="nav-link">
+                                <i class="bi bi-boxes"></i>
+                                <span>Product Variants</span>
+                            </a>
+                        </li>
+                        <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Category" ? "active" : "")">
+                            <a asp-controller="Category" asp-action="Index" class="nav-link">
+                                <i class="bi bi-diagram-3"></i>
+                                <span>Categories</span>
+                            </a>
+                        </li>
+                        <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Brand" ? "active" : "")">
+                            <a asp-controller="Brand" asp-action="Index" class="nav-link">
+                                <i class="bi bi-tag"></i>
+                                <span>Brands</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="nav-section">
+                    <h6 class="nav-section-title">ADMINISTRATION</h6>
+                    <ul class="nav-items">
+                        <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "User" ? "active" : "")">
+                            <a asp-controller="User" asp-action="Index" class="nav-link">
+                                <i class="bi bi-people"></i>
+                                <span>Users</span>
+                            </a>
+                        </li>
+                        <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Role" ? "active" : "")">
+                            <a asp-controller="Role" asp-action="Index" class="nav-link">
+                                <i class="bi bi-shield-lock"></i>
+                                <span>Roles</span>
+                            </a>
+                        </li>
+                        <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Settings" ? "active" : "")">
+                            <a asp-controller="Settings" asp-action="Index" class="nav-link">
+                                <i class="bi bi-gear"></i>
+                                <span>Settings</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="nav-section">
+                    <h6 class="nav-section-title">HELP</h6>
+                    <ul class="nav-items">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="bi bi-question-circle"></i>
+                                <span>Documentation</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-controller="Home" asp-action="Privacy" class="nav-link">
+                                <i class="bi bi-shield"></i>
+                                <span>Privacy Policy</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="app-version">
+                    <span>Version 1.0.0</span>
+                </div>
+                <div class="sidebar-toggle-wrapper">
+                    <button class="btn btn-sm btn-toggle-sidebar" id="toggleSidebar">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Top Navbar -->
+            <header class="top-navbar py-2 px-4">
+                <div class="container-fluid">
+                    <div class="navbar-content">
+                        <div class="navbar-left">
+                            <button class="btn btn-sm sidebar-mobile-toggle d-md-none" id="mobileSidebarToggle">
+                                <i class="bi bi-list"></i>
+                            </button>
+                            <div class="page-title">
+                                <h4 class="mb-0">@ViewData["Title"]</h4>
+                                <nav aria-label="breadcrumb">
+                                    <ol class="breadcrumb">
+                                        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+                                        @if (ViewContext.RouteData.Values["controller"] != null && ViewContext.RouteData.Values["controller"].ToString() != "Home")
+                                        {
+                                            <li class="breadcrumb-item">@ViewContext.RouteData.Values["controller"].ToString()</li>
+                                        }
+                                        @if (ViewContext.RouteData.Values["action"] != null && ViewContext.RouteData.Values["action"].ToString() != "Index")
+                                        {
+                                            <li class="breadcrumb-item active">@ViewContext.RouteData.Values["action"].ToString()</li>
+                                        }
+                                    </ol>
+                                </nav>
+                            </div>
+                        </div>
+                        <div class="navbar-right">
+                            <div class="navbar-actions">
+                                <!-- Search -->
+                                <div class="search-wrapper">
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-transparent border-end-0">
+                                            <i class="bi bi-search"></i>
+                                        </span>
+                                        <input type="text" class="form-control border-start-0" placeholder="Search...">
+                                    </div>
+                                </div>
+
+                                <!-- Notifications -->
+                                <div class="dropdown">
+                                    <button class="btn btn-icon" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bi bi-bell"></i>
+                                        <span class="badge bg-danger rounded-circle position-absolute top-0 end-0">3</span>
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-end notifications-dropdown">
+                                        <div class="dropdown-header d-flex justify-content-between align-items-center">
+                                            <h6 class="mb-0">Notifications</h6>
+                                            <a href="#" class="text-muted small">Mark all as read</a>
+                                        </div>
+                                        <div class="dropdown-body">
+                                            <a href="#" class="dropdown-item">
+                                                <div class="icon-wrapper bg-primary text-white">
+                                                    <i class="bi bi-cart-check"></i>
+                                                </div>
+                                                <div class="notification-content">
+                                                    <p class="mb-0">New order received</p>
+                                                    <span class="text-muted small">5 minutes ago</span>
+                                                </div>
+                                            </a>
+                                            <a href="#" class="dropdown-item">
+                                                <div class="icon-wrapper bg-success text-white">
+                                                    <i class="bi bi-person-plus"></i>
+                                                </div>
+                                                <div class="notification-content">
+                                                    <p class="mb-0">New customer registered</p>
+                                                    <span class="text-muted small">2 hours ago</span>
+                                                </div>
+                                            </a>
+                                            <a href="#" class="dropdown-item">
+                                                <div class="icon-wrapper bg-warning text-white">
+                                                    <i class="bi bi-exclamation-triangle"></i>
+                                                </div>
+                                                <div class="notification-content">
+                                                    <p class="mb-0">Low stock alert: Product XYZ</p>
+                                                    <span class="text-muted small">1 day ago</span>
+                                                </div>
+                                            </a>
+                                        </div>
+                                        <div class="dropdown-footer">
+                                            <a href="#" class="btn btn-primary btn-sm w-100">View All Notifications</a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Messages -->
+                                <div class="dropdown">
+                                    <button class="btn btn-icon" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bi bi-envelope"></i>
+                                        <span class="badge bg-success rounded-circle position-absolute top-0 end-0">5</span>
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-end messages-dropdown">
+                                        <div class="dropdown-header d-flex justify-content-between align-items-center">
+                                            <h6 class="mb-0">Messages</h6>
+                                            <a href="#" class="text-muted small">Mark all as read</a>
+                                        </div>
+                                        <div class="dropdown-body">
+                                            <a href="#" class="dropdown-item">
+                                                <div class="message-avatar">
+                                                    <img src="/placeholder.svg?height=40&width=40" alt="User" class="rounded-circle">
+                                                    <span class="status-indicator bg-success"></span>
+                                                </div>
+                                                <div class="message-content">
+                                                    <h6 class="mb-1">John Doe</h6>
+                                                    <p class="mb-0 text-muted small">Hello, I have a question about my order...</p>
+                                                    <span class="text-muted smaller">10 min ago</span>
+                                                </div>
+                                            </a>
+                                            <a href="#" class="dropdown-item">
+                                                <div class="message-avatar">
+                                                    <img src="/placeholder.svg?height=40&width=40" alt="User" class="rounded-circle">
+                                                    <span class="status-indicator bg-warning"></span>
+                                                </div>
+                                                <div class="message-content">
+                                                    <h6 class="mb-1">Jane Smith</h6>
+                                                    <p class="mb-0 text-muted small">When will my order be shipped?</p>
+                                                    <span class="text-muted smaller">1 hour ago</span>
+                                                </div>
+                                            </a>
+                                        </div>
+                                        <div class="dropdown-footer">
+                                            <a href="#" class="btn btn-primary btn-sm w-100">View All Messages</a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- User Profile Component -->
+                                <div class="user-profile-component">
+                                    @if (SignInManager.IsSignedIn(User))
+                                    {
+                                        <div class="dropdown user-dropdown">
+                                            <button class="btn user-dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <div class="user-avatar-wrapper">
+                                                    @* @if (!string.IsNullOrEmpty(UserManager.GetUserAsync(User).Result?.ProfilePicture)) *@
+                                                    @if (false)
+                                                    {
+                                                        @* <img src="@UserManager.GetUserAsync(User).Result.ProfilePicture" alt="@User.Identity.Name" class="user-avatar"> *@
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="user-avatar-placeholder">
+                                                            <span>@(User.Identity.Name?.Substring(0, 1).ToUpper())</span>
+                                                        </div>
+                                                    }
+                                                    <span class="status-indicator bg-success"></span>
+                                                </div>
+                                                <div class="user-info d-none d-md-block">
+                                                    <span class="user-name">@User.Identity.Name</span>
+                                                    <span class="user-role">@(User.IsInRole("Admin") ? "Administrator" : "User")</span>
+                                                </div>
+                                                <i class="bi bi-chevron-down ms-2"></i>
+                                            </button>
+                                            <div class="dropdown-menu dropdown-menu-end user-dropdown-menu">
+                                                <div class="dropdown-header">
+                                                    <div class="d-flex align-items-center">
+                                                        @* @if (!string.IsNullOrEmpty(UserManager.GetUserAsync(User).Result?.ProfilePicture)) *@
+                                                        @if (false)
+                                                        {
+                                                            @* <img src="@UserManager.GetUserAsync(User).Result.ProfilePicture" alt="@User.Identity.Name" class="dropdown-user-avatar me-3"> *@
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="dropdown-user-avatar-placeholder me-3">
+                                                                <span>@(User.Identity.Name?.Substring(0, 1).ToUpper())</span>
+                                                            </div>
+                                                        }
+                                                        <div>
+                                                            <h6 class="mb-0">@User.Identity.Name</h6>
+                                                            <span class="text-muted small">@(User.IsInRole("Admin") ? "Administrator" : "User")</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="dropdown-body">
+                                                    <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/Index">
+                                                        <i class="bi bi-person me-2"></i>
+                                                        <span>My Profile</span>
+                                                    </a>
+                                                    <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/Email">
+                                                        <i class="bi bi-envelope me-2"></i>
+                                                        <span>Email Settings</span>
+                                                    </a>
+                                                    <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/ChangePassword">
+                                                        <i class="bi bi-shield-lock me-2"></i>
+                                                        <span>Change Password</span>
+                                                    </a>
+                                                    <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/TwoFactorAuthentication">
+                                                        <i class="bi bi-phone me-2"></i>
+                                                        <span>Two-Factor Auth</span>
+                                                    </a>
+                                                    <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/PersonalData">
+                                                        <i class="bi bi-file-earmark-text me-2"></i>
+                                                        <span>Personal Data</span>
+                                                    </a>
+                                                </div>
+                                                <div class="dropdown-footer">
+                                                    <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post">
+                                                        <button type="submit" class="btn btn-danger btn-sm w-100">
+                                                            <i class="bi bi-box-arrow-right me-2"></i>Sign Out
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="auth-buttons">
+                                            <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-outline-primary me-2">
+                                                <i class="bi bi-box-arrow-in-right me-1"></i>
+                                                <span>Login</span>
+                                            </a>
+                                            <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-primary">
+                                                <i class="bi bi-person-plus me-1"></i>
+                                                <span>Register</span>
+                                            </a>
+                                        </div>
+                                    }
+                                </div>
+
+                                <!-- Theme Toggle -->
+                                <div class="theme-toggle">
+                                    <button class="btn btn-icon" id="themeToggle">
+                                        <i class="bi bi-sun-fill"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="page-content p-2">
+                <div class="container-fluid">
+                    @RenderBody()
+                </div>
+            </div>
+
+            @* <!-- Footer --> *@
+            @* <footer class="footer"> *@
+            @*     <div class="container-fluid"> *@
+            @*         <div class="row"> *@
+            @*             <div class="col-md-6"> *@
+            @*                 <p class="mb-0">&copy; @DateTime.Now.Year - ECommerce Beganit AdminPanel</p> *@
+            @*             </div> *@
+            @*             <div class="col-md-6 text-md-end"> *@
+            @*                 <p class="mb-0"> *@
+            @*                     <a asp-controller="Home" asp-action="Privacy" class="text-muted">Privacy</a> | *@
+            @*                     <a href="#" class="text-muted">Terms</a> | *@
+            @*                     <a href="#" class="text-muted">Support</a> *@
+            @*                 </p> *@
+            @*             </div> *@
+            @*         </div> *@
+            @*     </div> *@
+            @* </footer> *@
+        </div>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - ECommerce Beganit AdminPanel - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
+    <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.41.0/dist/apexcharts.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+        // Sidebar Toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const body = document.body;
+            const sidebar = document.getElementById('sidebar');
+            const toggleSidebar = document.getElementById('toggleSidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
+            const themeToggle = document.getElementById('themeToggle');
+
+            // Check for saved theme preference
+            if (localStorage.getItem('darkMode') === 'true') {
+                body.classList.add('dark-mode');
+                themeToggle.innerHTML = '<i class="bi bi-moon-fill"></i>';
+            }
+
+            // Check for saved sidebar state
+            if (localStorage.getItem('sidebarCollapsed') === 'true') {
+                body.classList.add('sidebar-collapsed');
+            }
+
+            // Toggle sidebar on desktop
+            if (toggleSidebar) {
+                toggleSidebar.addEventListener('click', function() {
+                    body.classList.toggle('sidebar-collapsed');
+                    localStorage.setItem('sidebarCollapsed', body.classList.contains('sidebar-collapsed'));
+                });
+            }
+
+            // Close sidebar on mobile
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function() {
+                    body.classList.remove('sidebar-mobile-open');
+                });
+            }
+
+            // Open sidebar on mobile
+            if (mobileSidebarToggle) {
+                mobileSidebarToggle.addEventListener('click', function() {
+                    body.classList.add('sidebar-mobile-open');
+                });
+            }
+
+            // Theme toggle
+            if (themeToggle) {
+                themeToggle.addEventListener('click', function() {
+                    body.classList.toggle('dark-mode');
+                    const isDarkMode = body.classList.contains('dark-mode');
+                    localStorage.setItem('darkMode', isDarkMode);
+
+                    if (isDarkMode) {
+                        themeToggle.innerHTML = '<i class="bi bi-moon-fill"></i>';
+                    } else {
+                        themeToggle.innerHTML = '<i class="bi bi-sun-fill"></i>';
+                    }
+                });
+            }
+
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.dropdown')) {
+                    const dropdowns = document.querySelectorAll('.dropdown-menu.show');
+                    dropdowns.forEach(dropdown => {
+                        dropdown.classList.remove('show');
+                    });
+                }
+            });
+
+            // Initialize tooltips
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

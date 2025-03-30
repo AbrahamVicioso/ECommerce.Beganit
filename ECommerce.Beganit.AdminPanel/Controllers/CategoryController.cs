@@ -4,6 +4,7 @@ using ECommerce.Beganit.AdminPanel.Data;
 using ECommerce.Beganit.AdminPanel.Models;
 using ECommerce.Beganit.AdminPanel.Models.ViewModels;
 using ECommerce.Beganit.AdminPanel.Services;
+using MapsterMapper;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,37 +12,32 @@ using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
 
 namespace ECommerce.Beganit.AdminPanel.Controllers
 {
+    [ApiExplorerSettings(IgnoreApi = true)]
     public class CategoryController : Controller
     {
         private readonly ECommerceDBContext _context;
         private readonly Cloudinary _cloudinary;
         private readonly UploadImageService _uploadImageService;
+        private readonly IMapper _mapper;
 
-        public CategoryController(ECommerceDBContext commerceDBContext,
+        public CategoryController(
+            ECommerceDBContext commerceDBContext,
             Cloudinary cloudinary,
-            UploadImageService uploadImageService
+            UploadImageService uploadImageService,
+            IMapper mapper
             )
         {
             this._context = commerceDBContext;
             this._cloudinary = cloudinary;
             this._uploadImageService = uploadImageService;
+            this._mapper = mapper;
         }
 
         public ActionResult Index()
         {
             // Fetch all categories from the database
             var categories = _context.Categories.ToList()
-                .Select(x => new CategoryViewModel
-                {
-                    Name = x.Name,
-                    CreatedAt = x.CreatedAt,
-                    CreatedBy = x.CreatedBy,
-                    Description = x.Description,
-                    DisplayOrder = x.DisplayOrder,
-                    Id = x.Id,
-                    ImageUrl = x.ImageUrl,
-                    ParentId = x.ParentId
-                })
+                .Select(x => _mapper.Map<CategoryViewModel>(x))
                 .ToList();
 
             // Client-side filtering
@@ -65,27 +61,15 @@ namespace ECommerce.Beganit.AdminPanel.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(CategoryViewModel model)
+        public async Task<IActionResult> Create([FromForm] IFormFile Image, CategoryViewModel model)
         {
             ViewData["Categories"] = _context.Categories.ToList() ?? new List<Category>();
 
             if (!ModelState.IsValid)
             {
-                ImageUploadResult result =  await _uploadImageService.Upload(model.Image);
+                ImageUploadResult result =  await _uploadImageService.Upload(Image);
 
-                Category category = new()
-                {
-                    Name = model.Name,
-                    Description = model.Description,
-                    CreatedAt = DateTime.Now,
-                    CreatedBy = model.CreatedBy,
-                    DisplayOrder = model.DisplayOrder,
-                    Id = model.Id,
-                    ImageUrl = "https://res.cloudinary.com/dppajuos8/image/upload/v1742961023/" + result.PublicId,
-                    Slug = model.Slug,
-                    IsActive = model.IsActive,
-                    ParentId = model.ParentId,
-                };
+                Category category = _mapper.Map<Category>(model);
 
                 _context.Categories.Add(category);
 
@@ -118,27 +102,13 @@ namespace ECommerce.Beganit.AdminPanel.Controllers
                 )
                 .ToList();
 
-            CategoryViewModel category = new CategoryViewModel
-            {
-                Id = currentCategory.Id,
-                Name = currentCategory.Name,
-                Description = currentCategory.Description,
-                CreatedAt = currentCategory.CreatedAt,
-                CreatedBy = currentCategory.CreatedBy,
-                DisplayOrder = currentCategory.DisplayOrder,
-                ImageUrl = currentCategory.ImageUrl,
-                Slug = currentCategory.Slug,
-                IsActive = currentCategory.IsActive ?? false,
-                ParentId = currentCategory.ParentId,
-                UpdatedAt = currentCategory.UpdatedAt,
-                UpdatedBy = currentCategory.UpdatedBy,
-            };
+            CategoryViewModel category = _mapper.Map<CategoryViewModel>(currentCategory);
 
             return View(category);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(CategoryViewModel model)
+        public async Task<IActionResult> Edit([FromForm] IFormFile Image, CategoryViewModel model)
         {
             // Obtener las categorías para el dropdown
             ViewData["Categories"] = _context.Categories.ToList() ?? new List<Category>();
@@ -159,9 +129,9 @@ namespace ECommerce.Beganit.AdminPanel.Controllers
 
             // Manejar la carga de imagen
             ImageUploadResult? result = null;
-            if (model.Image != null)
+            if (Image != null)
             {
-                result = await _uploadImageService.Upload(model.Image);
+                result = await _uploadImageService.Upload(Image);
             }
 
             // Actualizar propiedades de la categoría

@@ -1,4 +1,4 @@
-﻿@model ECommerce.Beganit.AdminPanel.Models.Product
+﻿@model ECommerce.Beganit.AdminPanel.Models.ViewModels.ProductViewModel
 
 @{
     ViewData["Title"] = "Edit Product";
@@ -52,6 +52,11 @@
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="images-tab" data-bs-toggle="tab" data-bs-target="#categories" type="button" role="tab" aria-controls="images" aria-selected="false">
+                                <i class="bi bi-tags me-1"></i>Categories
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
                             <button class="nav-link" id="metadata-tab" data-bs-toggle="tab" data-bs-target="#metadata" type="button" role="tab" aria-controls="metadata" aria-selected="false">
                                 <i class="bi bi-file-earmark-text me-1"></i> Metadata
                             </button>
@@ -59,7 +64,7 @@
                     </ul>
                 </div>
                 <div class="card-body p-4">
-                    <form asp-action="EditProduct" method="post" class="needs-validation" enctype="multipart/form-data" novalidate>
+                    <form id="formulario" asp-action="EditProduct" method="post" class="needs-validation" enctype="multipart/form-data" novalidate>
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 mb-4" role="alert"></div>
                         <input type="hidden" asp-for="Id" />
 
@@ -416,6 +421,131 @@
                                     </div>
                                 </div>
                             </div>
+                            @* Category Tab *@
+                            <!-- Categories Tab -->
+                            <!-- Categories Tab -->
+                            <div class="tab-pane fade" id="categories" role="tabpanel" aria-labelledby="categories-tab">
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Add Category</label>
+                                            <div class="input-group">
+                                                <select id="categorySelect" class="form-select">
+                                                    <option value="">-- Select Category --</option>
+                                                    @if (ViewData["AllCategories"] != null)
+                                                    {
+                                                        foreach (var category in (List<Category>)ViewData["AllCategories"])
+                                                        {
+                                                            <option value="@category.Name">@category.Name</option>
+                                                        }
+                                                    }
+                                                </select>
+                                                <button type="button" id="addCategoryBtn" class="btn btn-primary">
+                                                    <i class="bi bi-plus"></i> Add
+                                                </button>
+                                            </div>
+                                            <div class="form-text">Select a category to add to this product</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="card border-0 bg-light">
+                                            <div class="card-body">
+                                                <h6 class="card-title">Selected Categories</h6>
+                                                <div id="selectedCategoriesContainer" class="row g-2">
+                                                    @if (Model.Categories != null)
+                                                    {
+                                                        foreach (var category in Model.Categories)
+                                                        {
+                                                            <div class="col-auto" data-category-id="@category">
+                                                                <div class="badge bg-primary d-flex align-items-center">
+                                                                    @category
+                                                                    <button type="button" class="btn btn-sm btn-link text-white p-0 ms-2 remove-category" data-category-id="@category">
+                                                                        <i class="bi bi-x"></i>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    }
+                                                </div>
+                                                @if (Model.Categories == null || Model.Categories.Count == 0)
+                                                {
+                                                    <p id="noCategoriesMessage" class="text-muted mt-2">No categories selected</p>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                                <script>
+                                                                    document.addEventListener('DOMContentLoaded', function() {
+                                    const categorySelect = document.getElementById('categorySelect');
+                                    const addCategoryBtn = document.getElementById('addCategoryBtn');
+                                    const selectedCategoriesContainer = document.getElementById('selectedCategoriesContainer');
+                                    const noCategoriesMessage = document.getElementById('noCategoriesMessage');
+
+                                    // Add category functionality
+                                    addCategoryBtn.addEventListener('click', function() {
+                                        const selectedCategoryId = categorySelect.value;
+                                        const selectedCategoryName = categorySelect.options[categorySelect.selectedIndex].text;
+
+                                        if (selectedCategoryId && !document.querySelector(`[data-category-id="${selectedCategoryId}"]`)) {
+                                            // Create category badge with removal functionality
+                                            const categoryBadge = document.createElement('div');
+                                            categoryBadge.className = 'col-auto';
+                                            categoryBadge.dataset.categoryId = selectedCategoryId;
+                                            categoryBadge.innerHTML = `
+                                                <div class="badge bg-primary d-flex align-items-center">
+                                                     ${selectedCategoryName} <i class="bi bi-x"></i>
+                                                    <button type="button" class="btn btn-sm btn-link text-white p-0 ms-2 remove-category" data-category-id="${selectedCategoryId}">
+                                                    </button>
+                                                </div>
+                                            `;
+
+                                            selectedCategoriesContainer.appendChild(categoryBadge);
+
+                                            // Hide no categories message
+                                            if (noCategoriesMessage) {
+                                                noCategoriesMessage.style.display = 'none';
+                                            }
+
+                                            // Reset dropdown
+                                            categorySelect.value = '';
+                                        }
+                                    });
+
+                                    // Remove category functionality with improved event delegation
+                                    selectedCategoriesContainer.addEventListener('click', function(event) {
+                                        const removeBtn = event.target.closest('.remove-category');
+                                        if (removeBtn) {
+                                            const categoryBadge = removeBtn.closest('.col-auto');
+                                            categoryBadge.remove();
+
+                                            // Show no categories message if no categories remain
+                                            if (selectedCategoriesContainer.children.length === 0 && noCategoriesMessage) {
+                                                noCategoriesMessage.style.display = 'block';
+                                            }
+                                        }
+                                    });
+
+                                    // Modify form submission to include selected categories
+                                    document.getElementById('formulario').addEventListener('submit', function(event) {
+                                        // Remove any existing category hidden inputs to prevent duplicates
+                                        this.querySelectorAll('input[name^="Categories"]').forEach(input => input.remove());
+
+                                        // Create hidden inputs for each selected category
+                                        const selectedCategories = selectedCategoriesContainer.querySelectorAll('[data-category-id]');
+                                        // Add new hidden inputs for current categories
+                                        selectedCategories.forEach((categoryElement, index) => {
+                                            const hiddenInput = document.createElement('input');
+                                            hiddenInput.type = 'hidden';
+                                            hiddenInput.name = `Categories[${index}].Id`;
+                                            hiddenInput.value = categoryElement.dataset.categoryId;
+                                            this.appendChild(hiddenInput);
+                                        });
+                                    });
+                                });
+                                </script>
 
                             <!-- Metadata Tab -->
                             <div class="tab-pane fade" id="metadata" role="tabpanel" aria-labelledby="metadata-tab">

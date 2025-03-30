@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Swashbuckle.AspNetCore.Annotations;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -15,18 +16,14 @@ namespace ECommerce.Beganit.AdminPanel.Models.ViewModels
         [StringLength(255, ErrorMessage = "Description cannot exceed 255 characters")]
         public string Description { get; set; }
 
-        [Url(ErrorMessage = "Invalid Logo URL")]
         [StringLength(500, ErrorMessage = "Logo URL cannot exceed 500 characters")]
-        public string LogoUrl { get; set; }
+        public string? LogoUrl { get; set; }
 
         public bool IsActive { get; set; }
 
         [Display(Name = "Created At")]
         [DataType(DataType.DateTime)]
         public DateTime? CreatedAt { get; set; }
-
-        [NotMapped]
-        public IFormFile? Image { get; set; }
 
         [Display(Name = "Updated At")]
         [DataType(DataType.DateTime)]

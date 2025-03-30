@@ -3,36 +3,105 @@
 @{
     ViewData["Title"] = "Products";
     Layout = "_Layout";
+    // Calculate statistics
+    var totalVariants = Model.ToList().Count;
+    var activeVariants = Model.ToList().Count(v => v.IsActive);
+    var totalStock = Model.ToList().Sum(v => v.Quantity);
+    var lowStockCount = Model.ToList().Count(v => v.Quantity < 10 && v.Quantity > 0);
+    var outOfStockCount = Model.ToList().Count(v => v.Quantity <= 0);
+    var totalValue = Model.ToList().Sum(v => v.RegularPrice * v.Quantity);
 }
+
+<div class="py-4 container-fluid">
+    <!-- Header -->
+    <!-- Header Section -->
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center mb-4">
+        <div>
+            <h1 class="display-5 fw-bold mb-1">
+                <i class="bi bi-box-seam text-primary me-2"></i>Products
+            </h1>
+            <p class="text-muted mb-0">Manage your product inventory and pricing</p>
+        </div>
+        <div class="mt-3 mt-lg-0">
+            <a href="@Url.Action("CreateProduct")" class="btn btn-primary btn rounded-pill shadow-sm">
+                <i class="bi bi-plus-circle me-2"></i> Create New Product
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100 bg-primary bg-opacity-10">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="stats-icon bg-primary text-white rounded-circle p-3 me-3">
+                            <i class="bi bi-collection fs-4"></i>
+                        </div>
+                        <h5 class="card-title mb-0">Total Products</h5>
+                    </div>
+                    <h2 class="display-6 fw-bold mb-0">@totalVariants</h2>
+                    <div class="d-flex align-items-center mt-2">
+                        <span class="badge bg-success rounded-pill me-2">@activeVariants Active</span>
+                        <span class="badge bg-danger rounded-pill">@(totalVariants - activeVariants) Inactive</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100 bg-success bg-opacity-10">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="stats-icon bg-success text-white rounded-circle p-3 me-3">
+                            <i class="bi bi-box-seam fs-4"></i>
+                        </div>
+                        <h5 class="card-title mb-0">Total Stock</h5>
+                    </div>
+                    <h2 class="display-6 fw-bold mb-0">@totalStock</h2>
+                    <div class="d-flex align-items-center mt-2">
+                        <span class="badge bg-warning rounded-pill me-2">@lowStockCount Low Stock</span>
+                        <span class="badge bg-danger rounded-pill">@outOfStockCount Out of Stock</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100 bg-info bg-opacity-10">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="stats-icon bg-info text-white rounded-circle p-3 me-3">
+                            <i class="bi bi-currency-dollar fs-4"></i>
+                        </div>
+                        <h5 class="card-title mb-0">Inventory Value</h5>
+                    </div>
+                    <h2 class="display-6 fw-bold mb-0">@totalValue</h2>
+                    <div class="d-flex align-items-center mt-2">
+                        <span class="text-muted">Based on current stock levels</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100 bg-warning bg-opacity-10">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="stats-icon bg-warning text-white rounded-circle p-3 me-3">
+                            <i class="bi bi-graph-up fs-4"></i>
+                        </div>
+                        <h5 class="card-title mb-0">Avg. Price</h5>
+                    </div>
+                    <h2 class="display-6 fw-bold mb-0">@(Model.Any() ? Model.Average(v => v.RegularPrice).ToString("C2") : "$0.00")</h2>
+                    <div class="d-flex align-items-center mt-2">
+                        <span class="text-muted">Average price across all products</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="container-fluid py-4">
     <div class="card shadow-sm border-0">
-        <!-- Header -->
-        <div class="card-header bg-white d-flex flex-column flex-md-row justify-content-between align-items-md-center py-3">
-            <div class="d-flex align-items-center mb-3 mb-md-0">
-                <h1 class="h3 mb-0">Products</h1>
-                <span class="badge bg-primary rounded-pill ms-2">@Model.Count()</span>
-            </div>
-            <div class="d-flex gap-2">
-                <div class="dropdown">
-                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-file-export me-1"></i> Export
-                    </button>
-                    <ul class="dropdown-menu" aria-labelledby="exportDropdown">
-                        <li><a class="dropdown-item" href="#"><i class="far fa-file-excel me-2"></i>Excel</a></li>
-                        <li><a class="dropdown-item" href="#"><i class="far fa-file-pdf me-2"></i>PDF</a></li>
-                        <li><a class="dropdown-item" href="#"><i class="far fa-file-csv me-2"></i>CSV</a></li>
-                    </ul>
-                </div>
-                <button class="btn btn-outline-secondary">
-                    <i class="fas fa-file-import me-1"></i> Import
-                </button>
-                <a asp-action="CreateProduct" class="btn btn-primary">
-                    Create new Product
-                </a>
-            </div>
-        </div>
-
         <!-- Filters -->
         <div class="card-body border-bottom bg-light py-3">
             <form id="productFilters">
@@ -169,6 +238,8 @@
                     <tbody>
                         @foreach (var item in Model)
                         {
+                            var stockStatus = item.Quantity <= 0 ? "out-of-stock" :
+                            item.Quantity < 10 ? "low-stock" : "in-stock";
                             <tr>
                                 <td>
                                     <div class="form-check">
@@ -193,30 +264,39 @@
                                 <td>
                                     @if (item.IsActive)
                                     {
-                                        <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill">
-                                            <i class="fas fa-circle me-1 small"></i> Available
-                                        </span>
+                                        <div class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">
+                                            <i class="bi bi-check-circle-fill me-1"></i> Active
+                                        </div>
                                     }
                                     else
                                     {
-                                        <span class="badge bg-secondary-subtle text-secondary px-3 py-2 rounded-pill">
-                                            <i class="fas fa-circle me-1 small"></i> Disabled
-                                        </span>
+                                        <div class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2">
+                                            <i class="bi bi-x-circle-fill me-1"></i> Inactive
+                                        </div>
                                     }
                                 </td>
                                 <td>
-                                    @{
-                                        string stockClass = "text-success";
-                                        if (item.Quantity <= 0)
-                                        {
-                                            stockClass = "text-danger";
-                                        }
-                                        else if (item.Quantity < 10)
-                                        {
-                                            stockClass = "text-warning";
-                                        }
+                                    @if (item.Quantity <= 0)
+                                    {
+                                        <div class="d-flex align-items-center">
+                                            <span class="badge bg-danger me-2">@item.Quantity</span>
+                                            <span class="text-danger small">Out of Stock</span>
+                                        </div>
                                     }
-                                    <span class="fw-medium @stockClass">@item.Quantity</span>
+                                    else if (item.Quantity < 10)
+                                    {
+                                        <div class="d-flex align-items-center">
+                                            <span class="badge bg-warning text-dark me-2">@item.Quantity</span>
+                                            <span class="text-warning small">Low Stock</span>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="d-flex align-items-center">
+                                            <span class="badge bg-success me-2">@item.Quantity</span>
+                                            <span class="text-success small">In Stock</span>
+                                        </div>
+                                    }
                                 </td>
                                 <td>
                                     <div class="product-price">
@@ -340,4 +420,119 @@
             });
         });
     </script>
+}
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap5.min.css">
+
+    <style>
+        /* Custom styling */
+        .stats-icon {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .product-img-wrapper {
+            width: 60px;
+            height: 60px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .product-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .display-icon {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Tab styling */
+        .nav-pills .nav-link {
+            color: #6c757d;
+            padding: 0.5rem 1rem;
+            border-radius: 50rem;
+            margin-right: 0.5rem;
+        }
+
+            .nav-pills .nav-link.active {
+                background-color: #0d6efd;
+                color: white;
+            }
+
+        /* Animation for row hover */
+        .variant-row {
+            transition: all 0.2s ease;
+        }
+
+            .variant-row:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                z-index: 10;
+                position: relative;
+            }
+
+        /* DataTables customization */
+        .dataTables_wrapper .dataTables_filter input {
+            border-radius: 50rem;
+            padding: 0.375rem 0.75rem;
+            border: 1px solid #dee2e6;
+        }
+
+        .dataTables_wrapper .dataTables_length select {
+            border-radius: 0.25rem;
+            padding: 0.375rem 1.75rem 0.375rem 0.75rem;
+            border: 1px solid #dee2e6;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: #0d6efd !important;
+            color: white !important;
+            border: none;
+            border-radius: 50rem;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background: #0a58ca !important;
+            color: white !important;
+            border: none;
+        }
+
+        /* Status badges */
+        .bg-success-subtle {
+            background-color: rgba(25, 135, 84, 0.1);
+        }
+
+        .bg-danger-subtle {
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+
+        /* Animation for refresh button */
+        @@keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .spin {
+            animation: spin 1s linear;
+        }
+    </style>
 }
