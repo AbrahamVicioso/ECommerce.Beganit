@@ -1,0 +1,40 @@
+﻿@model ECommerce.Beganit.AdminPanel.Models.Review
+
+@{
+    ViewData["Title"] = "Editar Reseña";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="Edit">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="form-group">
+        <label asp-for="Title"></label>
+        <input asp-for="Title" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Content"></label>
+        <textarea asp-for="Content" class="form-control"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Rating"></label>
+        <input asp-for="Rating" type="number" class="form-control" />
+    </div>
+
+    <div class="form-check">
+        <input asp-for="IsVerifiedPurchase" class="form-check-input" />
+        <label asp-for="IsVerifiedPurchase" class="form-check-label"></label>
+    </div>
+
+    <div class="form-check">
+        <input asp-for="IsApproved" class="form-check-input" />
+        <label asp-for="IsApproved" class="form-check-label"></label>
+    </div>
+
+    <br />
+    <button type="submit" class="btn btn-success">Guardar</button>
+    <a asp-action="Index" class="btn btn-secondary">Volver</a>
+</form>

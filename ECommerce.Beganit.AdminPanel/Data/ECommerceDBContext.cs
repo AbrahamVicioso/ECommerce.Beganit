@@ -10,7 +10,7 @@ using ECommerce.Beganit.AdminPanel.Models.ViewModels;
 
 namespace ECommerce.Beganit.AdminPanel.Data;
 
-public partial class ECommerceDBContext : IdentityDbContext
+public partial class ECommerceDBContext : IdentityDbContext<IdentityUserApp>
 {
     public ECommerceDBContext(DbContextOptions<ECommerceDBContext> options)
         : base(options)
@@ -116,5 +116,4 @@ public partial class ECommerceDBContext : IdentityDbContext
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 
-public DbSet<ECommerce.Beganit.AdminPanel.Models.ViewModels.IdentityRoleViewModel> IdentityRoleViewModel { get; set; } = default!;
 }

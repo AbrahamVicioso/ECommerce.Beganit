@@ -1,0 +1,454 @@
+﻿@model ECommerce.Beganit.AdminPanel.Models.ViewModels.UserRolesViewModel
+
+@{
+    ViewData["Title"] = "Edit User";
+    var userId = Model.User.Id;
+    var userName = Model.User.UserName;
+    var userEmail = Model.User.Email;
+    var isLocked = Model.User.LockoutEnd != null && Model.User.LockoutEnd > DateTimeOffset.Now;
+}
+
+<div class="container-fluid py-4">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <div class="d-flex align-items-center">
+                <div class="me-3">
+                    <i class="bi bi-person-fill text-primary fs-1"></i>
+                </div>
+                <div>
+                    <h1 class="h2 mb-0">Edit User</h1>
+                    <p class="text-muted mb-0">Manage user account details and permissions</p>
+                </div>
+            </div>
+        </div>
+        <div>
+            <a asp-action="Index" class="btn btn-outline-secondary me-2">
+                <i class="bi bi-arrow-left me-1"></i> Back to Users
+            </a>
+            <button type="submit" form="userEditForm" class="btn btn-primary">
+                <i class="bi bi-save me-1"></i> Save Changes
+            </button>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Left Column - User Details -->
+        <div class="col-lg-8">
+            <!-- User Information Card -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3 border-0">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-primary bg-opacity-10 p-2 me-3">
+                            <i class="bi bi-person text-primary"></i>
+                        </div>
+                        <h5 class="card-title mb-0">Account Information</h5>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form id="userEditForm" asp-action="Edit" method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2" role="alert"></div>
+
+                        <!-- Hidden fields -->
+                        <input type="hidden" asp-for="User.Id" />
+                        <input type="hidden" asp-for="User.SecurityStamp" />
+                        <input type="hidden" asp-for="User.ConcurrencyStamp" />
+                        <input type="hidden" asp-for="User.PasswordHash" />
+                        <input type="hidden" asp-for="User.NormalizedUserName" />
+                        <input type="hidden" asp-for="User.NormalizedEmail" />
+                        <input type="hidden" asp-for="User.AccessFailedCount" />
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label asp-for="User.UserName" class="form-label">Username</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light">
+                                        <i class="bi bi-person"></i>
+                                    </span>
+                                    <input asp-for="User.UserName" class="form-control" />
+                                </div>
+                                <span asp-validation-for="User.UserName" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="User.Email" class="form-label">Email Address</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light">
+                                        <i class="bi bi-envelope"></i>
+                                    </span>
+                                    <input asp-for="User.Email" class="form-control" />
+                                </div>
+                                <span asp-validation-for="User.Email" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label asp-for="User.PhoneNumber" class="form-label">Phone Number</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light">
+                                        <i class="bi bi-telephone"></i>
+                                    </span>
+                                    <input asp-for="User.PhoneNumber" class="form-control" />
+                                </div>
+                                <span asp-validation-for="User.PhoneNumber" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="User.LockoutEnd" class="form-label">Lockout End Date</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light">
+                                        <i class="bi bi-calendar"></i>
+                                    </span>
+                                    <input asp-for="User.LockoutEnd" class="form-control" type="datetime-local" />
+                                </div>
+                                <span asp-validation-for="User.LockoutEnd" class="text-danger small"></span>
+                                <div class="form-text">Leave empty to remove lockout</div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="card bg-light border-0">
+                                    <div class="card-body">
+                                        <h6 class="mb-3">Account Verification</h6>
+                                        <div class="form-check form-switch mb-3">
+                                            <input asp-for="User.EmailConfirmed" class="form-check-input" />
+                                            <label asp-for="User.EmailConfirmed" class="form-check-label">
+                                                <i class="bi bi-envelope-check me-1 text-success"></i> Email Confirmed
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input asp-for="User.PhoneNumberConfirmed" class="form-check-input" />
+                                            <label asp-for="User.PhoneNumberConfirmed" class="form-check-label">
+                                                <i class="bi bi-phone-check me-1 text-success"></i> Phone Confirmed
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card bg-light border-0">
+                                    <div class="card-body">
+                                        <h6 class="mb-3">Security Settings</h6>
+                                        <div class="form-check form-switch mb-3">
+                                            <input asp-for="User.TwoFactorEnabled" class="form-check-input" />
+                                            <label asp-for="User.TwoFactorEnabled" class="form-check-label">
+                                                <i class="bi bi-shield-check me-1 text-info"></i> Two-Factor Authentication
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input asp-for="User.LockoutEnabled" class="form-check-input" />
+                                            <label asp-for="User.LockoutEnabled" class="form-check-label">
+                                                <i class="bi bi-lock me-1 text-warning"></i> Account Lockout Enabled
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- User Roles Card -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-primary bg-opacity-10 p-2 me-3">
+                            <i class="bi bi-shield-lock text-primary"></i>
+                        </div>
+                        <h5 class="card-title mb-0">User Roles</h5>
+                    </div>
+                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addRoleModal">
+                        <i class="bi bi-plus-lg me-1"></i> Add Role
+                    </button>
+                </div>
+                <div class="card-body">
+                    @if (Model.UserRoles.Any())
+                    {
+                        <div class="d-flex flex-wrap gap-2">
+                            @foreach (var role in Model.UserRoles)
+                            {
+                                <div class="role-badge">
+                                    <div class="badge bg-primary bg-opacity-10 text-primary p-2 d-flex align-items-center">
+                                        <i class="bi bi-person-badge me-1"></i>
+                                        <span class="me-2">@role</span>
+                                        <form asp-action="RemoveUserRole" asp-route-userId="@Model.User.Id" asp-route-role="@role" method="post" class="d-inline">
+                                            <button type="submit" class="btn-close btn-close-sm" aria-label="Remove"
+                                                    onclick="return confirm('Are you sure you want to remove the @role role from this user?')"></button>
+                                        </form>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning d-flex align-items-center">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            <div>This user has no assigned roles. Users without roles may have limited access to the system.</div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - User Info & Actions -->
+        <div class="col-lg-4">
+            <!-- User Status Card -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3 border-0">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-primary bg-opacity-10 p-2 me-3">
+                            <i class="bi bi-info-circle text-primary"></i>
+                        </div>
+                        <h5 class="card-title mb-0">Account Status</h5>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rounded-circle @(isLocked ? "bg-danger" : "bg-success") bg-opacity-10 p-3 me-3">
+                            <i class="bi @(isLocked ? "bi-lock-fill" : "bi-unlock-fill") @(isLocked ? "text-danger" : "text-success") fs-4"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0">@(isLocked ? "Account Locked" : "Account Active")</h6>
+                            <p class="text-muted mb-0">
+                                @if (isLocked)
+                                {
+                                    <span>Locked until @Model.User.LockoutEnd?.LocalDateTime.ToString("MM/dd/yyyy HH:mm")</span>
+                                }
+                                else
+                                {
+                                    <span>User can log in normally</span>
+                                }
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="list-group list-group-flush mb-3">
+                        <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <span>User ID</span>
+                            <span class="text-muted small user-select-all">@Model.User.Id</span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <span>Failed Login Attempts</span>
+                            <span class="badge bg-danger rounded-pill">@Model.User.AccessFailedCount</span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <span>Email Verification</span>
+                            @if (Model.User.EmailConfirmed)
+                            {
+                                <span class="badge bg-success">Verified</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning text-dark">Unverified</span>
+                            }
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <span>Two-Factor Auth</span>
+                            @if (Model.User.TwoFactorEnabled)
+                            {
+                                <span class="badge bg-info">Enabled</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Disabled</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Actions Card -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3 border-0">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-primary bg-opacity-10 p-2 me-3">
+                            <i class="bi bi-gear text-primary"></i>
+                        </div>
+                        <h5 class="card-title mb-0">Account Actions</h5>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="#" class="btn btn-outline-primary d-flex align-items-center justify-content-center" id="resetPasswordBtn">
+                            <i class="bi bi-key me-2"></i> Reset Password
+                        </a>
+
+                        @if (isLocked)
+                        {
+                            <a asp-action="UnlockUser" asp-route-id="@Model.User.Id" class="btn btn-outline-success d-flex align-items-center justify-content-center">
+                                <i class="bi bi-unlock me-2"></i> Unlock Account
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-action="LockUser" asp-route-id="@Model.User.Id" class="btn btn-outline-warning d-flex align-items-center justify-content-center">
+                                <i class="bi bi-lock me-2"></i> Lock Account
+                            </a>
+                        }
+
+                        <a href="#" class="btn btn-outline-info d-flex align-items-center justify-content-center" id="forceLogoutBtn">
+                            <i class="bi bi-box-arrow-right me-2"></i> Force Logout
+                        </a>
+
+                        <button type="button" class="btn btn-outline-danger d-flex align-items-center justify-content-center"
+                                data-bs-toggle="modal" data-bs-target="#deleteUserModal">
+                            <i class="bi bi-trash me-2"></i> Delete User
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Role Modal -->
+<div class="modal fade" id="addRoleModal" tabindex="-1" aria-labelledby="addRoleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <form asp-action="AddUserRole" asp-route-userId="@Model.User.Id" method="post">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="addRoleModalLabel">
+                        <i class="bi bi-shield-plus me-2"></i>
+                        Add Role to User
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    @if (Model.AvailableRoles.Any())
+                    {
+                        <div class="mb-3">
+                            <label for="roleSelect" class="form-label">Select a role to assign</label>
+                            <select name="role" id="roleSelect" class="form-select">
+                                @foreach (var role in Model.AvailableRoles)
+                                {
+                                    <option value="@role">@role</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Assigning a role will grant the user all permissions associated with that role.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            There are no available roles to assign to this user.
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" @(Model.AvailableRoles.Any() ? "" : "disabled")>
+                        <i class="bi bi-plus-lg me-1"></i> Add Role
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete User Modal -->
+<div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteUserModalLabel">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Delete User
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <p>Are you sure you want to delete the user <strong>@userName</strong>?</p>
+                <p class="mb-0 text-danger">This action cannot be undone. All user data will be permanently deleted.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form asp-action="Delete" asp-route-id="@userId" method="post">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash me-1"></i> Delete User
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        /* Role badge styling */
+        .role-badge .badge {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* Form switch styling */
+        .form-switch .form-check-input {
+            width: 3em;
+            height: 1.5em;
+            margin-left: -2.5em;
+        }
+
+        .form-switch .form-check-label {
+            padding-left: 0.5em;
+        }
+
+        /* Card hover effect */
+        .card {
+            transition: all 0.3s ease;
+        }
+
+            .card:hover {
+                box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+            }
+
+        /* Button hover effects */
+        .btn {
+            transition: all 0.2s ease;
+        }
+
+        /* Custom close button for role badges */
+        .btn-close-sm {
+            font-size: 0.65rem;
+            padding: 0.25rem;
+            background: transparent;
+            border: none;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+        }
+
+            .btn-close-sm:hover {
+                opacity: 1;
+            }
+    </style>
+}
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Reset Password Button Click
+            document.getElementById('resetPasswordBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm("Are you sure you want to reset this user's password?")) {
+                    window.location.href = '@Url.Action("ResetPassword", new { id = Model.User.Id })';
+                }
+            });
+
+            // Force Logout Button Click
+            document.getElementById('forceLogoutBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm("Are you sure you want to force this user to log out?")) {
+                    window.location.href = '@Url.Action("ForceLogout", new { id = Model.User.Id })';
+                }
+            });
+        });
+    </script>
+}

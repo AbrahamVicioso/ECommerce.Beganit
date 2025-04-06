@@ -3,174 +3,288 @@
 @{
     ViewData["Title"] = "Edit Product Variant";
     var products = ViewBag.Products as List<Product>;
+    var commonAttributes = new List<string> { "Color", "Size", "Material", "Style", "Weight", "Dimensions", "Pattern" };
 }
 
 <div class="container-fluid py-4">
     <!-- Header Banner -->
-    <div class="bg-primary text-white rounded-3 mb-4 p-4">
-        <div class="d-flex align-items-center">
-            <div class="bg-white rounded-circle p-3 me-3">
-                <i class="bi bi-box-seam text-primary fs-3"></i>
-            </div>
-            <div>
-                <h1 class="mb-0">Edit Product Variant</h1>
-                <p class="mb-0 opacity-75">Update variant details in your product catalog</p>
+    <div class="card border-0 shadow-sm mb-4 bg-gradient-primary">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center">
+                <div class="rounded-circle bg-white p-3 me-3 shadow-sm">
+                    <i class="bi bi-box-seam text-primary fs-3"></i>
+                </div>
+                <div class="text-white">
+                    <h1 class="h3 mb-0">@(Model.Id > 0 ? "Edit" : "Create") Product Variant</h1>
+                    <p class="mb-0 opacity-75">Customize product options with specific attributes and pricing</p>
+                </div>
+                <div class="ms-auto">
+                    <a asp-action="Index" class="btn btn-light btn-sm">
+                        <i class="bi bi-arrow-left me-1"></i> Back to List
+                    </a>
+                </div>
             </div>
         </div>
     </div>
 
     <div class="row g-4">
-        <!-- Left Column - Form -->
         <div class="col-lg-8">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-header bg-light py-3">
-                    <div class="d-flex align-items-center">
-                        <div class="rounded-circle bg-primary bg-opacity-10 p-2 me-2">
-                            <i class="bi bi-info-circle text-primary"></i>
+            <form asp-action="Edit" method="post" id="variantForm" class="needs-validation" novalidate>
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4" role="alert"></div>
+                <input type="hidden" asp-for="Id" />
+
+                <!-- Main Information Card -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white p-3 border-0">
+                        <div class="d-flex align-items-center">
+                            <span class="rounded-circle bg-primary bg-opacity-10 p-2 me-2">
+                                <i class="bi bi-info-circle text-primary"></i>
+                            </span>
+                            <h5 class="card-title mb-0">Basic Information</h5>
                         </div>
-                        <h5 class="card-title mb-0">Variant Information</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row g-4">
+                            <!-- Product Selection -->
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="ProductId" class="form-label fw-medium">
+                                        <i class="bi bi-tag-fill me-1 text-primary-subtle"></i>
+                                        Parent Product <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light">
+                                            <i class="bi bi-search"></i>
+                                        </span>
+                                        <select asp-for="ProductId" class="form-select" required>
+                                            <option value="">- Select Product -</option>
+                                            @if (products != null)
+                                            {
+                                                foreach (var product in products)
+                                                {
+                                                    <option value="@product.Id">@product.Name</option>
+                                                }
+                                            }
+                                        </select>
+                                        <a href="#" class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="View Product Details">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                    </div>
+                                    <span asp-validation-for="ProductId" class="text-danger small"></span>
+                                    <div class="form-text">
+                                        <i class="bi bi-info-circle-fill me-1 small"></i>
+                                        Select the product this variant belongs to
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- SKU -->
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Sku" class="form-label fw-medium">
+                                        <i class="bi bi-upc-scan me-1 text-primary-subtle"></i>
+                                        SKU (Stock Keeping Unit) <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light">
+                                            <i class="bi bi-hash"></i>
+                                        </span>
+                                        <input asp-for="Sku" class="form-control" placeholder="e.g. PROD-VAR-001" required />
+                                        <button type="button" id="generateSkuBtn" class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Generate SKU">
+                                            <i class="bi bi-magic"></i>
+                                        </button>
+                                    </div>
+                                    <span asp-validation-for="Sku" class="text-danger small"></span>
+                                    <div class="form-text">
+                                        <i class="bi bi-info-circle-fill me-1 small"></i>
+                                        Unique identifier for inventory management
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Price -->
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Price" class="form-label fw-medium">
+                                        <i class="bi bi-currency-dollar me-1 text-primary-subtle"></i>
+                                        Price <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light">$</span>
+                                        <input asp-for="Price" type="number" step="0.01" min="0" class="form-control" placeholder="0.00" required />
+                                    </div>
+                                    <span asp-validation-for="Price" class="text-danger small"></span>
+                                    <div class="form-text">
+                                        <i class="bi bi-info-circle-fill me-1 small"></i>
+                                        Retail price for this variant
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Quantity -->
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Quantity" class="form-label fw-medium">
+                                        <i class="bi bi-boxes me-1 text-primary-subtle"></i>
+                                        Quantity in Stock <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light">
+                                            <i class="bi bi-123"></i>
+                                        </span>
+                                        <input asp-for="Quantity" type="number" min="0" class="form-control" placeholder="0" required />
+                                    </div>
+                                    <span asp-validation-for="Quantity" class="text-danger small"></span>
+                                    <div class="form-text">
+                                        <i class="bi bi-info-circle-fill me-1 small"></i>
+                                        Available inventory quantity
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Is Active -->
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label class="form-label fw-medium d-flex align-items-center">
+                                        <i class="bi bi-toggle-on me-1 text-primary-subtle"></i>
+                                        Variant Status
+                                    </label>
+                                    <div class="form-check form-switch form-switch-lg">
+                                        <input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch" id="isActiveSwitch" />
+                                        <label class="form-check-label" for="isActiveSwitch">
+                                            <span id="statusText" class="fw-medium"></span>
+                                            <small class="text-muted d-block" id="statusDescription"></small>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="card-body p-4">
-                    <form asp-action="Edit" method="post" id="editVariantForm">
-                        <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4" role="alert"></div>
-                        <input type="hidden" asp-for="Id" />
 
-                        <!-- Product Selection -->
-                        <div class="mb-4">
-                            <label class="d-flex align-items-center mb-2">
-                                <i class="bi bi-tag me-2"></i>
-                                <span>Select Product</span>
-                            </label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light">
-                                    <i class="bi bi-search"></i>
+                <!-- Attributes Card -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white p-3 border-0">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <span class="rounded-circle bg-primary bg-opacity-10 p-2 me-2">
+                                    <i class="bi bi-list-check text-primary"></i>
                                 </span>
-                                <select asp-for="ProductId" class="form-select">
-                                    <option value="">- Select Product -</option>
-                                    @foreach(Product product in products){
-                                        <option value="@product.Id">@product.Name</option>
-                                    }
-                                </select>
-                                <a href="#" class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="View Product Details">
-                                    <i class="bi bi-eye"></i>
-                                </a>
+                                <h5 class="card-title mb-0">Variant Attributes</h5>
                             </div>
-                            <span asp-validation-for="ProductId" class="text-danger"></span>
-                            <div class="form-text">
-                                <i class="bi bi-info-circle-fill me-1 small"></i>
-                                Select the product this variant belongs to
-                            </div>
-                        </div>
-
-                        <!-- SKU -->
-                        <div class="mb-4">
-                            <label asp-for="Sku" class="d-flex align-items-center mb-2">
-                                <i class="bi bi-upc-scan me-2"></i>
-                                <span>SKU (Stock Keeping Unit)</span>
-                            </label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light">
-                                    <i class="bi bi-hash"></i>
-                                </span>
-                                <input asp-for="Sku" class="form-control" placeholder="e.g. PROD-VAR-001" />
-                            </div>
-                            <span asp-validation-for="Sku" class="text-danger"></span>
-                            <div class="form-text">
-                                <i class="bi bi-info-circle-fill me-1 small"></i>
-                                Unique identifier for inventory management
-                            </div>
-                        </div>
-
-                        <!-- Price -->
-                        <div class="mb-4">
-                            <label asp-for="Price" class="d-flex align-items-center mb-2">
-                                <i class="bi bi-currency-dollar me-2"></i>
-                                <span>Price</span>
-                            </label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light">$</span>
-                                <input asp-for="Price" type="number" step="0.01" min="0" class="form-control" placeholder="0.00" />
-                            </div>
-                            <span asp-validation-for="Price" class="text-danger"></span>
-                            <div class="form-text">
-                                <i class="bi bi-info-circle-fill me-1 small"></i>
-                                Retail price for this variant
-                            </div>
-                        </div>
-
-                        <!-- Quantity -->
-                        <div class="mb-4">
-                            <label asp-for="Quantity" class="d-flex align-items-center mb-2">
-                                <i class="bi bi-boxes me-2"></i>
-                                <span>Quantity in Stock</span>
-                            </label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light">
-                                    <i class="bi bi-123"></i>
-                                </span>
-                                <input asp-for="Quantity" type="number" min="0" class="form-control" placeholder="0" />
-                            </div>
-                            <span asp-validation-for="Quantity" class="text-danger"></span>
-                            <div class="form-text">
-                                <i class="bi bi-info-circle-fill me-1 small"></i>
-                                Available inventory quantity
-                            </div>
-                        </div>
-
-                        <!-- Is Active -->
-                        <div class="mb-4">
-                            <label class="d-flex align-items-center mb-3">
-                                <i class="bi bi-toggle-on me-2"></i>
-                                <span>Variant Status</span>
-                            </label>
-                            <div class="form-check form-switch form-switch-lg">
-                                <input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch" id="isActiveSwitch" />
-                                <label class="form-check-label" for="isActiveSwitch">
-                                    <span id="statusText" class="fw-medium"></span>
-                                    <small class="text-muted d-block" id="statusDescription"></small>
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="d-flex justify-content-end mt-4">
-                            <a asp-action="Index" class="btn btn-outline-secondary me-2">
-                                <i class="bi bi-x-circle me-1"></i> Cancel
-                            </a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-save me-1"></i> Save Changes
+                            <button type="button" id="addAttributeBtn" class="btn btn-primary btn-sm">
+                                <i class="bi bi-plus-lg me-1"></i> Add Attribute
                             </button>
                         </div>
-                    </form>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="alert alert-info d-flex align-items-center mb-4">
+                            <i class="bi bi-info-circle-fill fs-5 me-3"></i>
+                            <div>
+                                <strong>What are variant attributes?</strong>
+                                <p class="mb-0">Attributes define the specific characteristics of this variant, such as color, size, or material. These help customers find the exact product they're looking for.</p>
+                            </div>
+                        </div>
+
+                        <div id="attributesContainer">
+                            @if (Model.ProductVariantAttributes != null && Model.ProductVariantAttributes.Count > 0)
+                            {
+                                foreach (var attr in Model.ProductVariantAttributes)
+                                {
+                                    <div class="attribute-row mb-3 p-3 border rounded bg-light position-relative">
+                                        <button type="button" class="btn-close position-absolute top-0 end-0 m-2 remove-attribute" aria-label="Remove"></button>
+                                        <div class="row g-3">
+                                            <div class="col-md-5">
+                                                <label class="form-label">Attribute Name</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-white">
+                                                        <i class="bi bi-tag"></i>
+                                                    </span>
+                                                    <input type="text" name="ProductVariantAttributes[0].AttributeName" class="form-control attribute-name" value="@attr.AttributeName" required />
+                                                </div>
+                                            </div>
+                                            <div class="col-md-7">
+                                                <label class="form-label">Attribute Value</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-white">
+                                                        <i class="bi bi-input-cursor-text"></i>
+                                                    </span>
+                                                    <input type="text" name="ProductVariantAttributes[0].AttributeValue" class="form-control attribute-value" value="@attr.AttributeValue" required />
+                                                    <input type="hidden" name="ProductVariantAttributes[0].VariantId" value="@attr.VariantId" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div id="noAttributesMessage" class="text-center py-5">
+                                    <div class="mb-3">
+                                        <i class="bi bi-tags text-muted fs-1"></i>
+                                    </div>
+                                    <h6 class="text-muted">No attributes added yet</h6>
+                                    <p class="text-muted mb-0">Click "Add Attribute" to define variant characteristics</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
                 </div>
-            </div>
+
+                <!-- Action Buttons -->
+                <div class="d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle me-1"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save me-1"></i> Save Variant
+                    </button>
+                </div>
+            </form>
         </div>
 
         <!-- Right Column - Preview -->
         <div class="col-lg-4">
-            <div class="card shadow-sm border-0 sticky-top" style="top: 20px; z-index: 100;">
-                <div class="card-header bg-light py-3">
-                    <div class="d-flex align-items-center">
-                        <div class="rounded-circle bg-primary bg-opacity-10 p-2 me-2">
-                            <i class="bi bi-eye text-primary"></i>
+            <div class="sticky-top" style="top: 20px; z-index: 100;">
+                <!-- Preview Card -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white p-3 border-0">
+                        <div class="d-flex align-items-center">
+                            <span class="rounded-circle bg-primary bg-opacity-10 p-2 me-2">
+                                <i class="bi bi-eye text-primary"></i>
+                            </span>
+                            <h5 class="card-title mb-0">Variant Preview</h5>
                         </div>
-                        <h5 class="card-title mb-0">Variant Preview</h5>
                     </div>
-                </div>
-                <div class="card-body p-4">
-                    <!-- Preview Content -->
-                    <div class="text-center mb-4">
-                        <div class="variant-preview bg-light rounded p-4 mb-3">
-                            <div class="product-placeholder mb-3">
-                                <i class="bi bi-box-seam fs-1 text-primary"></i>
+                    <div class="card-body p-4">
+                        <div class="variant-preview bg-light rounded-3 p-4 mb-4 text-center">
+                            <div class="product-image-placeholder mb-3">
+                                <div class="placeholder-icon">
+                                    <i class="bi bi-box-seam fs-1 text-primary"></i>
+                                </div>
                             </div>
                             <h5 id="previewProductName" class="mb-1">Select a product</h5>
-                            <p id="previewSku" class="text-muted small mb-2">SKU: @Model.Sku</p>
-                            <div class="d-flex justify-content-center align-items-center mb-2">
+                            <p id="previewSku" class="text-muted small mb-2">SKU: @(Model.Sku ?? "Not set")</p>
+
+                            <!-- Attributes Pills -->
+                            <div id="previewAttributes" class="d-flex flex-wrap justify-content-center gap-1 mb-3">
+                                @if (Model.ProductVariantAttributes != null && Model.ProductVariantAttributes.Count > 0)
+                                {
+                                    foreach (var attr in Model.ProductVariantAttributes)
+                                    {
+                                        <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-2">
+                                            <strong>@attr.AttributeName:</strong> @attr.AttributeValue
+                                        </span>
+                                    }
+                                }
+                            </div>
+
+                            <div class="d-flex justify-content-center align-items-center mb-3">
                                 <span id="previewPrice" class="fs-3 fw-bold text-primary me-2">$@(Model.Price.ToString("0.00"))</span>
                                 <span id="previewStatus" class="badge bg-success">Active</span>
                             </div>
-                            <div class="inventory-indicator mb-2">
+
+                            <div class="inventory-indicator">
                                 <div class="d-flex justify-content-between small mb-1">
                                     <span>Stock Level:</span>
                                     <span id="previewQuantity">@Model.Quantity units</span>
@@ -180,34 +294,76 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Stock Status -->
-                    <div class="card bg-light border-0 mb-4">
-                        <div class="card-body p-3">
-                            <h6 class="card-subtitle mb-2">
-                                <i class="bi bi-graph-up me-2"></i>Stock Status
-                            </h6>
-                            <div id="stockStatusIndicator" class="d-flex align-items-center">
-                                <div class="stock-icon bg-success text-white rounded-circle p-2 me-2">
-                                    <i class="bi bi-check-lg"></i>
-                                </div>
-                                <div>
-                                    <span id="stockStatusText" class="fw-bold">In Stock</span>
-                                    <small id="stockAdvice" class="text-muted d-block">Stock level is good</small>
+                        <!-- Stock Status Card -->
+                        <div class="card bg-light border-0 mb-4">
+                            <div class="card-body p-3">
+                                <h6 class="card-subtitle mb-2">
+                                    <i class="bi bi-graph-up me-2"></i>Stock Status
+                                </h6>
+                                <div id="stockStatusIndicator" class="d-flex align-items-center">
+                                    <div class="stock-icon bg-success text-white rounded-circle p-2 me-2">
+                                        <i class="bi bi-check-lg"></i>
+                                    </div>
+                                    <div>
+                                        <span id="stockStatusText" class="fw-bold">In Stock</span>
+                                        <small id="stockAdvice" class="text-muted d-block">Stock level is good</small>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Action Buttons -->
-                    <div class="d-grid gap-2">
-                        <button type="submit" form="editVariantForm" class="btn btn-primary btn-lg">
-                            <i class="bi bi-save me-2"></i> Save Changes
-                        </button>
-                        <a asp-action="Index" class="btn btn-outline-secondary">
-                            <i class="bi bi-arrow-left me-2"></i> Back to List
-                        </a>
+                        <!-- Common Attributes Suggestions -->
+                        <div class="card bg-light border-0 mb-4">
+                            <div class="card-body p-3">
+                                <h6 class="card-subtitle mb-3">
+                                    <i class="bi bi-lightbulb me-2"></i>Suggested Attributes
+                                </h6>
+                                <div class="d-flex flex-wrap gap-1">
+                                    @foreach (var attr in commonAttributes)
+                                    {
+                                        <button type="button" class="btn btn-sm btn-outline-secondary mb-1 suggested-attribute">
+                                            @attr
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Actions -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" form="variantForm" class="btn btn-primary">
+                                <i class="bi bi-save me-2"></i> Save Variant
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Help Card -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white p-3 border-0">
+                        <div class="d-flex align-items-center">
+                            <span class="rounded-circle bg-primary bg-opacity-10 p-2 me-2">
+                                <i class="bi bi-question-circle text-primary"></i>
+                            </span>
+                            <h5 class="card-title mb-0">Need Help?</h5>
+                        </div>
+                    </div>
+                    <div class="card-body p-3">
+                        <div class="list-group list-group-flush">
+                            <a href="#" class="list-group-item list-group-item-action border-0 py-2 px-3 d-flex align-items-center">
+                                <i class="bi bi-book me-2 text-primary"></i>
+                                <span>View documentation</span>
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action border-0 py-2 px-3 d-flex align-items-center">
+                                <i class="bi bi-play-circle me-2 text-primary"></i>
+                                <span>Watch tutorial video</span>
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action border-0 py-2 px-3 d-flex align-items-center">
+                                <i class="bi bi-headset me-2 text-primary"></i>
+                                <span>Contact support</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -215,33 +371,102 @@
     </div>
 </div>
 
+<!-- Add Attribute Modal -->
+<div class="modal fade" id="addAttributeModal" tabindex="-1" aria-labelledby="addAttributeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title" id="addAttributeModalLabel">
+                    <i class="bi bi-plus-circle me-2 text-primary"></i>
+                    Add Variant Attribute
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="mb-3">
+                    <label for="attributeNameInput" class="form-label">Attribute Name</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light">
+                            <i class="bi bi-tag"></i>
+                        </span>
+                        <input type="text" class="form-control" id="attributeNameInput" placeholder="e.g. Color, Size, Material" list="commonAttributesList" required>
+                        <datalist id="commonAttributesList">
+                            @foreach (var attr in commonAttributes)
+                            {
+                                <option value="@attr">@attr</option>
+                            }
+                        </datalist>
+                    </div>
+                    <div class="form-text">Choose from common attributes or enter a custom one</div>
+                </div>
+                <div class="mb-3">
+                    <label for="attributeValueInput" class="form-label">Attribute Value</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light">
+                            <i class="bi bi-input-cursor-text"></i>
+                        </span>
+                        <input type="text" class="form-control" id="attributeValueInput" placeholder="e.g. Red, XL, Cotton" required>
+                    </div>
+                    <div class="form-text">Enter the specific value for this attribute</div>
+                </div>
+
+                <!-- Common Values for Selected Attribute -->
+                <div id="commonValuesContainer" class="d-none mb-3">
+                    <label class="form-label">Common Values</label>
+                    <div id="commonValuesList" class="d-flex flex-wrap gap-1">
+                        <!-- Populated dynamically by JavaScript -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmAddAttributeBtn">
+                    <i class="bi bi-plus-lg me-1"></i> Add Attribute
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Styles {
     <style>
-        /* Custom styling */
+        /* Form styling */
         .form-switch-lg .form-check-input {
             width: 3em;
             height: 1.5em;
             margin-left: 0;
         }
 
+        .form-label {
+            font-size: 0.9rem;
+        }
+
+        .form-text {
+            font-size: 0.8rem;
+        }
+
+        /* Variant preview styling */
         .variant-preview {
             border: 2px dashed #dee2e6;
             transition: all 0.3s ease;
+            border-radius: 12px;
         }
 
             .variant-preview:hover {
-                border-color: #6c757d;
+                border-color: var(--bs-primary);
+                transform: translateY(-5px);
             }
 
-        .product-placeholder {
-            width: 80px;
-            height: 80px;
+        .product-image-placeholder {
+            width: 100px;
+            height: 100px;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto;
-            background-color: rgba(13, 110, 253, 0.1);
+            background-color: rgba(var(--bs-primary-rgb), 0.1);
             border-radius: 50%;
+            transition: all 0.3s ease;
         }
 
         .stock-icon {
@@ -250,6 +475,31 @@
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+
+        /* Attribute row styling */
+        .attribute-row {
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--bs-primary) !important;
+        }
+
+            .attribute-row:hover {
+                box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+                background-color: #f8f9fa !important;
+            }
+
+        /* Card styling */
+        .card {
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+            .card:hover {
+                box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+            }
+
+        .card-header {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         /* Animation for status change */
@@ -273,6 +523,53 @@
         .pulse {
             animation: pulse 0.5s;
         }
+
+        /* Animation for adding attributes */
+        @@keyframes slideIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        .attribute-row {
+            animation: slideIn 0.3s ease;
+        }
+
+        /* Suggested attributes styling */
+        .suggested-attribute {
+            transition: all 0.2s ease;
+        }
+
+            .suggested-attribute:hover {
+                background-color: var(--bs-primary);
+                color: white;
+                border-color: var(--bs-primary);
+            }
+
+        /* Gradient background for header */
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, var(--bs-primary) 0%, #4361ee 100%);
+        }
+
+        /* Color picker styling */
+        .color-preview {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: inline-block;
+            border: 1px solid #dee2e6;
+            vertical-align: middle;
+            margin-right: 5px;
+        }
     </style>
 }
 
@@ -286,10 +583,25 @@
                 return new bootstrap.Tooltip(tooltipTriggerEl);
             });
 
+            // Initialize modal
+            const attributeModal = new bootstrap.Modal(document.getElementById('addAttributeModal'));
+
+            // Common attribute values mapping
+            const attributeValuesMap = {
+                'Color': ['Red', 'Blue', 'Green', 'Black', 'White', 'Yellow', 'Purple', 'Orange', 'Pink', 'Gray', 'Brown'],
+                'Size': ['XS', 'S', 'M', 'L', 'XL', 'XXL', '2XL', '3XL', '4XL', '5XL'],
+                'Material': ['Cotton', 'Polyester', 'Leather', 'Wool', 'Silk', 'Linen', 'Denim', 'Nylon', 'Spandex'],
+                'Style': ['Casual', 'Formal', 'Sport', 'Vintage', 'Modern', 'Classic', 'Bohemian', 'Minimalist'],
+                'Weight': ['Light', 'Medium', 'Heavy'],
+                'Dimensions': ['Small', 'Medium', 'Large'],
+                'Pattern': ['Solid', 'Striped', 'Plaid', 'Floral', 'Polka Dot', 'Checkered', 'Geometric']
+            };
+
             // Set initial values
             updateStatusDisplay();
             updateStockStatus($("#Quantity").val());
             updateProgressBar($("#Quantity").val());
+            updateAttributeIndexes();
 
             // Product selection change
             $("#ProductId").change(function() {
@@ -297,11 +609,11 @@
                 if (selectedOption.val()) {
                     $("#previewProductName").text(selectedOption.text());
                     $(".variant-preview").addClass("border-primary").removeClass("border-dashed");
-                    $(".product-placeholder").addClass("bg-primary bg-opacity-10");
+                    $(".product-image-placeholder").addClass("bg-primary bg-opacity-10");
                 } else {
                     $("#previewProductName").text("Select a product");
                     $(".variant-preview").removeClass("border-primary").addClass("border-dashed");
-                    $(".product-placeholder").removeClass("bg-primary bg-opacity-10");
+                    $(".product-image-placeholder").removeClass("bg-primary bg-opacity-10");
                 }
             });
 
@@ -310,8 +622,39 @@
 
             // SKU input change
             $("#Sku").on("input", function() {
-                var sku = $(this).val() || "-";
+                var sku = $(this).val() || "Not set";
                 $("#previewSku").text("SKU: " + sku);
+            });
+
+            // Generate SKU button
+            $("#generateSkuBtn").click(function() {
+                const productSelect = $("#ProductId");
+                const selectedProduct = productSelect.find("option:selected").text();
+
+                if (selectedProduct && selectedProduct !== "- Select Product -") {
+                    // Generate a random SKU based on product name and random number
+                    const productPrefix = selectedProduct.substring(0, 3).toUpperCase();
+                    const randomNum = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+                    const newSku = `${productPrefix}-${randomNum}`;
+
+                    $("#Sku").val(newSku).trigger("input");
+
+                    // Show success tooltip
+                    $(this).attr("title", "SKU Generated!").tooltip("dispose").tooltip("show");
+
+                    // Reset tooltip after 2 seconds
+                    setTimeout(() => {
+                        $(this).attr("title", "Generate SKU").tooltip("dispose").tooltip("show");
+                    }, 2000);
+                } else {
+                    // Show warning if no product selected
+                    $(this).attr("title", "Select a product first").tooltip("dispose").tooltip("show");
+
+                    // Reset tooltip after 2 seconds
+                    setTimeout(() => {
+                        $(this).attr("title", "Generate SKU").tooltip("dispose").tooltip("show");
+                    }, 2000);
+                }
             });
 
             // Price input change
@@ -411,6 +754,200 @@
                     .removeClass("bg-danger bg-warning bg-info bg-success")
                     .addClass(statusClass);
             }
+
+            // Add attribute button click
+            $("#addAttributeBtn").click(function() {
+                // Reset modal fields
+                $("#attributeNameInput").val("");
+                $("#attributeValueInput").val("");
+                $("#commonValuesContainer").addClass("d-none");
+                $("#commonValuesList").empty();
+
+                // Show modal
+                attributeModal.show();
+            });
+
+            // Attribute name input change - show common values if available
+            $("#attributeNameInput").on("input", function() {
+                const attributeName = $(this).val();
+                const commonValues = attributeValuesMap[attributeName];
+
+                if (commonValues && commonValues.length > 0) {
+                    // Populate common values
+                    $("#commonValuesList").empty();
+                    commonValues.forEach(value => {
+                        let buttonClass = "btn btn-sm btn-outline-secondary mb-1 common-value-btn";
+                        let buttonContent = value;
+
+                        // Special case for color values - add color preview
+                        if (attributeName === "Color" && value.toLowerCase() !== "multicolor") {
+                            buttonContent = `<span class="color-preview" style="background-color: ${value.toLowerCase()};"></span>${value}`;
+                        }
+
+                        const valueBtn = $(`<button type="button" class="${buttonClass}" data-value="${value}">${buttonContent}</button>`);
+                        $("#commonValuesList").append(valueBtn);
+                    });
+
+                    // Show common values container
+                    $("#commonValuesContainer").removeClass("d-none");
+
+                    // Add click handler for common value buttons
+                    $(".common-value-btn").click(function() {
+                        const value = $(this).data("value");
+                        $("#attributeValueInput").val(value);
+                    });
+                } else {
+                    // Hide common values container if no common values available
+                    $("#commonValuesContainer").addClass("d-none");
+                }
+            });
+
+            // Confirm add attribute button click
+            $("#confirmAddAttributeBtn").click(function() {
+                const attributeName = $("#attributeNameInput").val().trim();
+                const attributeValue = $("#attributeValueInput").val().trim();
+
+                if (!attributeName || !attributeValue) {
+                    // Show validation error
+                    if (!attributeName) $("#attributeNameInput").addClass("is-invalid");
+                    if (!attributeValue) $("#attributeValueInput").addClass("is-invalid");
+                    return;
+                }
+
+                // Add new attribute row
+                addAttributeRow(attributeName, attributeValue);
+
+                // Hide modal
+                attributeModal.hide();
+
+                // Update preview
+                updateAttributesPreview();
+            });
+
+            // Function to add attribute row
+            function addAttributeRow(name, value) {
+                // Hide no attributes message
+                $("#noAttributesMessage").hide();
+
+                // Get current attribute count
+                const index = $("#attributesContainer .attribute-row").length;
+
+                // Create new attribute row
+                const newRow = `
+                    <div class="attribute-row mb-3 p-3 border rounded bg-light position-relative">
+                        <button type="button" class="btn-close position-absolute top-0 end-0 m-2 remove-attribute" aria-label="Remove"></button>
+                        <div class="row g-3">
+                            <div class="col-md-5">
+                                <label class="form-label">Attribute Name</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white">
+                                        <i class="bi bi-tag"></i>
+                                    </span>
+                                    <input type="text" name="ProductVariantAttributes[${index}].AttributeName" class="form-control attribute-name" value="${name}" required />
+                                </div>
+                            </div>
+                            <div class="col-md-7">
+                                <label class="form-label">Attribute Value</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white">
+                                        <i class="bi bi-input-cursor-text"></i>
+                                    </span>
+                                    <input type="text" name="ProductVariantAttributes[${index}].AttributeValue" class="form-control attribute-value" value="${value}" required />
+                                    <input type="hidden" name="ProductVariantAttributes[${index}].VariantId" value="${$("#Id").val()}" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Append to container
+                $("#attributesContainer").append(newRow);
+
+                // Update attribute indexes
+                updateAttributeIndexes();
+            }
+
+            // Remove attribute button click (using event delegation)
+            $("#attributesContainer").on("click", ".remove-attribute", function() {
+                // Get the attribute row
+                const row = $(this).closest(".attribute-row");
+
+                // Add fade out animation
+                row.fadeOut(300, function() {
+                    // Remove the row
+                    $(this).remove();
+
+                    // Show no attributes message if no attributes left
+                    if ($("#attributesContainer .attribute-row").length === 0) {
+                        $("#noAttributesMessage").show();
+                    }
+
+                    // Update attribute indexes
+                    updateAttributeIndexes();
+
+                    // Update preview
+                    updateAttributesPreview();
+                });
+            });
+
+            // Function to update attribute indexes
+            function updateAttributeIndexes() {
+                $("#attributesContainer .attribute-row").each(function(index) {
+                    // Update name attributes
+                    $(this).find(".attribute-name").attr("name", `ProductVariantAttributes[${index}].AttributeName`);
+                    $(this).find(".attribute-value").attr("name", `ProductVariantAttributes[${index}].AttributeValue`);
+                    $(this).find("input[type=hidden]").attr("name", `ProductVariantAttributes[${index}].VariantId`);
+                });
+            }
+
+            // Function to update attributes preview
+            function updateAttributesPreview() {
+                // Clear current preview
+                $("#previewAttributes").empty();
+
+                // Add each attribute to preview
+                $("#attributesContainer .attribute-row").each(function() {
+                    const name = $(this).find(".attribute-name").val();
+                    const value = $(this).find(".attribute-value").val();
+
+                    if (name && value) {
+                        let badgeContent = `<strong>${name}:</strong> ${value}`;
+                        let badgeClass = "badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-2";
+
+                        // Special case for color values - add color preview
+                        if (name.toLowerCase() === "color" && value.toLowerCase() !== "multicolor") {
+                            badgeContent = `<span class="color-preview" style="background-color: ${value.toLowerCase()};"></span><strong>${name}:</strong> ${value}`;
+                        }
+
+                        const badge = $(`<span class="${badgeClass}">${badgeContent}</span>`);
+                        $("#previewAttributes").append(badge);
+                    }
+                });
+            }
+
+            // Suggested attribute click
+            $(".suggested-attribute").click(function() {
+                const attributeName = $(this).text().trim();
+
+                // Set attribute name in modal
+                $("#attributeNameInput").val(attributeName).trigger("input");
+
+                // Show modal
+                attributeModal.show();
+            });
+
+            // Form validation
+            $("#variantForm").submit(function(event) {
+                if (!this.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+
+                $(this).addClass("was-validated");
+            });
+
+            // Initialize attributes preview
+            updateAttributesPreview();
         });
     </script>
 }

@@ -1,221 +1,1594 @@
-﻿@model ECommerce.Beganit.AdminPanel.Models.Product
+﻿@model ECommerce.Beganit.AdminPanel.Models.ViewModels.ProductViewModel
 
 @{
     ViewData["Title"] = "Create Product";
+    var commonAttributes = new List<string> { "Color", "Size", "Material", "Weight", "Dimensions", "Pattern", "Warranty", "Capacity" };
 }
 
-<div class="container py-4">
-    <div class="card shadow-sm border-0">
-        <div class="card-header bg-primary text-white">
-            <h3 class="mb-0">Create New Product</h3>
-        </div>
-        <div class="card-body">
-            <form asp-action="CreateProduct" class="needs-validation" novalidate>
-                <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
-
-                <div class="row">
-                    <!-- Basic Information -->
-                    <div class="col-md-6">
-                        <div class="card mb-4">
-                            <div class="card-header bg-light">
-                                <h5 class="mb-0">Basic Information</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="mb-3">
-                                    <label asp-for="Name" class="form-label fw-bold">Name</label>
-                                    <input id="nameInput" asp-for="Name" class="form-control" placeholder="Product name" />
-                                    <span asp-validation-for="Name" class="text-danger"></span>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label asp-for="Slug" class="form-label fw-bold">Slug</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">url/</span>
-                                        <input asp-for="Slug" id="productSlug" class="form-control" placeholder="product-name" />
-                                        <button type="button" id="generateSlugBtn" class="btn btn-secondary">
-                                            <i class="bi bi-magic"></i> Generate
-                                        </button>
-                                    </div>
-                                    <span asp-validation-for="Slug" class="text-danger"></span>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label asp-for="Sku" class="form-label fw-bold">SKU</label>
-                                    <input asp-for="Sku" class="form-control" placeholder="SKU-12345" />
-                                    <span asp-validation-for="Sku" class="text-danger"></span>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label asp-for="BrandId" class="form-label fw-bold">Brand</label>
-                                    <select asp-for="BrandId" class="form-select">
-                                        <option value="">-- Select Brand --</option>
-                                        @if(ViewBag.Brands != null){
-                                            @foreach (Brand brand in ViewBag.Brands)
-                                            {
-                                                <option value="@brand.Id">@brand.Name</option>
-                                            }
-                                        }
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Pricing and Discounts -->
-                        <div class="card mb-4">
-                            <div class="card-header bg-light">
-                                <h5 class="mb-0">Pricing and Discounts</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="mb-3">
-                                    <label asp-for="RegularPrice" class="form-label fw-bold">Regular Price</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">$</span>
-                                        <input asp-for="RegularPrice" class="form-control" placeholder="0.00" />
-                                    </div>
-                                    <span asp-validation-for="RegularPrice" class="text-danger"></span>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label asp-for="DiscountPrice" class="form-label fw-bold">Discount Price</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">$</span>
-                                        <input asp-for="DiscountPrice" class="form-control" placeholder="0.00" />
-                                    </div>
-                                    <span asp-validation-for="DiscountPrice" class="text-danger"></span>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label asp-for="DiscountStartDate" class="form-label fw-bold">Discount Start Date</label>
-                                        <input asp-for="DiscountStartDate" type="date" class="form-control" />
-                                        <span asp-validation-for="DiscountStartDate" class="text-danger"></span>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label asp-for="DiscountEndDate" class="form-label fw-bold">Discount End Date</label>
-                                        <input asp-for="DiscountEndDate" type="date" class="form-control" />
-                                        <span asp-validation-for="DiscountEndDate" class="text-danger"></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Right Column -->
-                    <div class="col-md-6">
-                        <!-- Description -->
-                        <div class="card mb-4">
-                            <div class="card-header bg-light">
-                                <h5 class="mb-0">Description</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="mb-3">
-                                    <label asp-for="ShortDescription" class="form-label fw-bold">Short Description</label>
-                                    <textarea asp-for="ShortDescription" class="form-control" rows="2" placeholder="Brief product description"></textarea>
-                                    <span asp-validation-for="ShortDescription" class="text-danger"></span>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label asp-for="Description" class="form-label fw-bold">Full Description</label>
-                                    <textarea asp-for="Description" class="form-control" rows="5" placeholder="Detailed product description"></textarea>
-                                    <span asp-validation-for="Description" class="text-danger"></span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Dimensions -->
-                        <div class="card mb-4">
-                            <div class="card-header bg-light">
-                                <h5 class="mb-0">Dimensions and Weight</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="mb-3">
-                                    <label asp-for="Weight" class="form-label fw-bold">Weight (kg)</label>
-                                    <input asp-for="Weight" class="form-control" placeholder="0.00" />
-                                    <span asp-validation-for="Weight" class="text-danger"></span>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-md-4 mb-3">
-                                        <label asp-for="Length" class="form-label fw-bold">Length (cm)</label>
-                                        <input asp-for="Length" class="form-control" placeholder="0.00" />
-                                        <span asp-validation-for="Length" class="text-danger"></span>
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label asp-for="Width" class="form-label fw-bold">Width (cm)</label>
-                                        <input asp-for="Width" class="form-control" placeholder="0.00" />
-                                        <span asp-validation-for="Width" class="text-danger"></span>
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label asp-for="Height" class="form-label fw-bold">Height (cm)</label>
-                                        <input asp-for="Height" class="form-control" placeholder="0.00" />
-                                        <span asp-validation-for="Height" class="text-danger"></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Administrative Information -->
-                        <div class="card mb-4">
-                            <div class="card-header bg-light">
-                                <h5 class="mb-0">Administrative Information</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label asp-for="CreatedBy" class="form-label fw-bold">Created By</label>
-                                        <input asp-for="CreatedBy" class="form-control" />
-                                        <span asp-validation-for="CreatedBy" class="text-danger"></span>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label asp-for="UpdatedBy" class="form-label fw-bold">Updated By</label>
-                                        <input asp-for="UpdatedBy" class="form-control" />
-                                        <span asp-validation-for="UpdatedBy" class="text-danger"></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+<div class="container-fluid py-4">
+    <!-- Header Section -->
+    <div class="card border-0 shadow-sm mb-4 bg-gradient-primary">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center">
+                <div class="rounded-circle bg-white p-3 me-3 shadow-sm">
+                    <i class="bi bi-box-seam text-primary fs-3"></i>
                 </div>
-
-                <!-- Action Buttons -->
-                <div class="d-flex justify-content-between mt-4">
-                    <a asp-action="Index" class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-left"></i> Back to List
+                <div class="text-white">
+                    <h1 class="h3 mb-0">Create New Product</h1>
+                    <p class="mb-0 opacity-75">Add a new product to your store with all details</p>
+                </div>
+                <div class="ms-auto">
+                    <a asp-action="Index" class="btn btn-light me-2">
+                        <i class="bi bi-arrow-left me-1"></i> Back to List
                     </a>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-save"></i> Create Product
+                    <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#helpModal">
+                        <i class="bi bi-question-circle me-1"></i> Help
                     </button>
                 </div>
-            </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3">
+                    <ul class="nav nav-tabs card-header-tabs" id="productTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="basic-tab" data-bs-toggle="tab" data-bs-target="#basic" type="button" role="tab" aria-controls="basic" aria-selected="true">
+                                <i class="bi bi-info-circle me-1"></i> Basic Info
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="pricing-tab" data-bs-toggle="tab" data-bs-target="#pricing" type="button" role="tab" aria-controls="pricing" aria-selected="false">
+                                <i class="bi bi-currency-dollar me-1"></i> Pricing
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="inventory-tab" data-bs-toggle="tab" data-bs-target="#inventory" type="button" role="tab" aria-controls="inventory" aria-selected="false">
+                                <i class="bi bi-box-seam me-1"></i> Inventory
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="dimensions-tab" data-bs-toggle="tab" data-bs-target="#dimensions" type="button" role="tab" aria-controls="dimensions" aria-selected="false">
+                                <i class="bi bi-rulers me-1"></i> Dimensions
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="attributes-tab" data-bs-toggle="tab" data-bs-target="#attributes" type="button" role="tab" aria-controls="attributes" aria-selected="false">
+                                <i class="bi bi-list-check me-1"></i> Attributes
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="images-tab" data-bs-toggle="tab" data-bs-target="#images" type="button" role="tab" aria-controls="images" aria-selected="false">
+                                <i class="bi bi-images me-1"></i> Images
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="categories-tab" data-bs-toggle="tab" data-bs-target="#categories" type="button" role="tab" aria-controls="categories" aria-selected="false">
+                                <i class="bi bi-tags me-1"></i> Categories
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body p-4">
+                    <form id="productForm" asp-action="CreateProduct" method="post" class="needs-validation" enctype="multipart/form-data" novalidate>
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 mb-4" role="alert"></div>
+
+                        <div class="tab-content" id="productTabsContent">
+                            <!-- Basic Info Tab -->
+                            <div class="tab-pane fade show active" id="basic" role="tabpanel" aria-labelledby="basic-tab">
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label asp-for="Name" class="form-label fw-semibold">Product Name <span class="text-danger">*</span></label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light">
+                                                    <i class="bi bi-pencil"></i>
+                                                </span>
+                                                <input asp-for="Name" class="form-control" required maxlength="255" placeholder="Enter product name" />
+                                            </div>
+                                            <span asp-validation-for="Name" class="text-danger small"></span>
+                                            <div class="form-text">Enter a descriptive name for your product (max 255 characters)</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label asp-for="Slug" class="form-label fw-semibold">URL Slug <span class="text-danger">*</span></label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light">/product/</span>
+                                                <input asp-for="Slug" class="form-control" required pattern="[a-z0-9-]+" placeholder="product-url-slug" />
+                                                <button type="button" id="generateSlugBtn" class="btn btn-outline-secondary">
+                                                    <i class="bi bi-magic"></i> Generate
+                                                </button>
+                                            </div>
+                                            <span asp-validation-for="Slug" class="text-danger small"></span>
+                                            <div class="form-text">Used in the URL (e.g., example.com/product/your-slug). Use only lowercase letters, numbers, and hyphens.</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label asp-for="BrandId" class="form-label fw-semibold">Brand <span class="text-danger">*</span></label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light">
+                                                    <i class="bi bi-briefcase"></i>
+                                                </span>
+                                                <select asp-for="BrandId" class="form-select" required>
+                                                    <option value="">-- Select Brand --</option>
+                                                    @if (ViewBag.Brands != null)
+                                                    {
+                                                        foreach (var brand in ViewBag.Brands)
+                                                        {
+                                                            <option value="@brand.Id">@brand.Name</option>
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
+                                            <span asp-validation-for="BrandId" class="text-danger small"></span>
+                                            <div class="form-text">Select the manufacturer or brand of this product</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label asp-for="Sku" class="form-label fw-semibold">SKU <span class="text-danger">*</span></label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light">
+                                                    <i class="bi bi-upc-scan"></i>
+                                                </span>
+                                                <input asp-for="Sku" class="form-control" required maxlength="50" placeholder="SKU-12345" />
+                                            </div>
+                                            <span asp-validation-for="Sku" class="text-danger small"></span>
+                                            <div class="form-text">Stock Keeping Unit - unique identifier for this product</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="mb-3">
+                                            <label asp-for="ShortDescription" class="form-label fw-semibold">Short Description <span class="text-danger">*</span></label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light">
+                                                    <i class="bi bi-text-paragraph"></i>
+                                                </span>
+                                                <input asp-for="ShortDescription" class="form-control" required maxlength="1000" placeholder="Brief product description" />
+                                            </div>
+                                            <div class="d-flex justify-content-between">
+                                                <span asp-validation-for="ShortDescription" class="text-danger small"></span>
+                                                <small class="text-muted" id="shortDescCounter">0/160</small>
+                                            </div>
+                                            <div class="form-text">Brief summary shown in product listings (max 1000 characters)</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="mb-3">
+                                            <label asp-for="Description" class="form-label fw-semibold">Full Description <span class="text-danger">*</span></label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light">
+                                                    <i class="bi bi-file-text"></i>
+                                                </span>
+                                                <textarea asp-for="Description" class="form-control" rows="5" required placeholder="Detailed product description"></textarea>
+                                            </div>
+                                            <span asp-validation-for="Description" class="text-danger small"></span>
+                                            <div class="form-text">Detailed product description shown on the product page</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Pricing Tab -->
+                            <div class="tab-pane fade" id="pricing" role="tabpanel" aria-labelledby="pricing-tab">
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label asp-for="RegularPrice" class="form-label fw-semibold">Regular Price <span class="text-danger">*</span></label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">$</span>
+                                                <input asp-for="RegularPrice" class="form-control" type="number" step="0.01" min="0" required placeholder="0.00" />
+                                            </div>
+                                            <span asp-validation-for="RegularPrice" class="text-danger small"></span>
+                                            <div class="form-text">The normal, non-discounted price of the product</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label asp-for="DiscountPrice" class="form-label fw-semibold">Discount Price</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">$</span>
+                                                <input asp-for="DiscountPrice" class="form-control" type="number" step="0.01" min="0" placeholder="0.00" />
+                                                <button type="button" id="calculateDiscountBtn" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#discountCalculatorModal">
+                                                    <i class="bi bi-calculator"></i>
+                                                </button>
+                                            </div>
+                                            <span asp-validation-for="DiscountPrice" class="text-danger small"></span>
+                                            <div class="form-text">Leave empty if no discount is applied</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label asp-for="DiscountStartDate" class="form-label fw-semibold">Discount Start Date</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light">
+                                                    <i class="bi bi-calendar-event"></i>
+                                                </span>
+                                                <input asp-for="DiscountStartDate" class="form-control" type="datetime-local" />
+                                            </div>
+                                            <span asp-validation-for="DiscountStartDate" class="text-danger small"></span>
+                                            <div class="form-text">When the discount period begins</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label asp-for="DiscountEndDate" class="form-label fw-semibold">Discount End Date</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light">
+                                                    <i class="bi bi-calendar-event"></i>
+                                                </span>
+                                                <input asp-for="DiscountEndDate" class="form-control" type="datetime-local" />
+                                            </div>
+                                            <span asp-validation-for="DiscountEndDate" class="text-danger small"></span>
+                                            <div class="form-text">When the discount period ends</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="alert alert-info py-3">
+                                            <div class="d-flex align-items-center">
+                                                <i class="bi bi-info-circle-fill fs-4 me-3"></i>
+                                                <div>
+                                                    <h6 class="mb-1">Pricing Tips</h6>
+                                                    <p class="mb-0">
+                                                        Set competitive prices and use discounts strategically to attract customers.
+                                                        Limited-time offers can create urgency and boost sales.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Inventory Tab -->
+                            <div class="tab-pane fade" id="inventory" role="tabpanel" aria-labelledby="inventory-tab">
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label asp-for="Quantity" class="form-label fw-semibold">Stock Quantity <span class="text-danger">*</span></label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light">
+                                                    <i class="bi bi-boxes"></i>
+                                                </span>
+                                                <input asp-for="Quantity" class="form-control" type="number" min="0" required placeholder="0" />
+                                            </div>
+                                            <span asp-validation-for="Quantity" class="text-danger small"></span>
+                                            <div class="form-text">Current inventory level</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Stock Status</label>
+                                            <div class="form-text mb-2">Will be automatically calculated based on quantity</div>
+                                            <div class="d-flex align-items-center">
+                                                <span class="badge bg-secondary me-2 px-3 py-2">Not Set</span>
+                                                <span class="text-muted small">Will be determined by stock quantity</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold" for="IsActiveInput">Product Active</label>
+                                            <div class="form-check form-switch form-switch-lg">
+                                                <input asp-for="IsActive" class="form-check-input" id="IsActiveInput" checked />
+                                                <label class="form-check-label" for="IsActiveInput">
+                                                    Product will be visible on the store
+                                                </label>
+                                            </div>
+                                            <div class="form-text">Toggle to show or hide the product on the store</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold" for="IsFeaturedInput">Featured Product</label>
+                                            <div class="form-check form-switch form-switch-lg">
+                                                <input asp-for="IsFeatured" class="form-check-input" id="IsFeaturedInput" />
+                                                <label class="form-check-label" for="IsFeaturedInput">
+                                                    Product will appear in featured sections
+                                                </label>
+                                            </div>
+                                            <div class="form-text">Featured products appear in special sections on the homepage and category pages</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="alert alert-warning py-3 mt-3">
+                                            <div class="d-flex">
+                                                <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
+                                                <div>
+                                                    <h6 class="mb-1">Inventory Management</h6>
+                                                    <p class="mb-0">Keep your inventory updated to avoid overselling. You can set up low stock notifications in the <a href="#" class="alert-link">Inventory Settings</a> page.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Dimensions Tab -->
+                            <div class="tab-pane fade" id="dimensions" role="tabpanel" aria-labelledby="dimensions-tab">
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label asp-for="Weight" class="form-label fw-semibold">Weight (kg)</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light">
+                                                    <i class="bi bi-speedometer2"></i>
+                                                </span>
+                                                <input asp-for="Weight" class="form-control" type="number" step="0.01" min="0" placeholder="0.00" />
+                                                <span class="input-group-text">kg</span>
+                                            </div>
+                                            <span asp-validation-for="Weight" class="text-danger small"></span>
+                                            <div class="form-text">Product weight used for shipping calculations</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="alert alert-info py-3">
+                                            <div class="d-flex">
+                                                <i class="bi bi-info-circle-fill fs-4 me-3"></i>
+                                                <div>
+                                                    <h6 class="mb-1">Shipping Information</h6>
+                                                    <p class="mb-0">Accurate dimensions ensure correct shipping rates and packaging.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label asp-for="Length" class="form-label fw-semibold">Length (cm)</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light">
+                                                    <i class="bi bi-arrows-expand"></i>
+                                                </span>
+                                                <input asp-for="Length" class="form-control" type="number" step="0.1" min="0" placeholder="0.0" />
+                                                <span class="input-group-text">cm</span>
+                                            </div>
+                                            <span asp-validation-for="Length" class="text-danger small"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label asp-for="Width" class="form-label fw-semibold">Width (cm)</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light">
+                                                    <i class="bi bi-arrows-expand"></i>
+                                                </span>
+                                                <input asp-for="Width" class="form-control" type="number" step="0.1" min="0" placeholder="0.0" />
+                                                <span class="input-group-text">cm</span>
+                                            </div>
+                                            <span asp-validation-for="Width" class="text-danger small"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label asp-for="Height" class="form-label fw-semibold">Height (cm)</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light">
+                                                    <i class="bi bi-arrows-expand"></i>
+                                                </span>
+                                                <input asp-for="Height" class="form-control" type="number" step="0.1" min="0" placeholder="0.0" />
+                                                <span class="input-group-text">cm</span>
+                                            </div>
+                                            <span asp-validation-for="Height" class="text-danger small"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 mt-3">
+                                        <div class="card bg-light border-0 shadow-sm">
+                                            <div class="card-body">
+                                                <h6 class="card-title d-flex align-items-center">
+                                                    <i class="bi bi-calculator me-2 text-primary"></i>
+                                                    Calculated Volume
+                                                </h6>
+                                                <p class="card-text" id="volumeCalculation">
+                                                    Enter dimensions to calculate volume
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Attributes Tab -->
+                            <div class="tab-pane fade" id="attributes" role="tabpanel" aria-labelledby="attributes-tab">
+                                <div class="row mb-4">
+                                    <div class="col-12">
+                                        <div class="alert alert-info d-flex align-items-center">
+                                            <i class="bi bi-info-circle-fill fs-4 me-3"></i>
+                                            <div>
+                                                <h6 class="mb-1">Product Attributes</h6>
+                                                <p class="mb-0">Attributes help customers find and filter products. Add attributes like color, size, material, etc.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row g-4">
+                                    <div class="col-md-5">
+                                        <div class="card border-0 shadow-sm h-100">
+                                            <div class="card-header bg-light py-3 d-flex justify-content-between align-items-center">
+                                                <h5 class="card-title mb-0">
+                                                    <i class="bi bi-plus-circle me-2 text-primary"></i>Add Attribute
+                                                </h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="mb-3">
+                                                    <label for="attributeNameInput" class="form-label">Attribute Name</label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text bg-light">
+                                                            <i class="bi bi-tag"></i>
+                                                        </span>
+                                                        <input type="text" id="attributeNameInput" class="form-control" placeholder="e.g. Color, Size, Material" list="commonAttributesList" />
+                                                        <datalist id="commonAttributesList">
+                                                            @foreach (var attr in commonAttributes)
+                                                            {
+                                                                <option value="@attr">@attr</option>
+                                                            }
+                                                        </datalist>
+                                                    </div>
+                                                    <div class="form-text">Choose from common attributes or enter a custom one</div>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label for="attributeValueInput" class="form-label">Attribute Value</label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text bg-light">
+                                                            <i class="bi bi-input-cursor-text"></i>
+                                                        </span>
+                                                        <input type="text" id="attributeValueInput" class="form-control" placeholder="e.g. Red, XL, Cotton" />
+                                                    </div>
+                                                    <div class="form-text">Enter the specific value for this attribute</div>
+                                                </div>
+
+                                                <div id="commonValuesContainer" class="d-none mb-3">
+                                                    <label class="form-label">Common Values</label>
+                                                    <div id="commonValuesList" class="d-flex flex-wrap gap-1">
+                                                        <!-- Populated dynamically by JavaScript -->
+                                                    </div>
+                                                </div>
+
+                                                <div class="d-grid mt-4">
+                                                    <button type="button" id="addAttributeBtn" class="btn btn-primary">
+                                                        <i class="bi bi-plus-lg me-1"></i> Add Attribute
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-7">
+                                        <div class="card border-0 shadow-sm h-100">
+                                            <div class="card-header bg-light py-3 d-flex justify-content-between align-items-center">
+                                                <h5 class="card-title mb-0">
+                                                    <i class="bi bi-list-check me-2 text-primary"></i>Product Attributes
+                                                </h5>
+                                                <span class="badge bg-primary rounded-pill" id="attributeCount">0</span>
+                                            </div>
+                                            <div class="card-body">
+                                                <div id="attributesContainer">
+                                                    <div id="noAttributesMessage" class="text-center py-5">
+                                                        <div class="mb-3">
+                                                            <i class="bi bi-tags text-muted fs-1"></i>
+                                                        </div>
+                                                        <h6 class="text-muted">No attributes added yet</h6>
+                                                        <p class="text-muted mb-0">Add attributes to help customers find your product</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="card-footer bg-white p-3 border-0">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span class="text-muted small">
+                                                        <i class="bi bi-info-circle me-1"></i>
+                                                        Attributes help with product filtering and search
+                                                    </span>
+                                                    <button type="button" id="clearAttributesBtn" class="btn btn-sm btn-outline-danger" disabled>
+                                                        <i class="bi bi-trash me-  disabled>
+                                                            <i class="bi bi-trash me-1"></i> Clear All
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Images Tab -->
+                            <div class="tab-pane fade" id="images" role="tabpanel" aria-labelledby="images-tab">
+                                <div class="row g-4">
+                                    <div class="col-12">
+                                        <div class="alert alert-warning py-3 mb-4">
+                                            <div class="d-flex">
+                                                <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
+                                                <div>
+                                                    <h6 class="mb-1">Image Requirements</h6>
+                                                    <p class="mb-0">Product images should be at least 800x800 pixels and have a white background for best results.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-7">
+                                        <div class="card border-0 shadow-sm h-100">
+                                            <div class="card-header bg-light py-3">
+                                                <h5 class="card-title mb-0">
+                                                    <i class="bi bi-cloud-upload me-2 text-primary"></i>Upload Images
+                                                </h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="mb-4">
+                                                    <div class="dropzone-container border-2 border-dashed rounded-3 p-4 text-center bg-light position-relative" id="imageDropzone">
+                                                        <input type="file" id="productImages" name="productImages" class="position-absolute inset-0 w-100 h-100 opacity-0 z-50 cursor-pointer" multiple accept="image/*" style="cursor: pointer;" />
+                                                        <div class="dropzone-content py-4">
+                                                            <i class="bi bi-cloud-arrow-up text-primary display-4 mb-3"></i>
+                                                            <h5>Drag and drop images here</h5>
+                                                            <p class="text-muted mb-2">or click to browse files</p>
+                                                            <p class="small text-muted mb-0">Supported formats: JPG, PNG, GIF (Max 5MB each)</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-check mb-3">
+                                                    <input class="form-check-input" type="checkbox" id="compressImages" checked>
+                                                    <label class="form-check-label" for="compressImages">
+                                                        Automatically optimize images for web
+                                                    </label>
+                                                    <div class="form-text">Reduces file size without significant quality loss</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-5">
+                                        <div class="card border-0 shadow-sm h-100">
+                                            <div class="card-header bg-light py-3 d-flex justify-content-between align-items-center">
+                                                <h5 class="card-title mb-0">
+                                                    <i class="bi bi-images me-2 text-primary"></i>Selected Images
+                                                </h5>
+                                                <span class="badge bg-primary rounded-pill" id="imageCount">0</span>
+                                            </div>
+                                            <div class="card-body">
+                                                <div id="selectedImagesContainer" class="mb-3">
+                                                    <div id="noImagesMessage" class="text-center py-5">
+                                                        <div class="mb-3">
+                                                            <i class="bi bi-image text-muted fs-1"></i>
+                                                        </div>
+                                                        <h6 class="text-muted">No images selected yet</h6>
+                                                        <p class="text-muted mb-0">Upload at least one image for your product</p>
+                                                    </div>
+                                                    <div id="imagePreviewsContainer" class="row g-3" style="display: none;">
+                                                        <!-- Image previews will be added here dynamically -->
+                                                    </div>
+                                                </div>
+
+                                                <div class="alert alert-info small">
+                                                    <i class="bi bi-info-circle-fill me-2"></i>
+                                                    The first image will be set as the primary product image
+                                                </div>
+                                            </div>
+                                            <div class="card-footer bg-white p-3 border-0">
+                                                <button type="button" id="clearImagesBtn" class="btn btn-sm btn-outline-danger w-100" disabled>
+                                                    <i class="bi bi-trash me-1"></i> Clear All Images
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Categories Tab -->
+                            <div class="tab-pane fade" id="categories" role="tabpanel" aria-labelledby="categories-tab">
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <div class="card border-0 shadow-sm h-100">
+                                            <div class="card-header bg-light py-3">
+                                                <h5 class="card-title mb-0">
+                                                    <i class="bi bi-folder-plus me-2 text-primary"></i>Add Categories
+                                                </h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="mb-3">
+                                                    <label for="categorySelect" class="form-label">Select Category</label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text bg-light">
+                                                            <i class="bi bi-folder2"></i>
+                                                        </span>
+                                                        <select id="categorySelect" class="form-select">
+                                                            <option value="">-- Select Category --</option>
+                                                            @if (ViewData["AllCategories"] != null)
+                                                            {
+                                                                foreach (var category in (List<Category>)ViewData["AllCategories"])
+                                                                {
+                                                                    <option value="@category.Name">@category.Name</option>
+                                                                }
+                                                            }
+                                                        </select>
+                                                        <button type="button" id="addCategoryBtn" class="btn btn-primary">
+                                                            <i class="bi bi-plus-lg"></i> Add
+                                                        </button>
+                                                    </div>
+                                                    <div class="form-text">Select a category to add to this product</div>
+                                                </div>
+
+                                                <div class="alert alert-info mt-4">
+                                                    <div class="d-flex">
+                                                        <i class="bi bi-info-circle-fill me-2"></i>
+                                                        <div>
+                                                            <p class="mb-0">Products can belong to multiple categories. Add all relevant categories to improve discoverability.</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="card border-0 shadow-sm h-100">
+                                            <div class="card-header bg-light py-3">
+                                                <h5 class="card-title mb-0">
+                                                    <i class="bi bi-tags me-2 text-primary"></i>Selected Categories
+                                                </h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <div id="selectedCategoriesContainer" class="mb-3">
+                                                    <p id="noCategoriesMessage" class="text-muted">No categories selected yet</p>
+                                                </div>
+
+                                                <div class="category-stats mt-4">
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <span class="text-muted">Total categories:</span>
+                                                        <span class="badge bg-secondary" id="categoryCount">0</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4 pt-4 border-top">
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-lg me-1"></i> Cancel
+                            </a>
+                            <div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-lg me-1"></i> Create Product
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
+<!-- Help Modal -->
+<div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="helpModalLabel">
+                    <i class="bi bi-question-circle me-2"></i>
+                    Product Creation Help
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>When creating products, please follow these guidelines:</p>
+                <ul class="mb-0">
+                    <li class="mb-2">Fill in all required fields marked with <span class="text-danger">*</span></li>
+                    <li class="mb-2">Upload high-quality images with white backgrounds</li>
+                    <li class="mb-2">Write detailed descriptions to improve SEO</li>
+                    <li class="mb-2">Set accurate dimensions for shipping calculations</li>
+                    <li class="mb-2">Add relevant attributes to improve product filtering</li>
+                    <li class="mb-2">Assign appropriate categories to improve discoverability</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Got it</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Discount Calculator Modal -->
+<div class="modal fade" id="discountCalculatorModal" tabindex="-1" aria-labelledby="discountCalculatorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="discountCalculatorModalLabel">
+                    <i class="bi bi-calculator me-2"></i>
+                    Discount Calculator
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="regularPriceCalc" class="form-label">Regular Price ($)</label>
+                    <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        <input type="number" class="form-control" id="regularPriceCalc" min="0" step="0.01">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="discountPercentage" class="form-label">Discount Percentage (%)</label>
+                    <div class="input-group">
+                        <input type="number" class="form-control" id="discountPercentage" min="0" max="100" step="1">
+                        <span class="input-group-text">%</span>
+                    </div>
+                </div>
+                <div class="alert alert-info" id="calculatedPriceResult">
+                    Enter values above to calculate the discounted price
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="applyDiscountBtn" data-bs-dismiss="modal">Apply Discount</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        /* Form switch styling */
+        .form-switch-lg .form-check-input {
+            width: 3em;
+            height: 1.5em;
+            margin-left: 0;
+        }
+
+        /* Category badges styling */
+        .category-badge {
+            transition: all 0.2s ease;
+        }
+
+            .category-badge:hover {
+                transform: translateY(-2px);
+            }
+
+            .category-badge .badge {
+                font-size: 0.9rem;
+            }
+
+            .category-badge .btn-close {
+                font-size: 0.6rem;
+                opacity: 0.7;
+            }
+
+                .category-badge .btn-close:hover {
+                    opacity: 1;
+                }
+
+        /* Tab styling */
+        .nav-tabs .nav-link {
+            padding: 0.75rem 1rem;
+            color: var(--bs-gray-700);
+        }
+
+            .nav-tabs .nav-link.active {
+                font-weight: 500;
+                color: var(--bs-primary);
+                border-bottom-color: var(--bs-primary);
+            }
+
+        /* Card styling */
+        .card {
+            transition: all 0.3s ease;
+        }
+
+            .card:hover {
+                box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+            }
+
+        /* Form styling */
+        .form-label {
+            font-size: 0.9rem;
+        }
+
+        .form-text {
+            font-size: 0.8rem;
+        }
+
+        /* Animation for adding categories */
+        @@keyframes fadeIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        .category-badge {
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* Attribute row styling */
+        .attribute-row {
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--bs-primary) !important;
+        }
+
+            .attribute-row:hover {
+                box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+                background-color: #f8f9fa !important;
+            }
+
+        /* Animation for adding attributes */
+        @@keyframes slideIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        .attribute-row {
+            animation: slideIn 0.3s ease;
+        }
+
+        /* Gradient background for header */
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, var(--bs-primary) 0%, #4361ee 100%);
+        }
+
+        /* Image preview styling */
+        .image-preview-item {
+            position: relative;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            transition: all 0.3s ease;
+        }
+
+            .image-preview-item:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            }
+
+        .image-preview-actions {
+            position: absolute;
+            top: 0;
+            right: 0;
+            padding: 0.5rem;
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .image-preview-primary {
+            position: absolute;
+            top: 0;
+            left: 0;
+            padding: 0.5rem;
+        }
+
+        /* Dropzone styling */
+        .border-dashed {
+            border-style: dashed !important;
+        }
+
+        .dropzone-container {
+            transition: all 0.3s ease;
+        }
+
+            .dropzone-container:hover, .dropzone-container.dragover {
+                background-color: #f0f8ff !important;
+                border-color: var(--bs-primary) !important;
+            }
+    </style>
+}
+
 @section Scripts {
+    <script>
+        // Common attribute values mapping
+        const attributeValuesMap = {
+            'Color': ['Red', 'Blue', 'Green', 'Black', 'White', 'Yellow', 'Purple', 'Orange', 'Pink', 'Gray', 'Brown'],
+            'Size': ['XS', 'S', 'M', 'L', 'XL', 'XXL', '2XL', '3XL', '4XL', '5XL'],
+            'Material': ['Cotton', 'Polyester', 'Leather', 'Wool', 'Silk', 'Linen', 'Denim', 'Nylon', 'Spandex'],
+            'Weight': ['Light', 'Medium', 'Heavy'],
+            'Dimensions': ['Small', 'Medium', 'Large'],
+            'Pattern': ['Solid', 'Striped', 'Plaid', 'Floral', 'Polka Dot', 'Checkered', 'Geometric'],
+            'Warranty': ['1 Year', '2 Years', '3 Years', '5 Years', 'Lifetime'],
+            'Capacity': ['Small', 'Medium', 'Large', 'Extra Large']
+        };
+
+        // Bootstrap form validation
+        (function () {
+            'use strict'
+            var forms = document.querySelectorAll('.needs-validation')
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+
+                            // Find the first invalid field and switch to its tab
+                            const invalidField = form.querySelector(':invalid');
+                            if (invalidField) {
+                                const tabId = invalidField.closest('.tab-pane').id;
+                                const tab = document.querySelector(`[data-bs-target="#${tabId}"]`);
+                                if (tab) {
+                                    bootstrap.Tab.getOrCreateInstance(tab).show();
+                                    invalidField.focus();
+                                }
+                            }
+                        }
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })()
+
+        // Generate slug from product name
+        document.getElementById('Name')?.addEventListener('blur', function() {
+            const nameField = this;
+            const slugField = document.getElementById('Slug');
+
+            // Only generate slug if the slug field is empty or hasn't been manually edited
+            if (slugField && (!slugField.value || slugField.dataset.autoGenerated === 'true')) {
+                const slug = nameField.value
+                    .toLowerCase()
+                    .replace(/[^\w\s-]/g, '')
+                    .replace(/\s+/g, '-')
+                    .replace(/-+/g, '-')
+                    .trim();
+
+                slugField.value = slug;
+                slugField.dataset.autoGenerated = 'true';
+            }
+        });
+
+        // Generate slug button
+        document.getElementById('generateSlugBtn')?.addEventListener('click', function() {
+            const nameField = document.getElementById('Name');
+            const slugField = document.getElementById('Slug');
+
+            if (nameField && slugField) {
+                const slug = nameField.value
+                    .toLowerCase()
+                    .replace(/[^\w\s-]/g, '')
+                    .replace(/\s+/g, '-')
+                    .replace(/-+/g, '-')
+                    .trim();
+
+                slugField.value = slug;
+                slugField.dataset.autoGenerated = 'true';
+            }
+        });
+
+        // Mark slug as manually edited
+        document.getElementById('Slug')?.addEventListener('input', function() {
+            this.dataset.autoGenerated = 'false';
+        });
+
+        // Short description character counter
+        document.getElementById('ShortDescription')?.addEventListener('input', function() {
+            const counter = document.getElementById('shortDescCounter');
+            if (counter) {
+                counter.textContent = `${this.value.length}/160`;
+                if (this.value.length > 160) {
+                    counter.classList.add('text-danger');
+                } else {
+                    counter.classList.remove('text-danger');
+                }
+            }
+        });
+
+        // Initialize short description counter
+        const shortDesc = document.getElementById('ShortDescription');
+        if (shortDesc) {
+            const counter = document.getElementById('shortDescCounter');
+            if (counter) {
+                counter.textContent = `${shortDesc.value.length}/160`;
+            }
+        }
+
+        // Calculate volume when dimensions change
+        const lengthInput = document.getElementById('Length');
+        const widthInput = document.getElementById('Width');
+        const heightInput = document.getElementById('Height');
+        const volumeCalculation = document.getElementById('volumeCalculation');
+
+        function updateVolume() {
+            if (lengthInput && widthInput && heightInput && volumeCalculation) {
+                const length = parseFloat(lengthInput.value) || 0;
+                const width = parseFloat(widthInput.value) || 0;
+                const height = parseFloat(heightInput.value) || 0;
+
+                if (length > 0 && width > 0 && height > 0) {
+                    const volume = length * width * height;
+                    volumeCalculation.textContent = `${volume.toFixed(2)} cm³`;
+                } else {
+                    volumeCalculation.textContent = 'Enter dimensions to calculate volume';
+                }
+            }
+        }
+
+        lengthInput?.addEventListener('input', updateVolume);
+        widthInput?.addEventListener('input', updateVolume);
+        heightInput?.addEventListener('input', updateVolume);
+
+        // Discount calculator
+        const regularPriceCalc = document.getElementById('regularPriceCalc');
+        const discountPercentage = document.getElementById('discountPercentage');
+        const calculatedPriceResult = document.getElementById('calculatedPriceResult');
+        const applyDiscountBtn = document.getElementById('applyDiscountBtn');
+        const discountPriceInput = document.getElementById('DiscountPrice');
+        const regularPriceInput = document.getElementById('RegularPrice');
+
+        function calculateDiscountedPrice() {
+            if (regularPriceCalc && discountPercentage && calculatedPriceResult) {
+                const regularPrice = parseFloat(regularPriceCalc.value) || 0;
+                const percentage = parseFloat(discountPercentage.value) || 0;
+
+                if (regularPrice > 0 && percentage > 0) {
+                    const discountAmount = regularPrice * (percentage / 100);
+                    const discountedPrice = regularPrice - discountAmount;
+
+                    calculatedPriceResult.innerHTML = `
+                        <strong>Regular Price:</strong> $${regularPrice.toFixed(2)}<br>
+                        <strong>Discount:</strong> ${percentage}% ($${discountAmount.toFixed(2)})<br>
+                        <strong>Final Price:</strong> $${discountedPrice.toFixed(2)}
+                    `;
+
+                    return discountedPrice;
+                } else {
+                    calculatedPriceResult.textContent = 'Enter valid values to calculate the discounted price';
+                    return 0;
+                }
+            }
+            return 0;
+        }
+
+        regularPriceCalc?.addEventListener('input', calculateDiscountedPrice);
+        discountPercentage?.addEventListener('input', calculateDiscountedPrice);
+
+        // Apply calculated discount to the form
+        applyDiscountBtn?.addEventListener('click', function() {
+            const discountedPrice = calculateDiscountedPrice();
+            if (discountedPrice > 0 && discountPriceInput) {
+                discountPriceInput.value = discountedPrice.toFixed(2);
+            }
+        });
+
+        // Initialize discount calculator with current values
+        document.getElementById('discountCalculatorModal')?.addEventListener('show.bs.modal', function () {
+            if (regularPriceInput && regularPriceCalc) {
+                regularPriceCalc.value = regularPriceInput.value;
+            }
+
+            if (regularPriceInput && discountPriceInput && discountPercentage) {
+                const regularPrice = parseFloat(regularPriceInput.value) || 0;
+                const discountPrice = parseFloat(discountPriceInput.value) || 0;
+
+                if (regularPrice > 0 && discountPrice > 0 && discountPrice < regularPrice) {
+                    const percentage = ((regularPrice - discountPrice) / regularPrice) * 100;
+                    discountPercentage.value = percentage.toFixed(0);
+                    calculateDiscountedPrice();
+                }
+            }
+        });
+
+        // Categories functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const categorySelect = document.getElementById('categorySelect');
+            const addCategoryBtn = document.getElementById('addCategoryBtn');
+            const selectedCategoriesContainer = document.getElementById('selectedCategoriesContainer');
+            const noCategoriesMessage = document.getElementById('noCategoriesMessage');
+            const categoryCount = document.getElementById('categoryCount');
+
+            // Add category functionality
+            addCategoryBtn?.addEventListener('click', function() {
+                const selectedCategory = categorySelect.value;
+                const selectedCategoryText = categorySelect.options[categorySelect.selectedIndex].text;
+
+                if (!selectedCategory) return;
+
+                // Check if category already exists
+                if (document.querySelector(`.category-badge[data-category="${selectedCategory}"]`)) {
+                    // Flash the existing category to indicate it's already added
+                    const existingBadge = document.querySelector(`.category-badge[data-category="${selectedCategory}"]`);
+                    existingBadge.classList.add('bg-warning');
+                    setTimeout(() => {
+                        existingBadge.classList.remove('bg-warning');
+                    }, 1000);
+                    return;
+                }
+
+                // Create new category badge
+                const categoryBadge = document.createElement('div');
+                categoryBadge.className = 'category-badge';
+                categoryBadge.setAttribute('data-category', selectedCategory);
+                categoryBadge.innerHTML = `
+                    <span class="badge bg-primary d-flex align-items-center p-2">
+                        <i class="bi bi-tag-fill me-1"></i>
+                        ${selectedCategoryText}
+                        <button type="button" class="btn-close btn-close-white ms-2 remove-category" aria-label="Remove"></button>
+                        <input type="hidden" name="Categories" value="${selectedCategory}" />
+                    </span>
+                `;
+
+                // Add to container
+                if (noCategoriesMessage) {
+                    noCategoriesMessage.style.display = 'none';
+                }
+
+                // If container is empty, create a wrapper div
+                if (!selectedCategoriesContainer.querySelector('.d-flex.flex-wrap')) {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'd-flex flex-wrap gap-2';
+                    selectedCategoriesContainer.appendChild(wrapper);
+                    wrapper.appendChild(categoryBadge);
+                } else {
+                    selectedCategoriesContainer.querySelector('.d-flex.flex-wrap').appendChild(categoryBadge);
+                }
+
+                // Update count
+                updateCategoryCount();
+
+                // Reset select
+                categorySelect.value = '';
+            });
+
+            // Remove category with event delegation
+            selectedCategoriesContainer?.addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove-category') || e.target.closest('.remove-category')) {
+                    const badge = e.target.closest('.category-badge');
+                    badge.classList.add('fade-out');
+
+                    setTimeout(() => {
+                        badge.remove();
+
+                        // Show no categories message if empty
+                        const badges = selectedCategoriesContainer.querySelectorAll('.category-badge');
+                        if (badges.length === 0 && noCategoriesMessage) {
+                            noCategoriesMessage.style.display = 'block';
+                        }
+
+                        // Update count
+                        updateCategoryCount();
+                    }, 300);
+                }
+            });
+
+            // Update category count
+            function updateCategoryCount() {
+                if (categoryCount) {
+                    const count = selectedCategoriesContainer.querySelectorAll('.category-badge').length;
+                    categoryCount.textContent = count;
+                }
+            }
+
+            // Initialize count
+            updateCategoryCount();
+        });
+
+        // Attributes functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const attributeNameInput = document.getElementById('attributeNameInput');
+            const attributeValueInput = document.getElementById('attributeValueInput');
+            const addAttributeBtn = document.getElementById('addAttributeBtn');
+            const attributesContainer = document.getElementById('attributesContainer');
+            const noAttributesMessage = document.getElementById('noAttributesMessage');
+            const attributeCount = document.getElementById('attributeCount');
+            const clearAttributesBtn = document.getElementById('clearAttributesBtn');
+            const commonValuesContainer = document.getElementById('commonValuesContainer');
+            const commonValuesList = document.getElementById('commonValuesList');
+
+            // Attribute name input change - show common values if available
+            attributeNameInput?.addEventListener('input', function() {
+                const attributeName = this.value;
+                const commonValues = attributeValuesMap[attributeName];
+
+                if (commonValues && commonValues.length > 0) {
+                    // Populate common values
+                    commonValuesList.innerHTML = '';
+                    commonValues.forEach(value => {
+                        const valueBtn = document.createElement('button');
+                        valueBtn.type = 'button';
+                        valueBtn.className = 'btn btn-sm btn-outline-secondary mb-1 me-1';
+                        valueBtn.textContent = value;
+                        valueBtn.addEventListener('click', function() {
+                            attributeValueInput.value = value;
+                        });
+                        commonValuesList.appendChild(valueBtn);
+                    });
+
+                    // Show common values container
+                    commonValuesContainer.classList.remove('d-none');
+                } else {
+                    // Hide common values container
+                    commonValuesContainer.classList.add('d-none');
+                }
+            });
+
+            // Add attribute functionality
+            addAttributeBtn?.addEventListener('click', function() {
+                const attributeName = attributeNameInput.value.trim();
+                const attributeValue = attributeValueInput.value.trim();
+
+                if (!attributeName || !attributeValue) {
+                    // Show validation error
+                    if (!attributeName) attributeNameInput.classList.add('is-invalid');
+                    if (!attributeValue) attributeValueInput.classList.add('is-invalid');
+                    return;
+                }
+
+                // Remove validation errors
+                attributeNameInput.classList.remove('is-invalid');
+                attributeValueInput.classList.remove('is-invalid');
+
+                // Check if attribute already exists
+                const existingAttributes = document.querySelectorAll('.attribute-name');
+                for (let i = 0; i < existingAttributes.length; i++) {
+                    if (existingAttributes[i].value.toLowerCase() === attributeName.toLowerCase()) {
+                        // Flash the existing attribute to indicate it's already added
+                        const existingRow = existingAttributes[i].closest('.attribute-row');
+                        existingRow.classList.add('bg-warning', 'bg-opacity-25');
+                        setTimeout(() => {
+                            existingRow.classList.remove('bg-warning', 'bg-opacity-25');
+                        }, 1000);
+                        return;
+                    }
+                }
+
+                // Hide no attributes message
+                if (noAttributesMessage) {
+                    noAttributesMessage.style.display = 'none';
+                }
+
+                // Get current attribute count
+                const index = document.querySelectorAll('.attribute-row').length;
+
+                // Create new attribute row
+                const attributeRow = document.createElement('div');
+                attributeRow.className = 'attribute-row mb-3 p-3 border rounded bg-light position-relative';
+                attributeRow.innerHTML = `
+                    <button type="button" class="btn-close position-absolute top-0 end-0 m-2 remove-attribute" aria-label="Remove"></button>
+                    <div class="row g-3">
+                        <div class="col-md-5">
+                            <label class="form-label small fw-medium">Attribute Name</label>
+                            <input type="text" name="Attributes[${index}].AttributeName" class="form-control attribute-name" value="${attributeName}" readonly />
+                            <input type="hidden" name="Attributes[${index}].Id" value="0" />
+                            <input type="hidden" name="Attributes[${index}].ProductId" value="0" />
+                        </div>
+                        <div class="col-md-7">
+                            <label class="form-label small fw-medium">Attribute Value</label>
+                            <input type="text" name="Attributes[${index}].AttributeValue" class="form-control attribute-value" value="${attributeValue}" />
+                        </div>
+                    </div>
+                `;
+
+                // Add to container
+                attributesContainer.appendChild(attributeRow);
+
+                // Update attribute count
+                updateAttributeCount();
+
+                // Enable clear button
+                clearAttributesBtn.disabled = false;
+
+                // Reset inputs
+                attributeNameInput.value = '';
+                attributeValueInput.value = '';
+                commonValuesContainer.classList.add('d-none');
+            });
+
+            // Remove attribute with event delegation
+            attributesContainer?.addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove-attribute') || e.target.closest('.remove-attribute')) {
+                    const row = e.target.closest('.attribute-row');
+
+                    // Add fade out animation
+                    row.style.opacity = '0';
+                    row.style.transform = 'translateY(-10px)';
+
+                    setTimeout(() => {
+                        row.remove();
+
+                        // Show no attributes message if no attributes left
+                        if (document.querySelectorAll('.attribute-row').length === 0) {
+                            if (noAttributesMessage) {
+                                noAttributesMessage.style.display = 'block';
+                            }
+
+                            // Disable clear button
+                            clearAttributesBtn.disabled = true;
+                        }
+
+                        // Update attribute indexes
+                        updateAttributeIndexes();
+
+                        // Update attribute count
+                        updateAttributeCount();
+                    }, 300);
+                }
+            });
+
+            // Clear all attributes
+            clearAttributesBtn?.addEventListener('click', function() {
+                if (confirm('Are you sure you want to remove all attributes?')) {
+                    // Remove all attribute rows
+                    const attributeRows = document.querySelectorAll('.attribute-row');
+                    attributeRows.forEach(row => {
+                        row.remove();
+                    });
+
+                    // Show no attributes message
+                    if (noAttributesMessage) {
+                        noAttributesMessage.style.display = 'block';
+                    }
+
+                    // Disable clear button
+                    this.disabled = true;
+
+                    // Update attribute count
+                    updateAttributeCount();
+                }
+            });
+
+            // Update attribute indexes
+            function updateAttributeIndexes() {
+                const attributeRows = document.querySelectorAll('.attribute-row');
+                attributeRows.forEach((row, index) => {
+                    const nameInput = row.querySelector('.attribute-name');
+                    const valueInput = row.querySelector('.attribute-value');
+                    const idInput = row.querySelector('input[name*=".Id"]');
+                    const productIdInput = row.querySelector('input[name*=".ProductId"]');
+
+                    nameInput.name = `Attributes[${index}].AttributeName`;
+                    valueInput.name = `Attributes[${index}].AttributeValue`;
+                    idInput.name = `Attributes[${index}].Id`;
+                    productIdInput.name = `Attributes[${index}].ProductId`;
+                });
+            }
+
+            // Update attribute count
+            function updateAttributeCount() {
+                if (attributeCount) {
+                    const count = document.querySelectorAll('.attribute-row').length;
+                    attributeCount.textContent = count;
+                }
+            }
+
+            // Initialize
+            updateAttributeCount();
+        });
+
+        // Image upload functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const productImagesInput = document.getElementById('productImages');
+            const imageDropzone = document.getElementById('imageDropzone');
+            const noImagesMessage = document.getElementById('noImagesMessage');
+            const imagePreviewsContainer = document.getElementById('imagePreviewsContainer');
+            const clearImagesBtn = document.getElementById('clearImagesBtn');
+            const imageCount = document.getElementById('imageCount');
+
+            // Handle file selection
+            productImagesInput?.addEventListener('change', function(e) {
+                handleFiles(this.files);
+            });
+
+            // Handle drag and drop
+            imageDropzone?.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('dragover');
+            });
+
+            imageDropzone?.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                this.classList.remove('dragover');
+            });
+
+            imageDropzone?.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('dragover');
+
+                if (e.dataTransfer.files.length > 0) {
+                    handleFiles(e.dataTransfer.files);
+                }
+            });
+
+            // Handle files function
+            function handleFiles(files) {
+                if (files.length === 0) return;
+
+                // Hide no images message
+                if (noImagesMessage) {
+                    noImagesMessage.style.display = 'none';
+                }
+
+                // Show previews container
+                if (imagePreviewsContainer) {
+                    imagePreviewsContainer.style.display = 'flex';
+                }
+
+                // Enable clear button
+                if (clearImagesBtn) {
+                    clearImagesBtn.disabled = false;
+                }
+
+                // Process each file
+                Array.from(files).forEach((file, index) => {
+                    // Check if file is an image
+                    if (!file.type.match('image.*')) return;
+
+                    // Check file size (max 5MB)
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert(`File ${file.name} is too large. Maximum size is 5MB.`);
+                        return;
+                    }
+
+                    // Create a unique ID for the file
+                    const fileId = `image-${Date.now()}-${index}`;
+
+                    // Create file reader to generate preview
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        // Create preview element
+                        const previewCol = document.createElement('div');
+                        previewCol.className = 'col-md-6 col-lg-4';
+                        previewCol.innerHTML = `
+                            <div class="image-preview-item">
+                                <div class="image-preview-primary">
+                                    <span class="badge bg-primary ${index === 0 ? '' : 'd-none'}">Primary</span>
+                                </div>
+                                <div class="image-preview-actions">
+                                    <button type="button" class="btn btn-sm btn-light set-primary" title="Set as primary" ${index === 0 ? 'disabled' : ''}>
+                                        <i class="bi bi-star"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-danger remove-image" title="Remove image">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                                <img src="${e.target.result}" class="img-fluid" style="width: 100%; height: 150px; object-fit: contain;" alt="Product image preview" />
+                                <input type="hidden" name="ImageFiles" value="${fileId}" />
+                                <div class="p-2 bg-light">
+                                    <input type="text" class="form-control form-control-sm" name="ImageAlts" placeholder="Alt text (optional)" />
+                                </div>
+                            </div>
+                        `;
+
+                        // Add to previews container
+                        imagePreviewsContainer.appendChild(previewCol);
+
+                        // Create a new FormData object
+                        const formData = new FormData();
+                        formData.append('file', file);
+
+                        // Store the file in the form for submission
+                        // This is a simplified approach - in a real app, you might want to use FormData
+                        // to upload the files via AJAX or handle them differently
+
+                        // Update image count
+                        updateImageCount();
+                    };
+
+                    // Read the file as a data URL
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            // Set primary image
+            imagePreviewsContainer?.addEventListener('click', function(e) {
+                if (e.target.classList.contains('set-primary') || e.target.closest('.set-primary')) {
+                    const button = e.target.classList.contains('set-primary') ? e.target : e.target.closest('.set-primary');
+                    const previewItem = button.closest('.image-preview-item');
+
+                    // Remove primary from all images
+                    const allPrimaryBadges = document.querySelectorAll('.image-preview-primary .badge');
+                    allPrimaryBadges.forEach(badge => badge.classList.add('d-none'));
+
+                    const allPrimaryButtons = document.querySelectorAll('.set-primary');
+                    allPrimaryButtons.forEach(btn => btn.disabled = false);
+
+                    // Set this image as primary
+                    const primaryBadge = previewItem.querySelector('.image-preview-primary .badge');
+                    primaryBadge.classList.remove('d-none');
+                    button.disabled = true;
+                }
+            });
+
+            // Remove image
+            imagePreviewsContainer?.addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove-image') || e.target.closest('.remove-image')) {
+                    const previewCol = e.target.closest('.col-md-6');
+
+                    // Add fade out animation
+                    previewCol.style.opacity = '0';
+                    previewCol.style.transform = 'translateY(-10px)';
+
+                    setTimeout(() => {
+                        previewCol.remove();
+
+                        // Show no images message if no images left
+                        if (imagePreviewsContainer.children.length === 0) {
+                            if (noImagesMessage) {
+                                noImagesMessage.style.display = 'block';
+                            }
+
+                            imagePreviewsContainer.style.display = 'none';
+
+                            // Disable clear button
+                            if (clearImagesBtn) {
+                                clearImagesBtn.disabled = true;
+                            }
+                        } else {
+                            // Ensure there's always a primary image
+                            const hasPrimary = document.querySelector('.image-preview-primary .badge:not(.d-none)');
+                            if (!hasPrimary && imagePreviewsContainer.children.length > 0) {
+                                const firstItem = imagePreviewsContainer.children[0].querySelector('.image-preview-item');
+                                const primaryBadge = firstItem.querySelector('.image-preview-primary .badge');
+                                primaryBadge.classList.remove('d-none');
+
+                                const primaryButton = firstItem.querySelector('.set-primary');
+                                primaryButton.disabled = true;
+                            }
+                        }
+
+                        // Update image count
+                        updateImageCount();
+                    }, 300);
+                }
+            });
+
+            // Clear all images
+            clearImagesBtn?.addEventListener('click', function() {
+                if (confirm('Are you sure you want to remove all images?')) {
+                    // Clear file input
+                    if (productImagesInput) {
+                        productImagesInput.value = '';
+                    }
+
+                    // Clear previews
+                    if (imagePreviewsContainer) {
+                        imagePreviewsContainer.innerHTML = '';
+                        imagePreviewsContainer.style.display = 'none';
+                    }
+
+                    // Show no images message
+                    if (noImagesMessage) {
+                        noImagesMessage.style.display = 'block';
+                    }
+
+                    // Disable clear button
+                    this.disabled = true;
+
+                    // Update image count
+                    updateImageCount();
+                }
+            });
+
+            // Update image count
+            function updateImageCount() {
+                if (imageCount) {
+                    const count = imagePreviewsContainer.children.length;
+                    imageCount.textContent = count;
+                }
+            }
+
+            // Initialize
+            updateImageCount();
+        });
+    </script>
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const productNameInput = document.getElementById('nameInput');
-            const productSlugInput = document.getElementById('productSlug');
-            const generateSlugBtn = document.getElementById('generateSlugBtn');
-
-            function generateSlug(text) {
-                return text
-                    .toLowerCase()           // Convert to lowercase
-                    .trim()                  // Remove leading/trailing whitespace
-                    .replace(/[^\w\s-]/g, '') // Remove non-word chars (except spaces and hyphens)
-                    .replace(/[\s_-]+/g, '-') // Replace spaces, underscores, multiple hyphens with single hyphen
-                    .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
-            }
-
-            generateSlugBtn.addEventListener('click', function() {
-                const productName = productNameInput.value;
-                if (productName) {
-                    productSlugInput.value = generateSlug(productName);
-                }
-            });
-        });
-    </script>
 }

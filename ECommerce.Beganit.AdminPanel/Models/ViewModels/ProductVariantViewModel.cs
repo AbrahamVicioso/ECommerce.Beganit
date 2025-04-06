@@ -22,5 +22,7 @@ namespace ECommerce.Beganit.AdminPanel.Models.ViewModels
         public int Quantity { get; set; }
 
         public bool IsActive { get; set; }
+
+        public List<ProductVariantAttributeViewModel>? ProductVariantAttributes { get; set; }
     }
 }

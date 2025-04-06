@@ -1,8 +1,1122 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Dashboard";
+    // Using the default layout instead of a custom one
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<!-- Hero Section -->
+<div class="dashboard-hero">
+    <div class="hero-content">
+        <div class="welcome-message">
+            <h1 class="display-4 fw-bold text-gradient">Welcome back, Admin</h1>
+            <p class="lead opacity-75">Your store is performing well today. Here's an overview of your business.</p>
+        </div>
+        <div class="quick-stats">
+            <div class="stat-card sales">
+                <div class="stat-icon">
+                    <i class="bi bi-graph-up-arrow"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-value">$12,594</h3>
+                    <p class="stat-label">Today's Sales</p>
+                    <div class="stat-trend positive">
+                        <i class="bi bi-arrow-up-right"></i>
+                        <span>24% increase</span>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card orders">
+                <div class="stat-icon">
+                    <i class="bi bi-box-seam"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-value">186</h3>
+                    <p class="stat-label">New Orders</p>
+                    <div class="stat-trend positive">
+                        <i class="bi bi-arrow-up-right"></i>
+                        <span>12% increase</span>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card visitors">
+                <div class="stat-icon">
+                    <i class="bi bi-people"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-value">2,845</h3>
+                    <p class="stat-label">Visitors</p>
+                    <div class="stat-trend positive">
+                        <i class="bi bi-arrow-up-right"></i>
+                        <span>18% increase</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="hero-visual">
+        <div class="animated-chart">
+            <canvas id="heroChart"></canvas>
+        </div>
+    </div>
 </div>
+
+<!-- Main Dashboard Content -->
+<div class="dashboard-content">
+    <div class="dashboard-grid">
+        <!-- Sales Overview -->
+        <div class="dashboard-card sales-overview">
+            <div class="card-header">
+                <h2>Sales Overview</h2>
+                <div class="card-actions">
+                    <div class="btn-group">
+                        <button class="btn btn-sm active">Day</button>
+                        <button class="btn btn-sm">Week</button>
+                        <button class="btn btn-sm">Month</button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <canvas id="salesChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Recent Orders -->
+        <div class="dashboard-card recent-orders">
+            <div class="card-header">
+                <h2>Recent Orders</h2>
+                <div class="card-actions">
+                    <a href="#" class="btn btn-primary btn-sm">View All</a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="order-list">
+                    <div class="order-item">
+                        <div class="order-icon pending">
+                            <i class="bi bi-hourglass-split"></i>
+                        </div>
+                        <div class="order-details">
+                            <h4>Order #38942</h4>
+                            <p>Jane Cooper • 2 items • $186.00</p>
+                        </div>
+                        <div class="order-status">
+                            <span class="badge pending">Pending</span>
+                            <p class="time">2 minutes ago</p>
+                        </div>
+                        <div class="order-actions">
+                            <button class="btn btn-sm">View</button>
+                        </div>
+                    </div>
+                    <div class="order-item">
+                        <div class="order-icon processing">
+                            <i class="bi bi-box-seam"></i>
+                        </div>
+                        <div class="order-details">
+                            <h4>Order #38941</h4>
+                            <p>Devon Lane • 5 items • $324.75</p>
+                        </div>
+                        <div class="order-status">
+                            <span class="badge processing">Processing</span>
+                            <p class="time">15 minutes ago</p>
+                        </div>
+                        <div class="order-actions">
+                            <button class="btn btn-sm">View</button>
+                        </div>
+                    </div>
+                    <div class="order-item">
+                        <div class="order-icon completed">
+                            <i class="bi bi-check-circle"></i>
+                        </div>
+                        <div class="order-details">
+                            <h4>Order #38940</h4>
+                            <p>Darrell Steward • 1 item • $125.00</p>
+                        </div>
+                        <div class="order-status">
+                            <span class="badge completed">Completed</span>
+                            <p class="time">35 minutes ago</p>
+                        </div>
+                        <div class="order-actions">
+                            <button class="btn btn-sm">View</button>
+                        </div>
+                    </div>
+                    <div class="order-item">
+                        <div class="order-icon shipped">
+                            <i class="bi bi-truck"></i>
+                        </div>
+                        <div class="order-details">
+                            <h4>Order #38939</h4>
+                            <p>Brooklyn Simmons • 3 items • $243.85</p>
+                        </div>
+                        <div class="order-status">
+                            <span class="badge shipped">Shipped</span>
+                            <p class="time">1 hour ago</p>
+                        </div>
+                        <div class="order-actions">
+                            <button class="btn btn-sm">View</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Products -->
+        <div class="dashboard-card top-products">
+            <div class="card-header">
+                <h2>Top Products</h2>
+                <div class="card-actions">
+                    <a href="#" class="btn btn-primary btn-sm">View All</a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="product-list">
+                    <div class="product-item">
+                        <div class="product-image">
+                            <img src="/images/placeholder-product.png" alt="Product">
+                        </div>
+                        <div class="product-details">
+                            <h4>Wireless Headphones</h4>
+                            <p>Electronics • SKU: WH-2023-BLK</p>
+                        </div>
+                        <div class="product-stats">
+                            <div class="stat">
+                                <h5>$149.99</h5>
+                                <p>Price</p>
+                            </div>
+                            <div class="stat">
+                                <h5>124</h5>
+                                <p>Sold</p>
+                            </div>
+                            <div class="stat">
+                                <h5>$18,598</h5>
+                                <p>Revenue</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="product-item">
+                        <div class="product-image">
+                            <img src="/images/placeholder-product.png" alt="Product">
+                        </div>
+                        <div class="product-details">
+                            <h4>Smart Watch Pro</h4>
+                            <p>Electronics • SKU: SW-2023-SLV</p>
+                        </div>
+                        <div class="product-stats">
+                            <div class="stat">
+                                <h5>$299.99</h5>
+                                <p>Price</p>
+                            </div>
+                            <div class="stat">
+                                <h5>98</h5>
+                                <p>Sold</p>
+                            </div>
+                            <div class="stat">
+                                <h5>$29,399</h5>
+                                <p>Revenue</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="product-item">
+                        <div class="product-image">
+                            <img src="/images/placeholder-product.png" alt="Product">
+                        </div>
+                        <div class="product-details">
+                            <h4>Laptop Sleeve Case</h4>
+                            <p>Accessories • SKU: LS-2023-GRY</p>
+                        </div>
+                        <div class="product-stats">
+                            <div class="stat">
+                                <h5>$34.99</h5>
+                                <p>Price</p>
+                            </div>
+                            <div class="stat">
+                                <h5>215</h5>
+                                <p>Sold</p>
+                            </div>
+                            <div class="stat">
+                                <h5>$7,522</h5>
+                                <p>Revenue</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="dashboard-card quick-actions">
+            <div class="card-header">
+                <h2>Quick Actions</h2>
+            </div>
+            <div class="card-body">
+                <div class="action-grid">
+                    <a href="#" class="action-item">
+                        <div class="action-icon">
+                            <i class="bi bi-plus-circle"></i>
+                        </div>
+                        <h4>Add Product</h4>
+                    </a>
+                    <a href="#" class="action-item">
+                        <div class="action-icon">
+                            <i class="bi bi-tag"></i>
+                        </div>
+                        <h4>Create Discount</h4>
+                    </a>
+                    <a href="#" class="action-item">
+                        <div class="action-icon">
+                            <i class="bi bi-box2-heart"></i>
+                        </div>
+                        <h4>New Bundle</h4>
+                    </a>
+                    <a href="#" class="action-item">
+                        <div class="action-icon">
+                            <i class="bi bi-people"></i>
+                        </div>
+                        <h4>Manage Users</h4>
+                    </a>
+                    <a href="#" class="action-item">
+                        <div class="action-icon">
+                            <i class="bi bi-gear"></i>
+                        </div>
+                        <h4>Settings</h4>
+                    </a>
+                    <a href="#" class="action-item">
+                        <div class="action-icon">
+                            <i class="bi bi-question-circle"></i>
+                        </div>
+                        <h4>Help</h4>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory Status -->
+        <div class="dashboard-card inventory-status">
+            <div class="card-header">
+                <h2>Inventory Status</h2>
+                <div class="card-actions">
+                    <a href="#" class="btn btn-primary btn-sm">Manage</a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="inventory-chart-container">
+                    <canvas id="inventoryChart"></canvas>
+                </div>
+                <div class="inventory-legend">
+                    <div class="legend-item">
+                        <span class="legend-color" style="background-color: rgba(54, 162, 235, 0.8);"></span>
+                        <span class="legend-label">In Stock (78%)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background-color: rgba(255, 206, 86, 0.8);"></span>
+                        <span class="legend-label">Low Stock (15%)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background-color: rgba(255, 99, 132, 0.8);"></span>
+                        <span class="legend-label">Out of Stock (7%)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="dashboard-card recent-activity">
+            <div class="card-header">
+                <h2>Recent Activity</h2>
+            </div>
+            <div class="card-body">
+                <div class="activity-timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-icon">
+                            <i class="bi bi-person"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <h4>New user registered</h4>
+                            <p>John Doe created an account</p>
+                            <span class="timeline-time">Just now</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-icon">
+                            <i class="bi bi-cart-check"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <h4>New order placed</h4>
+                            <p>Order #38943 was placed</p>
+                            <span class="timeline-time">10 minutes ago</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-icon">
+                            <i class="bi bi-star"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <h4>New product review</h4>
+                            <p>Smart Watch Pro received a 5-star review</p>
+                            <span class="timeline-time">45 minutes ago</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-icon">
+                            <i class="bi bi-truck"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <h4>Order shipped</h4>
+                            <p>Order #38932 was shipped to customer</p>
+                            <span class="timeline-time">2 hours ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        /* Base Styles */
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            color: #2d3748;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        /* Text Gradient */
+        .text-gradient {
+            background: linear-gradient(90deg, #4776E6 0%, #8E54E9 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+        }
+
+        /* Hero Section */
+        .dashboard-hero {
+            display: flex;
+            background: linear-gradient(135deg, #4776E6 0%, #8E54E9 100%);
+            color: white;
+            border-radius: 20px;
+            padding: 3rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 25px rgba(71, 118, 230, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+            .dashboard-hero::before {
+                content: '';
+                position: absolute;
+                top: -50%;
+                right: -50%;
+                width: 100%;
+                height: 200%;
+                background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+                transform: rotate(-15deg);
+            }
+
+        .hero-content {
+            flex: 1;
+            z-index: 1;
+        }
+
+        .welcome-message {
+            margin-bottom: 2rem;
+        }
+
+            .welcome-message h1 {
+                font-weight: 700;
+                margin-bottom: 0.5rem;
+                font-size: 2.5rem;
+            }
+
+        .quick-stats {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 1.5rem;
+            flex: 1;
+            min-width: 200px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+            .stat-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            }
+
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            opacity: 0.8;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+            .stat-trend.positive {
+                color: #4ade80;
+            }
+
+            .stat-trend.negative {
+                color: #f87171;
+            }
+
+            .stat-trend i {
+                margin-right: 0.25rem;
+            }
+
+        .hero-visual {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+        }
+
+        .animated-chart {
+            width: 100%;
+            height: 100%;
+            max-width: 500px;
+        }
+
+        /* Dashboard Content */
+        .dashboard-content {
+            padding: 0 0 1.5rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: auto;
+            gap: 1.5rem;
+            grid-template-areas:
+                "sales-overview sales-overview recent-orders"
+                "top-products top-products quick-actions"
+                "inventory-status recent-activity recent-activity";
+        }
+
+        .sales-overview {
+            grid-area: sales-overview;
+        }
+
+        .recent-orders {
+            grid-area: recent-orders;
+        }
+
+        .top-products {
+            grid-area: top-products;
+        }
+
+        .quick-actions {
+            grid-area: quick-actions;
+        }
+
+        .inventory-status {
+            grid-area: inventory-status;
+        }
+
+        .recent-activity {
+            grid-area: recent-activity;
+        }
+
+        /* Dashboard Cards */
+        .dashboard-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+            .dashboard-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+            .card-header h2 {
+                font-size: 1.25rem;
+                font-weight: 600;
+                margin: 0;
+            }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        /* Recent Orders */
+        .order-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .order-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border-radius: 12px;
+            background: #f9fafb;
+            transition: background-color 0.2s ease;
+        }
+
+            .order-item:hover {
+                background: #f3f4f6;
+            }
+
+        .order-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+        }
+
+            .order-icon.pending {
+                background: rgba(255, 206, 86, 0.2);
+                color: #eab308;
+            }
+
+            .order-icon.processing {
+                background: rgba(54, 162, 235, 0.2);
+                color: #3b82f6;
+            }
+
+            .order-icon.completed {
+                background: rgba(75, 192, 192, 0.2);
+                color: #10b981;
+            }
+
+            .order-icon.shipped {
+                background: rgba(153, 102, 255, 0.2);
+                color: #8b5cf6;
+            }
+
+        .order-details {
+            flex: 1;
+        }
+
+            .order-details h4 {
+                font-size: 1rem;
+                font-weight: 600;
+                margin: 0 0 0.25rem;
+            }
+
+            .order-details p {
+                font-size: 0.875rem;
+                color: #6b7280;
+                margin: 0;
+            }
+
+        .order-status {
+            margin-right: 1rem;
+            text-align: right;
+        }
+
+        .badge {
+            padding: 0.35em 0.65em;
+            font-size: 0.75em;
+            font-weight: 600;
+            border-radius: 0.375rem;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+            .badge.pending {
+                background: rgba(255, 206, 86, 0.2);
+                color: #eab308;
+            }
+
+            .badge.processing {
+                background: rgba(54, 162, 235, 0.2);
+                color: #3b82f6;
+            }
+
+            .badge.completed {
+                background: rgba(75, 192, 192, 0.2);
+                color: #10b981;
+            }
+
+            .badge.shipped {
+                background: rgba(153, 102, 255, 0.2);
+                color: #8b5cf6;
+            }
+
+        .time {
+            font-size: 0.75rem;
+            color: #9ca3af;
+            margin-top: 0.25rem;
+        }
+
+        /* Top Products */
+        .product-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .product-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border-radius: 12px;
+            background: #f9fafb;
+            transition: background-color 0.2s ease;
+        }
+
+            .product-item:hover {
+                background: #f3f4f6;
+            }
+
+        .product-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-right: 1rem;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+            .product-image img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+            }
+
+        .product-details {
+            flex: 1;
+        }
+
+            .product-details h4 {
+                font-size: 1rem;
+                font-weight: 600;
+                margin: 0 0 0.25rem;
+            }
+
+            .product-details p {
+                font-size: 0.875rem;
+                color: #6b7280;
+                margin: 0;
+            }
+
+        .product-stats {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+            .stat h5 {
+                font-size: 0.875rem;
+                font-weight: 600;
+                margin: 0 0 0.25rem;
+            }
+
+            .stat p {
+                font-size: 0.75rem;
+                color: #6b7280;
+                margin: 0;
+            }
+
+        /* Quick Actions */
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .action-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            border-radius: 12px;
+            background: #f9fafb;
+            text-align: center;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: #2d3748;
+        }
+
+            .action-item:hover {
+                background: #4776E6;
+                color: white;
+                transform: translateY(-5px);
+                box-shadow: 0 10px 20px rgba(71, 118, 230, 0.3);
+            }
+
+        .action-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .action-item h4 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        /* Inventory Status */
+        .inventory-chart-container {
+            height: 200px;
+            margin-bottom: 1rem;
+        }
+
+        .inventory-legend {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+
+        .legend-label {
+            font-size: 0.875rem;
+            color: #4b5563;
+        }
+
+        /* Recent Activity */
+        .activity-timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+            .activity-timeline::before {
+                content: '';
+                position: absolute;
+                left: 7px;
+                top: 0;
+                bottom: 0;
+                width: 2px;
+                background: #e5e7eb;
+            }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 1.5rem;
+        }
+
+            .timeline-item:last-child {
+                padding-bottom: 0;
+            }
+
+        .timeline-icon {
+            position: absolute;
+            left: -2rem;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #4776E6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.5rem;
+        }
+
+        .timeline-content h4 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin: 0 0 0.25rem;
+        }
+
+        .timeline-content p {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin: 0 0 0.25rem;
+        }
+
+        .timeline-time {
+            font-size: 0.75rem;
+            color: #9ca3af;
+        }
+
+        /* Responsive Adjustments */
+        @@media (max-width: 1200px) {
+            .dashboard-grid
+
+        {
+            grid-template-columns: 1fr 1fr;
+            grid-template-areas:
+                "sales-overview sales-overview"
+                "recent-orders top-products"
+                "quick-actions inventory-status"
+                "recent-activity recent-activity";
+        }
+
+        }
+
+        @@media (max-width: 768px) {
+            .dashboard-hero
+
+        {
+            flex-direction: column;
+            padding: 2rem;
+        }
+
+        .hero-visual {
+            margin-top: 2rem;
+        }
+
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+            grid-template-areas:
+                "sales-overview"
+                "recent-orders"
+                "top-products"
+                "quick-actions"
+                "inventory-status"
+                "recent-activity";
+        }
+
+        .action-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        }
+
+        /* Animations */
+        @@keyframes pulse {
+            0%
+
+        {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.05);
+        }
+
+        100% {
+            transform: scale(1);
+        }
+
+        }
+
+        @@keyframes fadeIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        .stat-card {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+            .stat-card:nth-child(1) {
+                animation-delay: 0.1s;
+            }
+
+            .stat-card:nth-child(2) {
+                animation-delay: 0.2s;
+            }
+
+            .stat-card:nth-child(3) {
+                animation-delay: 0.3s;
+            }
+
+        .dashboard-card {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        .action-item:hover .action-icon {
+            animation: pulse 1s infinite;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c5c5c5;
+            border-radius: 10px;
+        }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: #a8a8a8;
+            }
+    </style>
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Hero Chart
+            const heroChartCtx = document.getElementById('heroChart').getContext('2d');
+            const heroChart = new Chart(heroChartCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [{
+                        label: 'Revenue',
+                        data: [12000, 19000, 15000, 25000, 22000, 30000, 28000, 35000, 40000, 45000, 48000, 52000],
+                        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                        borderColor: 'rgba(255, 255, 255, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(255, 255, 255, 1)',
+                        pointBorderColor: 'rgba(255, 255, 255, 1)',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgba(255, 255, 255, 1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            // Sales Chart
+            const salesChartCtx = document.getElementById('salesChart').getContext('2d');
+            const salesChart = new Chart(salesChartCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['00:00', '03:00', '06:00', '09:00', '12:00', '15:00', '18:00', '21:00'],
+                    datasets: [{
+                        label: 'Sales',
+                        data: [1200, 900, 600, 1500, 2100, 1800, 2400, 1700],
+                        backgroundColor: 'rgba(71, 118, 230, 0.8)',
+                        borderColor: 'rgba(71, 118, 230, 1)',
+                        borderWidth: 1,
+                        borderRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            // Inventory Chart
+            const inventoryChartCtx = document.getElementById('inventoryChart').getContext('2d');
+            const inventoryChart = new Chart(inventoryChartCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['In Stock', 'Low Stock', 'Out of Stock'],
+                    datasets: [{
+                        data: [78, 15, 7],
+                        backgroundColor: [
+                            'rgba(54, 162, 235, 0.8)',
+                            'rgba(255, 206, 86, 0.8)',
+                            'rgba(255, 99, 132, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(255, 99, 132, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+        });
+    </script>
+}

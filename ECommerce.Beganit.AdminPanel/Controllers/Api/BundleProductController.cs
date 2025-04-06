@@ -1,47 +1,48 @@
-﻿using ECommerce.Beganit.AdminPanel.Models.ViewModels;
+﻿using ECommerce.Beganit.AdminPanel.Data;
 using ECommerce.Beganit.AdminPanel.Models;
+using ECommerce.Beganit.AdminPanel.Models.ViewModels;
+using MapsterMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ECommerce.Beganit.AdminPanel.Data;
-using MapsterMapper;
-using Microsoft.AspNetCore.Authorization;
 
 namespace ECommerce.Beganit.AdminPanel.Controllers.Api
 {
     [Route("api/[controller]")]
     [ApiController]
     [AllowAnonymous]
-    public class CategoryController : ControllerBase
+    public class BundleProductController : ControllerBase
     {
         private readonly ECommerceDBContext _context;
         private readonly IMapper _mapper;
 
-        public CategoryController(ECommerceDBContext eCommerceDBContext, IMapper mapper)
+        public BundleProductController(ECommerceDBContext eCommerce, IMapper mapper)
         {
-            this._context = eCommerceDBContext;
+            this._context = eCommerce;
             this._mapper = mapper;
         }
 
         [HttpGet]
-        public async Task<ActionResult<PaginatedResponse<CategoryViewModel>>> GetAll([FromQuery] PaginationParameters parameters)
-        {
-            var totalCount = await _context.Categories.CountAsync();
+        public  async Task<ActionResult<PaginatedResponse<ProductBundleViewModel>>> GetAll([FromQuery] PaginationParameters parameters) {
+            var totalCount = await _context.ProductBundles.CountAsync();
             var totalPages = (int)Math.Ceiling(totalCount / (double)parameters.PageSize);
 
-            var categories = await _context.Categories
+            var bundles = await _context.ProductBundles
                 .Skip((parameters.Page - 1) * parameters.PageSize)
                 .Take(parameters.PageSize)
-                .Select(x => _mapper.Map<CategoryViewModel>(x))
+                .Include(x => x.ProductBundleItems)
+                .Where(x => x.IsActive?? false)
+                .Select(x => _mapper.Map<ProductBundleViewModel>(x))
                 .ToListAsync();
 
-            var response = new PaginatedResponse<CategoryViewModel>
+            var response = new PaginatedResponse<ProductBundleViewModel>
             {
                 TotalCount = totalCount,
                 TotalPages = totalPages,
                 CurrentPage = parameters.Page,
                 PageSize = parameters.PageSize,
-                Items = categories
+                Items = bundles
             };
 
             return Ok(response);

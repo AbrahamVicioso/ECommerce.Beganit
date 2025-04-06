@@ -75,6 +75,7 @@ namespace ECommerce.Beganit.AdminPanel.Controllers
         public IActionResult Edit(int id) {
             ViewData["Products"] = _context.Products.ToList();
             ProductVariantViewModel model = _context.ProductVariants
+                .Include(x => x.ProductVariantAttributes)
                 .Where(x => x.Id == id)
                 .Select(x => _mapper.Map<ProductVariantViewModel>(x))
                 .FirstOrDefault();
@@ -90,66 +91,48 @@ namespace ECommerce.Beganit.AdminPanel.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(ProductVariantViewModel model)
         {
-            // Check if the model is null
-            if (model == null)
-            {
-                return BadRequest("Invalid product variant data.");
-            }
-
-            // Find the existing product variant
+            // Cargar la entidad actual con sus atributos
             var productCurrent = await _context.ProductVariants
+                .Include(p => p.ProductVariantAttributes)
                 .FirstOrDefaultAsync(x => x.Id == model.Id);
 
             if (productCurrent == null)
             {
-                return NotFound($"Product variant with ID {model.Id} not found.");
+                return NotFound();
             }
 
-            // Validate the model state
-            if (!ModelState.IsValid)
+            // Mapear solo las propiedades básicas del producto
+            _mapper.Map(model, productCurrent);
+
+            // Limpiar los atributos existentes
+            if (productCurrent.ProductVariantAttributes != null)
             {
-                // Log model state errors if needed
-                return View(model);
+                productCurrent.ProductVariantAttributes.Clear();
+            }
+
+            // Agregar los nuevos atributos
+            if (model.ProductVariantAttributes != null && model.ProductVariantAttributes.Any())
+            {
+                foreach (var attr in model.ProductVariantAttributes)
+                {
+                    productCurrent.ProductVariantAttributes.Add(new ProductVariantAttribute
+                    {
+                        AttributeName = attr.AttributeName,
+                        AttributeValue = attr.AttributeValue
+                        // No necesitas asignar VariantId, EF Core lo hará automáticamente
+                    });
+                }
             }
 
             try
             {
-                // Use AutoMapper to map the view model to the existing entity
-                _mapper.Map(model, productCurrent);
-
-                // Detach any tracked entities with the same ID to prevent multiple tracking
-                var trackedEntity = _context.ProductVariants.Local
-                    .FirstOrDefault(x => x.Id == model.Id);
-
-                if (trackedEntity != null)
-                {
-                    _context.Entry(trackedEntity).State = EntityState.Detached;
-                }
-
-                // Update the entity
-                _context.ProductVariants.Update(productCurrent);
-
-                // Save changes to the database
                 await _context.SaveChangesAsync();
-
-                // Add a temporary success message
-                TempData["SuccessMessage"] = "Product variant updated successfully.";
-
-                return RedirectToAction(nameof(Index));
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                // Handle concurrency conflicts
-                ModelState.AddModelError(string.Empty, "The record you attempted to edit was modified by another user.");
-                return View(model);
+                return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
                 // Log the exception
-                _logger.LogError(ex, "Error updating product variant");
-
-                // Add a generic error message
-                ModelState.AddModelError(string.Empty, "An error occurred while updating the product variant.");
+                ModelState.AddModelError("", "No se pudieron guardar los cambios. " + ex.Message);
                 return View(model);
             }
         }

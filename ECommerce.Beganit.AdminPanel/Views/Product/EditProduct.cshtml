@@ -2,21 +2,29 @@
 
 @{
     ViewData["Title"] = "Edit Product";
+    var commonAttributes = new List<string> { "Color", "Size", "Material", "Weight", "Dimensions", "Pattern", "Warranty", "Capacity" };
 }
 
 <div class="container-fluid py-4">
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <a asp-action="Index" class="btn btn-outline-secondary me-2">
-                        <i class="bi bi-arrow-left"></i> Back to List
+    <!-- Header Section -->
+    <div class="card border-0 shadow-sm mb-4 bg-gradient-primary">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center">
+                <div class="rounded-circle bg-white p-3 me-3 shadow-sm">
+                    <i class="bi bi-box-seam text-primary fs-3"></i>
+                </div>
+                <div class="text-white">
+                    <h1 class="h3 mb-0">@(Model.Id > 0 ? "Edit" : "Create") Product</h1>
+                    <p class="mb-0 opacity-75">Manage product details, pricing, inventory and more</p>
+                </div>
+                <div class="ms-auto">
+                    <a asp-action="Index" class="btn btn-light me-2">
+                        <i class="bi bi-arrow-left me-1"></i> Back to List
                     </a>
-                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#helpModal">
-                        <i class="bi bi-question-circle"></i> Help
+                    <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#helpModal">
+                        <i class="bi bi-question-circle me-1"></i> Help
                     </button>
                 </div>
-                <h4 class="m-0">@(Model.Id > 0 ? "Edit" : "Create") Product</h4>
             </div>
         </div>
     </div>
@@ -47,13 +55,18 @@
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="attributes-tab" data-bs-toggle="tab" data-bs-target="#attributes" type="button" role="tab" aria-controls="attributes" aria-selected="false">
+                                <i class="bi bi-list-check me-1"></i> Attributes
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
                             <button class="nav-link" id="images-tab" data-bs-toggle="tab" data-bs-target="#images" type="button" role="tab" aria-controls="images" aria-selected="false">
                                 <i class="bi bi-images me-1"></i> Images
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="images-tab" data-bs-toggle="tab" data-bs-target="#categories" type="button" role="tab" aria-controls="images" aria-selected="false">
-                                <i class="bi bi-tags me-1"></i>Categories
+                            <button class="nav-link" id="categories-tab" data-bs-toggle="tab" data-bs-target="#categories" type="button" role="tab" aria-controls="categories" aria-selected="false">
+                                <i class="bi bi-tags me-1"></i> Categories
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
@@ -64,7 +77,7 @@
                     </ul>
                 </div>
                 <div class="card-body p-4">
-                    <form id="formulario" asp-action="EditProduct" method="post" class="needs-validation" enctype="multipart/form-data" novalidate>
+                    <form id="productForm" asp-action="EditProduct" method="post" class="needs-validation" enctype="multipart/form-data" novalidate>
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 mb-4" role="alert"></div>
                         <input type="hidden" asp-for="Id" />
 
@@ -182,7 +195,12 @@
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label asp-for="DiscountStartDate" class="form-label fw-semibold">Discount Start Date</label>
-                                            <input asp-for="DiscountStartDate" class="form-control" type="datetime-local" />
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light">
+                                                    <i class="bi bi-calendar-event"></i>
+                                                </span>
+                                                <input asp-for="DiscountStartDate" class="form-control" type="datetime-local" />
+                                            </div>
                                             <span asp-validation-for="DiscountStartDate" class="text-danger small"></span>
                                             <div class="form-text">When the discount period begins</div>
                                         </div>
@@ -190,7 +208,12 @@
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label asp-for="DiscountEndDate" class="form-label fw-semibold">Discount End Date</label>
-                                            <input asp-for="DiscountEndDate" class="form-control" type="datetime-local" />
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light">
+                                                    <i class="bi bi-calendar-event"></i>
+                                                </span>
+                                                <input asp-for="DiscountEndDate" class="form-control" type="datetime-local" />
+                                            </div>
                                             <span asp-validation-for="DiscountEndDate" class="text-danger small"></span>
                                             <div class="form-text">When the discount period ends</div>
                                         </div>
@@ -222,7 +245,12 @@
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label asp-for="Quantity" class="form-label fw-semibold">Stock Quantity <span class="text-danger">*</span></label>
-                                            <input asp-for="Quantity" class="form-control" type="number" min="0" required />
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light">
+                                                    <i class="bi bi-boxes"></i>
+                                                </span>
+                                                <input asp-for="Quantity" class="form-control" type="number" min="0" required />
+                                            </div>
                                             <span asp-validation-for="Quantity" class="text-danger small"></span>
                                             <div class="form-text">Current inventory level</div>
                                         </div>
@@ -247,7 +275,7 @@
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label class="form-label fw-semibold" for="IsActiveInput">Product Active</label>
-                                            <div class="form-check form-switch">
+                                            <div class="form-check form-switch form-switch-lg">
                                                 <input asp-for="IsActive" class="form-check-input" id="IsActiveInput" />
                                                 <label class="form-check-label" for="IsActiveInput">
                                                     @(Model.IsActive ? "Product is visible on the store" : "Product is hidden from customers")
@@ -259,7 +287,7 @@
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label class="form-label fw-semibold" for="IsFeaturedInput">Featured Product</label>
-                                            <div class="form-check form-switch">
+                                            <div class="form-check form-switch form-switch-lg">
                                                 <input asp-for="IsFeatured" class="form-check-input" id="IsFeaturedInput" />
                                                 <label class="form-check-label" for="IsFeaturedInput">
                                                     @(Model.IsFeatured ? "Product appears in featured sections" : "Product does not appear in featured sections")
@@ -289,6 +317,9 @@
                                         <div class="mb-3">
                                             <label asp-for="Weight" class="form-label fw-semibold">Weight (kg)</label>
                                             <div class="input-group">
+                                                <span class="input-group-text bg-light">
+                                                    <i class="bi bi-speedometer2"></i>
+                                                </span>
                                                 <input asp-for="Weight" class="form-control" type="number" step="0.01" min="0" />
                                                 <span class="input-group-text">kg</span>
                                             </div>
@@ -311,6 +342,9 @@
                                         <div class="mb-3">
                                             <label asp-for="Length" class="form-label fw-semibold">Length (cm)</label>
                                             <div class="input-group">
+                                                <span class="input-group-text bg-light">
+                                                    <i class="bi bi-arrows-expand"></i>
+                                                </span>
                                                 <input asp-for="Length" class="form-control" type="number" step="0.1" min="0" />
                                                 <span class="input-group-text">cm</span>
                                             </div>
@@ -321,6 +355,9 @@
                                         <div class="mb-3">
                                             <label asp-for="Width" class="form-label fw-semibold">Width (cm)</label>
                                             <div class="input-group">
+                                                <span class="input-group-text bg-light">
+                                                    <i class="bi bi-arrows-expand"></i>
+                                                </span>
                                                 <input asp-for="Width" class="form-control" type="number" step="0.1" min="0" />
                                                 <span class="input-group-text">cm</span>
                                             </div>
@@ -331,6 +368,9 @@
                                         <div class="mb-3">
                                             <label asp-for="Height" class="form-label fw-semibold">Height (cm)</label>
                                             <div class="input-group">
+                                                <span class="input-group-text bg-light">
+                                                    <i class="bi bi-arrows-expand"></i>
+                                                </span>
                                                 <input asp-for="Height" class="form-control" type="number" step="0.1" min="0" />
                                                 <span class="input-group-text">cm</span>
                                             </div>
@@ -338,9 +378,12 @@
                                         </div>
                                     </div>
                                     <div class="col-12 mt-3">
-                                        <div class="card bg-light border-0">
+                                        <div class="card bg-light border-0 shadow-sm">
                                             <div class="card-body">
-                                                <h6 class="card-title">Calculated Volume</h6>
+                                                <h6 class="card-title d-flex align-items-center">
+                                                    <i class="bi bi-calculator me-2 text-primary"></i>
+                                                    Calculated Volume
+                                                </h6>
                                                 <p class="card-text" id="volumeCalculation">
                                                     @if (Model.Length > 0 && Model.Width > 0 && Model.Height > 0)
                                                     {
@@ -351,6 +394,134 @@
                                                         <span>Enter dimensions to calculate volume</span>
                                                     }
                                                 </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Attributes Tab - NEW -->
+                            <div class="tab-pane fade" id="attributes" role="tabpanel" aria-labelledby="attributes-tab">
+                                <div class="row mb-4">
+                                    <div class="col-12">
+                                        <div class="alert alert-info d-flex align-items-center">
+                                            <i class="bi bi-info-circle-fill fs-4 me-3"></i>
+                                            <div>
+                                                <h6 class="mb-1">Product Attributes</h6>
+                                                <p class="mb-0">Attributes help customers find and filter products. Add attributes like color, size, material, etc.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row g-4">
+                                    <div class="col-md-5">
+                                        <div class="card border-0 shadow-sm h-100">
+                                            <div class="card-header bg-light py-3 d-flex justify-content-between align-items-center">
+                                                <h5 class="card-title mb-0">
+                                                    <i class="bi bi-plus-circle me-2 text-primary"></i>Add Attribute
+                                                </h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="mb-3">
+                                                    <label for="attributeNameInput" class="form-label">Attribute Name</label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text bg-light">
+                                                            <i class="bi bi-tag"></i>
+                                                        </span>
+                                                        <input type="text" id="attributeNameInput" class="form-control" placeholder="e.g. Color, Size, Material" list="commonAttributesList" />
+                                                        <datalist id="commonAttributesList">
+                                                            @foreach (var attr in commonAttributes)
+                                                            {
+                                                                <option value="@attr">@attr</option>
+                                                            }
+                                                        </datalist>
+                                                    </div>
+                                                    <div class="form-text">Choose from common attributes or enter a custom one</div>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label for="attributeValueInput" class="form-label">Attribute Value</label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text bg-light">
+                                                            <i class="bi bi-input-cursor-text"></i>
+                                                        </span>
+                                                        <input type="text" id="attributeValueInput" class="form-control" placeholder="e.g. Red, XL, Cotton" />
+                                                    </div>
+                                                    <div class="form-text">Enter the specific value for this attribute</div>
+                                                </div>
+
+                                                <div id="commonValuesContainer" class="d-none mb-3">
+                                                    <label class="form-label">Common Values</label>
+                                                    <div id="commonValuesList" class="d-flex flex-wrap gap-1">
+                                                        <!-- Populated dynamically by JavaScript -->
+                                                    </div>
+                                                </div>
+
+                                                <div class="d-grid mt-4">
+                                                    <button type="button" id="addAttributeBtn" class="btn btn-primary">
+                                                        <i class="bi bi-plus-lg me-1"></i> Add Attribute
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-7">
+                                        <div class="card border-0 shadow-sm h-100">
+                                            <div class="card-header bg-light py-3 d-flex justify-content-between align-items-center">
+                                                <h5 class="card-title mb-0">
+                                                    <i class="bi bi-list-check me-2 text-primary"></i>Product Attributes
+                                                </h5>
+                                                <span class="badge bg-primary rounded-pill" id="attributeCount">
+                                                    @(Model.Attributes?.Count ?? 0)
+                                                </span>
+                                            </div>
+                                            <div class="card-body">
+                                                <div id="attributesContainer">
+                                                    @if (Model.Attributes != null && Model.Attributes.Count > 0)
+                                                    {
+                                                        foreach (var attr in Model.Attributes)
+                                                        {
+                                                            <div class="attribute-row mb-3 p-3 border rounded bg-light position-relative">
+                                                                <button type="button" class="btn-close position-absolute top-0 end-0 m-2 remove-attribute" aria-label="Remove"></button>
+                                                                <div class="row g-3">
+                                                                    <div class="col-md-5">
+                                                                        <label class="form-label small fw-medium">Attribute Name</label>
+                                                                        <input type="text" name="Attributes[@(Model.Attributes.ToList().IndexOf(attr))].AttributeName" class="form-control attribute-name" value="@attr.AttributeName" readonly />
+                                                                        <input type="hidden" name="Attributes[@(Model.Attributes.ToList().IndexOf(attr))].Id" value="@attr.Id" />
+                                                                        <input type="hidden" name="Attributes[@(Model.Attributes.ToList().IndexOf(attr))].ProductId" value="@attr.ProductId" />
+                                                                    </div>
+                                                                    <div class="col-md-7">
+                                                                        <label class="form-label small fw-medium">Attribute Value</label>
+                                                                        <input type="text" name="Attributes[@(Model.Attributes.ToList().IndexOf(attr))].AttributeValue" class="form-control attribute-value" value="@attr.AttributeValue" />
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <div id="noAttributesMessage" class="text-center py-5">
+                                                            <div class="mb-3">
+                                                                <i class="bi bi-tags text-muted fs-1"></i>
+                                                            </div>
+                                                            <h6 class="text-muted">No attributes added yet</h6>
+                                                            <p class="text-muted mb-0">Add attributes to help customers find your product</p>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </div>
+                                            <div class="card-footer bg-white p-3 border-0">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span class="text-muted small">
+                                                        <i class="bi bi-info-circle me-1"></i>
+                                                        Attributes help with product filtering and search
+                                                    </span>
+                                                    <button type="button" id="clearAttributesBtn" class="btn btn-sm btn-outline-danger" @(Model.Attributes == null || Model.Attributes.Count == 0 ? "disabled" : "")>
+                                                        <i class="bi bi-trash me-1"></i> Clear All
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -380,11 +551,21 @@
                                                 @foreach (var image in ViewBag.Product.ProductImages)
                                                 {
                                                     <div class="col-md-4 col-sm-6">
-                                                        <div class="card h-100">
+                                                        <div class="card h-100 border-0 shadow-sm">
                                                             <div class="card-img-top position-relative" style="height: 200px; overflow: hidden;">
                                                                 <img src="@image.ImageUrl" class="img-fluid" style="object-fit: contain; width: 100%; height: 100%;" alt="Product image" />
+                                                                @if (image.IsPrimary)
+                                                                {
+                                                                    <div class="position-absolute top-0 start-0 m-2">
+                                                                        <span class="badge bg-primary">Primary</span>
+                                                                    </div>
+                                                                }
                                                             </div>
                                                             <div class="card-body">
+                                                                <p class="card-text small text-muted mb-2">
+                                                                    <i class="bi bi-info-circle me-1"></i>
+                                                                    @(string.IsNullOrEmpty(image.AltText) ? "No alt text" : image.AltText)
+                                                                </p>
                                                                 <div class="d-flex justify-content-between">
                                                                     <a href="@image.ImageUrl" target="_blank" class="btn btn-sm btn-outline-secondary">
                                                                         <i class="bi bi-eye"></i> View
@@ -421,131 +602,95 @@
                                     </div>
                                 </div>
                             </div>
-                            @* Category Tab *@
-                            <!-- Categories Tab -->
+
                             <!-- Categories Tab -->
                             <div class="tab-pane fade" id="categories" role="tabpanel" aria-labelledby="categories-tab">
                                 <div class="row g-4">
                                     <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label class="form-label fw-semibold">Add Category</label>
-                                            <div class="input-group">
-                                                <select id="categorySelect" class="form-select">
-                                                    <option value="">-- Select Category --</option>
-                                                    @if (ViewData["AllCategories"] != null)
-                                                    {
-                                                        foreach (var category in (List<Category>)ViewData["AllCategories"])
-                                                        {
-                                                            <option value="@category.Name">@category.Name</option>
-                                                        }
-                                                    }
-                                                </select>
-                                                <button type="button" id="addCategoryBtn" class="btn btn-primary">
-                                                    <i class="bi bi-plus"></i> Add
-                                                </button>
+                                        <div class="card border-0 shadow-sm h-100">
+                                            <div class="card-header bg-light py-3">
+                                                <h5 class="card-title mb-0">
+                                                    <i class="bi bi-folder-plus me-2 text-primary"></i>Add Categories
+                                                </h5>
                                             </div>
-                                            <div class="form-text">Select a category to add to this product</div>
+                                            <div class="card-body">
+                                                <div class="mb-3">
+                                                    <label for="categorySelect" class="form-label">Select Category</label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text bg-light">
+                                                            <i class="bi bi-folder2"></i>
+                                                        </span>
+                                                        <select id="categorySelect" class="form-select">
+                                                            <option value="">-- Select Category --</option>
+                                                            @if (ViewData["AllCategories"] != null)
+                                                            {
+                                                                foreach (var category in (List<Category>)ViewData["AllCategories"])
+                                                                {
+                                                                    <option value="@category.Name">@category.Name</option>
+                                                                }
+                                                            }
+                                                        </select>
+                                                        <button type="button" id="addCategoryBtn" class="btn btn-primary">
+                                                            <i class="bi bi-plus-lg"></i> Add
+                                                        </button>
+                                                    </div>
+                                                    <div class="form-text">Select a category to add to this product</div>
+                                                </div>
+
+                                                <div class="alert alert-info mt-4">
+                                                    <div class="d-flex">
+                                                        <i class="bi bi-info-circle-fill me-2"></i>
+                                                        <div>
+                                                            <p class="mb-0">Products can belong to multiple categories. Add all relevant categories to improve discoverability.</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="col-12">
-                                        <div class="card border-0 bg-light">
+
+                                    <div class="col-md-6">
+                                        <div class="card border-0 shadow-sm h-100">
+                                            <div class="card-header bg-light py-3">
+                                                <h5 class="card-title mb-0">
+                                                    <i class="bi bi-tags me-2 text-primary"></i>Selected Categories
+                                                </h5>
+                                            </div>
                                             <div class="card-body">
-                                                <h6 class="card-title">Selected Categories</h6>
-                                                <div id="selectedCategoriesContainer" class="row g-2">
-                                                    @if (Model.Categories != null)
+                                                <div id="selectedCategoriesContainer" class="mb-3">
+                                                    @if (Model.Categories != null && Model.Categories.Count > 0)
                                                     {
-                                                        foreach (var category in Model.Categories)
-                                                        {
-                                                            <div class="col-auto" data-category-id="@category">
-                                                                <div class="badge bg-primary d-flex align-items-center">
-                                                                    @category
-                                                                    <button type="button" class="btn btn-sm btn-link text-white p-0 ms-2 remove-category" data-category-id="@category">
-                                                                        <i class="bi bi-x"></i>
-                                                                    </button>
+                                                        <div class="d-flex flex-wrap gap-2">
+                                                            @foreach (var category in Model.Categories)
+                                                            {
+                                                                <div class="category-badge" data-category="@category">
+                                                                    <span class="badge bg-primary d-flex align-items-center p-2">
+                                                                        <i class="bi bi-tag-fill me-1"></i>
+                                                                        @category
+                                                                        <button type="button" class="btn-close btn-close-white ms-2 remove-category" aria-label="Remove"></button>
+                                                                        <input type="hidden" name="Categories" value="@category" />
+                                                                    </span>
                                                                 </div>
-                                                            </div>
-                                                        }
+                                                            }
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <p id="noCategoriesMessage" class="text-muted">No categories selected yet</p>
                                                     }
                                                 </div>
-                                                @if (Model.Categories == null || Model.Categories.Count == 0)
-                                                {
-                                                    <p id="noCategoriesMessage" class="text-muted mt-2">No categories selected</p>
-                                                }
+
+                                                <div class="category-stats mt-4">
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <span class="text-muted">Total categories:</span>
+                                                        <span class="badge bg-secondary" id="categoryCount">@(Model.Categories?.Count ?? 0)</span>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
-                                <script>
-                                                                    document.addEventListener('DOMContentLoaded', function() {
-                                    const categorySelect = document.getElementById('categorySelect');
-                                    const addCategoryBtn = document.getElementById('addCategoryBtn');
-                                    const selectedCategoriesContainer = document.getElementById('selectedCategoriesContainer');
-                                    const noCategoriesMessage = document.getElementById('noCategoriesMessage');
-
-                                    // Add category functionality
-                                    addCategoryBtn.addEventListener('click', function() {
-                                        const selectedCategoryId = categorySelect.value;
-                                        const selectedCategoryName = categorySelect.options[categorySelect.selectedIndex].text;
-
-                                        if (selectedCategoryId && !document.querySelector(`[data-category-id="${selectedCategoryId}"]`)) {
-                                            // Create category badge with removal functionality
-                                            const categoryBadge = document.createElement('div');
-                                            categoryBadge.className = 'col-auto';
-                                            categoryBadge.dataset.categoryId = selectedCategoryId;
-                                            categoryBadge.innerHTML = `
-                                                <div class="badge bg-primary d-flex align-items-center">
-                                                     ${selectedCategoryName} <i class="bi bi-x"></i>
-                                                    <button type="button" class="btn btn-sm btn-link text-white p-0 ms-2 remove-category" data-category-id="${selectedCategoryId}">
-                                                    </button>
-                                                </div>
-                                            `;
-
-                                            selectedCategoriesContainer.appendChild(categoryBadge);
-
-                                            // Hide no categories message
-                                            if (noCategoriesMessage) {
-                                                noCategoriesMessage.style.display = 'none';
-                                            }
-
-                                            // Reset dropdown
-                                            categorySelect.value = '';
-                                        }
-                                    });
-
-                                    // Remove category functionality with improved event delegation
-                                    selectedCategoriesContainer.addEventListener('click', function(event) {
-                                        const removeBtn = event.target.closest('.remove-category');
-                                        if (removeBtn) {
-                                            const categoryBadge = removeBtn.closest('.col-auto');
-                                            categoryBadge.remove();
-
-                                            // Show no categories message if no categories remain
-                                            if (selectedCategoriesContainer.children.length === 0 && noCategoriesMessage) {
-                                                noCategoriesMessage.style.display = 'block';
-                                            }
-                                        }
-                                    });
-
-                                    // Modify form submission to include selected categories
-                                    document.getElementById('formulario').addEventListener('submit', function(event) {
-                                        // Remove any existing category hidden inputs to prevent duplicates
-                                        this.querySelectorAll('input[name^="Categories"]').forEach(input => input.remove());
-
-                                        // Create hidden inputs for each selected category
-                                        const selectedCategories = selectedCategoriesContainer.querySelectorAll('[data-category-id]');
-                                        // Add new hidden inputs for current categories
-                                        selectedCategories.forEach((categoryElement, index) => {
-                                            const hiddenInput = document.createElement('input');
-                                            hiddenInput.type = 'hidden';
-                                            hiddenInput.name = `Categories[${index}].Id`;
-                                            hiddenInput.value = categoryElement.dataset.categoryId;
-                                            this.appendChild(hiddenInput);
-                                        });
-                                    });
-                                });
-                                </script>
 
                             <!-- Metadata Tab -->
                             <div class="tab-pane fade" id="metadata" role="tabpanel" aria-labelledby="metadata-tab">
@@ -553,37 +698,60 @@
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label asp-for="CreatedAt" class="form-label fw-semibold">Created At</label>
-                                            <input asp-for="CreatedAt" class="form-control bg-light" readonly />
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light">
+                                                    <i class="bi bi-calendar-plus"></i>
+                                                </span>
+                                                <input asp-for="CreatedAt" class="form-control bg-light" readonly />
+                                            </div>
                                             <span asp-validation-for="CreatedAt" class="text-danger small"></span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label asp-for="CreatedBy" class="form-label fw-semibold">Created By</label>
-                                            <input asp-for="CreatedBy" class="form-control bg-light" readonly />
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light">
+                                                    <i class="bi bi-person"></i>
+                                                </span>
+                                                <input asp-for="CreatedBy" class="form-control bg-light" readonly />
+                                            </div>
                                             <span asp-validation-for="CreatedBy" class="text-danger small"></span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label asp-for="UpdatedAt" class="form-label fw-semibold">Last Updated At</label>
-                                            <input asp-for="UpdatedAt" class="form-control bg-light" readonly />
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light">
+                                                    <i class="bi bi-calendar-check"></i>
+                                                </span>
+                                                <input asp-for="UpdatedAt" class="form-control bg-light" readonly />
+                                            </div>
                                             <span asp-validation-for="UpdatedAt" class="text-danger small"></span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label asp-for="UpdatedBy" class="form-label fw-semibold">Last Updated By</label>
-                                            <input asp-for="UpdatedBy" class="form-control bg-light" readonly />
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light">
+                                                    <i class="bi bi-person"></i>
+                                                </span>
+                                                <input asp-for="UpdatedBy" class="form-control bg-light" readonly />
+                                            </div>
                                             <span asp-validation-for="UpdatedBy" class="text-danger small"></span>
                                         </div>
                                     </div>
                                     <div class="col-12 mt-3">
-                                        <div class="card bg-light border-0">
+                                        <div class="card bg-light border-0 shadow-sm">
                                             <div class="card-body">
-                                                <h6 class="card-title">Audit Trail</h6>
+                                                <h6 class="card-title d-flex align-items-center">
+                                                    <i class="bi bi-clock-history me-2 text-primary"></i>
+                                                    Audit Trail
+                                                </h6>
                                                 <p class="card-text small mb-0">
-                                                    <i class="bi bi-clock-history me-1"></i> View the complete <a href="#" class="text-decoration-none">edit history</a> for this product.
+                                                    View the complete <a href="#" class="text-decoration-none">edit history</a> for this product.
                                                 </p>
                                             </div>
                                         </div>
@@ -615,19 +783,23 @@
 <!-- Help Modal -->
 <div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="helpModalLabel">Product Editing Help</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="helpModalLabel">
+                    <i class="bi bi-question-circle me-2"></i>
+                    Product Editing Help
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <p>When editing products, please follow these guidelines:</p>
                 <ul class="mb-0">
-                    <li>Fill in all required fields marked with <span class="text-danger">*</span></li>
-                    <li>Use high-quality images with white backgrounds</li>
-                    <li>Write detailed descriptions to improve SEO</li>
-                    <li>Set accurate dimensions for shipping calculations</li>
-                    <li>Use proper pricing and discount dates</li>
+                    <li class="mb-2">Fill in all required fields marked with <span class="text-danger">*</span></li>
+                    <li class="mb-2">Use high-quality images with white backgrounds</li>
+                    <li class="mb-2">Write detailed descriptions to improve SEO</li>
+                    <li class="mb-2">Set accurate dimensions for shipping calculations</li>
+                    <li class="mb-2">Use proper pricing and discount dates</li>
+                    <li class="mb-2">Add relevant attributes to improve product filtering</li>
                 </ul>
             </div>
             <div class="modal-footer">
@@ -640,19 +812,28 @@
 <!-- Discount Calculator Modal -->
 <div class="modal fade" id="discountCalculatorModal" tabindex="-1" aria-labelledby="discountCalculatorModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="discountCalculatorModalLabel">Discount Calculator</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="discountCalculatorModalLabel">
+                    <i class="bi bi-calculator me-2"></i>
+                    Discount Calculator
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3">
                     <label for="regularPriceCalc" class="form-label">Regular Price ($)</label>
-                    <input type="number" class="form-control" id="regularPriceCalc" min="0" step="0.01">
+                    <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        <input type="number" class="form-control" id="regularPriceCalc" min="0" step="0.01">
+                    </div>
                 </div>
                 <div class="mb-3">
                     <label for="discountPercentage" class="form-label">Discount Percentage (%)</label>
-                    <input type="number" class="form-control" id="discountPercentage" min="0" max="100" step="1">
+                    <div class="input-group">
+                        <input type="number" class="form-control" id="discountPercentage" min="0" max="100" step="1">
+                        <span class="input-group-text">%</span>
+                    </div>
                 </div>
                 <div class="alert alert-info" id="calculatedPriceResult">
                     Enter values above to calculate the discounted price
@@ -666,8 +847,139 @@
     </div>
 </div>
 
+@section Styles {
+    <style>
+        /* Form switch styling */
+        .form-switch-lg .form-check-input {
+            width: 3em;
+            height: 1.5em;
+            margin-left: 0;
+        }
+
+        /* Category badges styling */
+        .category-badge {
+            transition: all 0.2s ease;
+        }
+
+            .category-badge:hover {
+                transform: translateY(-2px);
+            }
+
+            .category-badge .badge {
+                font-size: 0.9rem;
+            }
+
+            .category-badge .btn-close {
+                font-size: 0.6rem;
+                opacity: 0.7;
+            }
+
+                .category-badge .btn-close:hover {
+                    opacity: 1;
+                }
+
+        /* Tab styling */
+        .nav-tabs .nav-link {
+            padding: 0.75rem 1rem;
+            color: var(--bs-gray-700);
+        }
+
+            .nav-tabs .nav-link.active {
+                font-weight: 500;
+                color: var(--bs-primary);
+                border-bottom-color: var(--bs-primary);
+            }
+
+        /* Card styling */
+        .card {
+            transition: all 0.3s ease;
+        }
+
+            .card:hover {
+                box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+            }
+
+        /* Form styling */
+        .form-label {
+            font-size: 0.9rem;
+        }
+
+        .form-text {
+            font-size: 0.8rem;
+        }
+
+        /* Animation for adding categories */
+        @@keyframes fadeIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        .category-badge {
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* Attribute row styling */
+        .attribute-row {
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--bs-primary) !important;
+        }
+
+            .attribute-row:hover {
+                box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+                background-color: #f8f9fa !important;
+            }
+
+        /* Animation for adding attributes */
+        @@keyframes slideIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        .attribute-row {
+            animation: slideIn 0.3s ease;
+        }
+
+        /* Gradient background for header */
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, var(--bs-primary) 0%, #4361ee 100%);
+        }
+    </style>
+}
+
 @section Scripts {
     <script>
+        // Common attribute values mapping
+        const attributeValuesMap = {
+            'Color': ['Red', 'Blue', 'Green', 'Black', 'White', 'Yellow', 'Purple', 'Orange', 'Pink', 'Gray', 'Brown'],
+            'Size': ['XS', 'S', 'M', 'L', 'XL', 'XXL', '2XL', '3XL', '4XL', '5XL'],
+            'Material': ['Cotton', 'Polyester', 'Leather', 'Wool', 'Silk', 'Linen', 'Denim', 'Nylon', 'Spandex'],
+            'Weight': ['Light', 'Medium', 'Heavy'],
+            'Dimensions': ['Small', 'Medium', 'Large'],
+            'Pattern': ['Solid', 'Striped', 'Plaid', 'Floral', 'Polka Dot', 'Checkered', 'Geometric'],
+            'Warranty': ['1 Year', '2 Years', '3 Years', '5 Years', 'Lifetime'],
+            'Capacity': ['Small', 'Medium', 'Large', 'Extra Large']
+        };
+
         // Bootstrap form validation
         (function () {
             'use strict'
@@ -843,6 +1155,292 @@
                     calculateDiscountedPrice();
                 }
             }
+        });
+
+        // Categories functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const categorySelect = document.getElementById('categorySelect');
+            const addCategoryBtn = document.getElementById('addCategoryBtn');
+            const selectedCategoriesContainer = document.getElementById('selectedCategoriesContainer');
+            const noCategoriesMessage = document.getElementById('noCategoriesMessage');
+            const categoryCount = document.getElementById('categoryCount');
+
+            // Add category functionality
+            addCategoryBtn?.addEventListener('click', function() {
+                const selectedCategory = categorySelect.value;
+                const selectedCategoryText = categorySelect.options[categorySelect.selectedIndex].text;
+
+                if (!selectedCategory) return;
+
+                // Check if category already exists
+                if (document.querySelector(`.category-badge[data-category="${selectedCategory}"]`)) {
+                    // Flash the existing category to indicate it's already added
+                    const existingBadge = document.querySelector(`.category-badge[data-category="${selectedCategory}"]`);
+                    existingBadge.classList.add('bg-warning');
+                    setTimeout(() => {
+                        existingBadge.classList.remove('bg-warning');
+                    }, 1000);
+                    return;
+                }
+
+                // Create new category badge
+                const categoryBadge = document.createElement('div');
+                categoryBadge.className = 'category-badge';
+                categoryBadge.setAttribute('data-category', selectedCategory);
+                categoryBadge.innerHTML = `
+                    <span class="badge bg-primary d-flex align-items-center p-2">
+                        <i class="bi bi-tag-fill me-1"></i>
+                        ${selectedCategoryText}
+                        <button type="button" class="btn-close btn-close-white ms-2 remove-category" aria-label="Remove"></button>
+                        <input type="hidden" name="Categories" value="${selectedCategory}" />
+                    </span>
+                `;
+
+                // Add to container
+                if (noCategoriesMessage) {
+                    noCategoriesMessage.style.display = 'none';
+                }
+
+                // If container is empty, create a wrapper div
+                if (!selectedCategoriesContainer.querySelector('.d-flex.flex-wrap')) {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'd-flex flex-wrap gap-2';
+                    selectedCategoriesContainer.appendChild(wrapper);
+                    wrapper.appendChild(categoryBadge);
+                } else {
+                    selectedCategoriesContainer.querySelector('.d-flex.flex-wrap').appendChild(categoryBadge);
+                }
+
+                // Update count
+                updateCategoryCount();
+
+                // Reset select
+                categorySelect.value = '';
+            });
+
+            // Remove category with event delegation
+            selectedCategoriesContainer?.addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove-category') || e.target.closest('.remove-category')) {
+                    const badge = e.target.closest('.category-badge');
+                    badge.classList.add('fade-out');
+
+                    setTimeout(() => {
+                        badge.remove();
+
+                        // Show no categories message if empty
+                        const badges = selectedCategoriesContainer.querySelectorAll('.category-badge');
+                        if (badges.length === 0 && noCategoriesMessage) {
+                            noCategoriesMessage.style.display = 'block';
+                        }
+
+                        // Update count
+                        updateCategoryCount();
+                    }, 300);
+                }
+            });
+
+            // Update category count
+            function updateCategoryCount() {
+                if (categoryCount) {
+                    const count = selectedCategoriesContainer.querySelectorAll('.category-badge').length;
+                    categoryCount.textContent = count;
+                }
+            }
+
+            // Initialize count
+            updateCategoryCount();
+        });
+
+        // Attributes functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const attributeNameInput = document.getElementById('attributeNameInput');
+            const attributeValueInput = document.getElementById('attributeValueInput');
+            const addAttributeBtn = document.getElementById('addAttributeBtn');
+            const attributesContainer = document.getElementById('attributesContainer');
+            const noAttributesMessage = document.getElementById('noAttributesMessage');
+            const attributeCount = document.getElementById('attributeCount');
+            const clearAttributesBtn = document.getElementById('clearAttributesBtn');
+            const commonValuesContainer = document.getElementById('commonValuesContainer');
+            const commonValuesList = document.getElementById('commonValuesList');
+
+            // Attribute name input change - show common values if available
+            attributeNameInput?.addEventListener('input', function() {
+                const attributeName = this.value;
+                const commonValues = attributeValuesMap[attributeName];
+
+                if (commonValues && commonValues.length > 0) {
+                    // Populate common values
+                    commonValuesList.innerHTML = '';
+                    commonValues.forEach(value => {
+                        const valueBtn = document.createElement('button');
+                        valueBtn.type = 'button';
+                        valueBtn.className = 'btn btn-sm btn-outline-secondary mb-1 me-1';
+                        valueBtn.textContent = value;
+                        valueBtn.addEventListener('click', function() {
+                            attributeValueInput.value = value;
+                        });
+                        commonValuesList.appendChild(valueBtn);
+                    });
+
+                    // Show common values container
+                    commonValuesContainer.classList.remove('d-none');
+                } else {
+                    // Hide common values container
+                    commonValuesContainer.classList.add('d-none');
+                }
+            });
+
+            // Add attribute functionality
+            addAttributeBtn?.addEventListener('click', function() {
+                const attributeName = attributeNameInput.value.trim();
+                const attributeValue = attributeValueInput.value.trim();
+
+                if (!attributeName || !attributeValue) {
+                    // Show validation error
+                    if (!attributeName) attributeNameInput.classList.add('is-invalid');
+                    if (!attributeValue) attributeValueInput.classList.add('is-invalid');
+                    return;
+                }
+
+                // Remove validation errors
+                attributeNameInput.classList.remove('is-invalid');
+                attributeValueInput.classList.remove('is-invalid');
+
+                // Check if attribute already exists
+                const existingAttributes = document.querySelectorAll('.attribute-name');
+                for (let i = 0; i < existingAttributes.length; i++) {
+                    if (existingAttributes[i].value.toLowerCase() === attributeName.toLowerCase()) {
+                        // Flash the existing attribute to indicate it's already added
+                        const existingRow = existingAttributes[i].closest('.attribute-row');
+                        existingRow.classList.add('bg-warning', 'bg-opacity-25');
+                        setTimeout(() => {
+                            existingRow.classList.remove('bg-warning', 'bg-opacity-25');
+                        }, 1000);
+                        return;
+                    }
+                }
+
+                // Hide no attributes message
+                if (noAttributesMessage) {
+                    noAttributesMessage.style.display = 'none';
+                }
+
+                // Get current attribute count
+                const index = document.querySelectorAll('.attribute-row').length;
+
+                // Create new attribute row
+                const attributeRow = document.createElement('div');
+                attributeRow.className = 'attribute-row mb-3 p-3 border rounded bg-light position-relative';
+                attributeRow.innerHTML = `
+                    <button type="button" class="btn-close position-absolute top-0 end-0 m-2 remove-attribute" aria-label="Remove"></button>
+                    <div class="row g-3">
+                        <div class="col-md-5">
+                            <label class="form-label small fw-medium">Attribute Name</label>
+                            <input type="text" name="Attributes[${index}].AttributeName" class="form-control attribute-name" value="${attributeName}" readonly />
+                            <input type="hidden" name="Attributes[${index}].Id" value="0" />
+                            <input type="hidden" name="Attributes[${index}].ProductId" value="${document.getElementById('Id').value}" />
+                        </div>
+                        <div class="col-md-7">
+                            <label class="form-label small fw-medium">Attribute Value</label>
+                            <input type="text" name="Attributes[${index}].AttributeValue" class="form-control attribute-value" value="${attributeValue}" />
+                        </div>
+                    </div>
+                `;
+
+                // Add to container
+                attributesContainer.appendChild(attributeRow);
+
+                // Update attribute count
+                updateAttributeCount();
+
+                // Enable clear button
+                clearAttributesBtn.disabled = false;
+
+                // Reset inputs
+                attributeNameInput.value = '';
+                attributeValueInput.value = '';
+                commonValuesContainer.classList.add('d-none');
+            });
+
+            // Remove attribute with event delegation
+            attributesContainer?.addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove-attribute') || e.target.closest('.remove-attribute')) {
+                    const row = e.target.closest('.attribute-row');
+
+                    // Add fade out animation
+                    row.style.opacity = '0';
+                    row.style.transform = 'translateY(-10px)';
+
+                    setTimeout(() => {
+                        row.remove();
+
+                        // Show no attributes message if no attributes left
+                        if (document.querySelectorAll('.attribute-row').length === 0) {
+                            if (noAttributesMessage) {
+                                noAttributesMessage.style.display = 'block';
+                            }
+
+                            // Disable clear button
+                            clearAttributesBtn.disabled = true;
+                        }
+
+                        // Update attribute indexes
+                        updateAttributeIndexes();
+
+                        // Update attribute count
+                        updateAttributeCount();
+                    }, 300);
+                }
+            });
+
+            // Clear all attributes
+            clearAttributesBtn?.addEventListener('click', function() {
+                if (confirm('Are you sure you want to remove all attributes?')) {
+                    // Remove all attribute rows
+                    const attributeRows = document.querySelectorAll('.attribute-row');
+                    attributeRows.forEach(row => {
+                        row.remove();
+                    });
+
+                    // Show no attributes message
+                    if (noAttributesMessage) {
+                        noAttributesMessage.style.display = 'block';
+                    }
+
+                    // Disable clear button
+                    this.disabled = true;
+
+                    // Update attribute count
+                    updateAttributeCount();
+                }
+            });
+
+            // Update attribute indexes
+            function updateAttributeIndexes() {
+                const attributeRows = document.querySelectorAll('.attribute-row');
+                attributeRows.forEach((row, index) => {
+                    const nameInput = row.querySelector('.attribute-name');
+                    const valueInput = row.querySelector('.attribute-value');
+                    const idInput = row.querySelector('input[name*=".Id"]');
+                    const productIdInput = row.querySelector('input[name*=".ProductId"]');
+
+                    nameInput.name = `Attributes[${index}].AttributeName`;
+                    valueInput.name = `Attributes[${index}].AttributeValue`;
+                    idInput.name = `Attributes[${index}].Id`;
+                    productIdInput.name = `Attributes[${index}].ProductId`;
+                });
+            }
+
+            // Update attribute count
+            function updateAttributeCount() {
+                if (attributeCount) {
+                    const count = document.querySelectorAll('.attribute-row').length;
+                    attributeCount.textContent = count;
+                }
+            }
+
+            // Initialize
+            updateAttributeCount();
         });
     </script>
     @{

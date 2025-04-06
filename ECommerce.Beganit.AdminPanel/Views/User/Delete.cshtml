@@ -1,0 +1,94 @@
+﻿@model Microsoft.AspNetCore.Identity.IdentityUser
+
+@{
+    ViewData["Title"] = "Eliminar Usuario";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<div class="alert alert-danger">
+    <h4><i class="bi bi-exclamation-triangle-fill"></i> ¡Advertencia!</h4>
+    <p>Está a punto de eliminar permanentemente este usuario. Esta acción no se puede deshacer.</p>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">Confirmación de Eliminación</h5>
+            </div>
+            <div class="card-body">
+                <h3>¿Está seguro de que desea eliminar este usuario?</h3>
+                <hr />
+                <dl class="row">
+                    <dt class="col-sm-3">ID</dt>
+                    <dd class="col-sm-9">@Model.Id</dd>
+
+                    <dt class="col-sm-3">Nombre de Usuario</dt>
+                    <dd class="col-sm-9">@Model.UserName</dd>
+
+                    <dt class="col-sm-3">Correo Electrónico</dt>
+                    <dd class="col-sm-9">@Model.Email</dd>
+
+                    <dt class="col-sm-3">Teléfono</dt>
+                    <dd class="col-sm-9">@(string.IsNullOrEmpty(Model.PhoneNumber) ? "No disponible" : Model.PhoneNumber)</dd>
+                </dl>
+
+                <form asp-action="Delete">
+                    <input type="hidden" asp-for="Id" />
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="confirmDelete" required />
+                        <label class="form-check-label" for="confirmDelete">
+                            Entiendo que esta acción es irreversible y confirmo que deseo eliminar este usuario.
+                        </label>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <button type="submit" class="btn btn-danger" id="deleteButton" disabled>
+                            <i class="bi bi-trash"></i> Eliminar Usuario
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">Implicaciones</h5>
+            </div>
+            <div class="card-body">
+                <p>Al eliminar este usuario:</p>
+                <ul>
+                    <li>Se eliminarán todos sus datos personales</li>
+                    <li>Se perderán todos los registros de actividad asociados</li>
+                    <li>Se revocarán todos los tokens de acceso</li>
+                    <li>Se eliminarán todas las relaciones con otros registros</li>
+                    <li>No podrá recuperar esta información en el futuro</li>
+                </ul>
+                <p class="text-danger">
+                    <strong>Nota:</strong> Si hay datos relacionados que dependen de este usuario, es posible
+                    que la eliminación falle debido a restricciones de integridad referencial de la base de datos.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Habilitar/deshabilitar botón de eliminar según el checkbox
+            $("#confirmDelete").change(function() {
+                if($(this).is(":checked")) {
+                    $("#deleteButton").prop("disabled", false);
+                } else {
+                    $("#deleteButton").prop("disabled", true);
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,1129 @@
+﻿@{
+    ViewData["Title"] = "Review Management";
+}
+
+<div class="review-dashboard">
+    <!-- Header Section -->
+    <div class="dashboard-header">
+        <div class="container-fluid">
+            <div class="row align-items-center g-4">
+                <div class="col-lg-6">
+                    <h1 class="display-6 fw-bold mb-1">Review Management</h1>
+                    <p class="text-white mb-0">Monitor and manage customer product reviews</p>
+                </div>
+                <div class="col-lg-6">
+                    <div class="d-flex flex-column flex-sm-row gap-3 justify-content-lg-end">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0">
+                                <i class="bi bi-search text-primary"></i>
+                            </span>
+                            <input type="text" class="form-control border-start-0 ps-0" id="searchInput" placeholder="Search reviews...">
+                            <button class="btn btn-primary" type="button" id="searchButton">
+                                Search
+                            </button>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-primary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-funnel me-2"></i> All Reviews
+                            </button>
+                            <ul class="dropdown-menu shadow border-0" aria-labelledby="filterDropdown">
+                                <li><a class="dropdown-item filter-option" href="#" data-filter="all">All Reviews</a></li>
+                                <li><a class="dropdown-item filter-option" href="#" data-filter="approved">Approved</a></li>
+                                <li><a class="dropdown-item filter-option" href="#" data-filter="pending">Pending</a></li>
+                                <li><a class="dropdown-item filter-option" href="#" data-filter="verified">Verified Purchases</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item filter-option" href="#" data-filter="high-rating">High Rating (4-5)</a></li>
+                                <li><a class="dropdown-item filter-option" href="#" data-filter="low-rating">Low Rating (1-3)</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="container-fluid mt-4">
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-card-body">
+                        <div class="stat-icon bg-primary-subtle text-primary">
+                            <i class="bi bi-star"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-value" id="totalReviewsCount">0</h3>
+                            <p class="stat-label">Total Reviews</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-card-body">
+                        <div class="stat-icon bg-success-subtle text-success">
+                            <i class="bi bi-check-circle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-value" id="approvedReviewsCount">0</h3>
+                            <p class="stat-label">Approved</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-card-body">
+                        <div class="stat-icon bg-warning-subtle text-warning">
+                            <i class="bi bi-clock"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-value" id="pendingReviewsCount">0</h3>
+                            <p class="stat-label">Pending</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-card-body">
+                        <div class="stat-icon bg-info-subtle text-info">
+                            <i class="bi bi-graph-up"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-value" id="averageRating">0.0</h3>
+                            <p class="stat-label">Average Rating</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reviews Table -->
+    <div class="container-fluid mt-4">
+        <div class="reviews-table-container">
+            <div class="table-responsive">
+                <table class="table reviews-table" id="reviewsTable">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Customer</th>
+                            <th>Rating</th>
+                            <th>Title</th>
+                            <th>Content</th>
+                            <th class="text-center">Verified</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <img src="/images/empty-reviews.svg" alt="No reviews found" class="empty-state-img">
+                <h3 class="empty-state-title">No reviews found</h3>
+                <p class="empty-state-text">Try adjusting your search or filter to find what you're looking for.</p>
+            </div>
+
+            <!-- Error State -->
+            <div id="errorState" class="empty-state" style="display: none;">
+                <img src="/images/error-state.svg" alt="Error loading reviews" class="empty-state-img">
+                <h3 class="empty-state-title text-danger">Something went wrong</h3>
+                <p class="empty-state-text">We couldn't load the reviews. Please try again later.</p>
+                <button id="retryButton" class="btn btn-primary mt-3">
+                    <i class="bi bi-arrow-clockwise me-2"></i>Try Again
+                </button>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-container mt-4">
+            <div class="d-flex flex-row justify-content-between align-items-center flex-wrap gap-3">
+                <div class="pagination-info">
+                    Showing <span id="currentCount">0</span> of <span id="totalCount">0</span> reviews
+                </div>
+                <div class="pagination-controls d-flex flex-row" id="pagination">
+                    <!-- Pagination buttons will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Review Detail Drawer -->
+<div class="offcanvas offcanvas-end review-detail-drawer" tabindex="-1" id="reviewDetailDrawer" aria-labelledby="reviewDetailDrawerLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="reviewDetailDrawerLabel">Review Details</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body" id="reviewDetailContent">
+        <!-- Review details will be loaded here -->
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        /* Dashboard Layout */
+        .review-dashboard {
+            --primary-color: #4f46e5;
+            --primary-light: #eef2ff;
+            --success-color: #10b981;
+            --success-light: #ecfdf5;
+            --warning-color: #f59e0b;
+            --warning-light: #fffbeb;
+            --danger-color: #ef4444;
+            --danger-light: #fef2f2;
+            --info-color: #3b82f6;
+            --info-light: #eff6ff;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --transition: all 0.2s ease;
+        }
+
+        /* Dashboard Header */
+        .dashboard-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #6366f1 100%);
+            color: white;
+            padding: 2.5rem 0;
+            margin-bottom: 1.5rem;
+            border-radius: 0 0 1.5rem 1.5rem;
+            box-shadow: var(--card-shadow);
+        }
+
+        /* Stat Cards */
+        .stat-card {
+            background-color: white;
+            border-radius: 1rem;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            height: 100%;
+        }
+
+            .stat-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            }
+
+        .stat-card-body {
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .stat-icon {
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .bg-primary-subtle {
+            background-color: var(--primary-light);
+        }
+
+        .bg-success-subtle {
+            background-color: var(--success-light);
+        }
+
+        .bg-warning-subtle {
+            background-color: var(--warning-light);
+        }
+
+        .bg-danger-subtle {
+            background-color: var(--danger-light);
+        }
+
+        .bg-info-subtle {
+            background-color: var(--info-light);
+        }
+
+        .text-primary {
+            color: var(--primary-color) !important;
+        }
+
+        .text-success {
+            color: var(--success-color) !important;
+        }
+
+        .text-warning {
+            color: var(--warning-color) !important;
+        }
+
+        .text-danger {
+            color: var(--danger-color) !important;
+        }
+
+        .text-info {
+            color: var(--info-color) !important;
+        }
+
+        .stat-content {
+            flex: 1;
+        }
+
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            color: var(--text-primary);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0;
+        }
+
+        /* Reviews Table */
+        .reviews-table-container {
+            background-color: white;
+            border-radius: 1rem;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+        }
+
+        .reviews-table {
+            margin-bottom: 0;
+        }
+
+            .reviews-table th {
+                background-color: #f9fafb;
+                font-weight: 600;
+                text-transform: uppercase;
+                font-size: 0.75rem;
+                letter-spacing: 0.05em;
+                padding: 1rem;
+                border-top: none;
+                color: var(--text-secondary);
+            }
+
+            .reviews-table td {
+                padding: 1rem;
+                vertical-align: middle;
+                border-color: var(--border-color);
+            }
+
+            .reviews-table tbody tr {
+                transition: var(--transition);
+            }
+
+                .reviews-table tbody tr:hover {
+                    background-color: #f9fafb;
+                }
+
+        /* Star Rating */
+        .star-rating {
+            color: var(--warning-color);
+            font-size: 1rem;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+        }
+
+            .star-rating .bi-star-fill {
+                margin-right: 2px;
+            }
+
+        /* Badges */
+        .badge {
+            font-weight: 500;
+            padding: 0.5em 0.75em;
+            border-radius: 0.5rem;
+        }
+
+        .badge-verified {
+            background-color: var(--success-light);
+            color: var(--success-color);
+        }
+
+        .badge-unverified {
+            background-color: #f3f4f6;
+            color: var(--text-secondary);
+        }
+
+        .badge-approved {
+            background-color: var(--success-light);
+            color: var(--success-color);
+        }
+
+        .badge-pending {
+            background-color: var(--warning-light);
+            color: var(--warning-color);
+        }
+
+        /* Product and Customer Info */
+        .product-info, .customer-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .product-img, .customer-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 0.5rem;
+            object-fit: cover;
+            margin-right: 0.75rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .product-name, .customer-name {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+            color: var(--text-primary);
+        }
+
+        .product-sku, .customer-date {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* Truncated Text */
+        .truncate-text {
+            max-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Toggle Switch */
+        .form-switch .form-check-input {
+            width: 2.5em;
+            height: 1.25em;
+            cursor: pointer;
+        }
+
+        .form-check-input:checked {
+            background-color: var(--success-color);
+            border-color: var(--success-color);
+        }
+
+        /* Action Buttons */
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.5rem;
+            margin: 0 0.25rem;
+            transition: var(--transition);
+        }
+
+            .action-btn:hover {
+                transform: translateY(-2px);
+            }
+
+        .btn-view {
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            border: none;
+        }
+
+            .btn-view:hover {
+                background-color: var(--primary-color);
+                color: white;
+            }
+
+        .btn-edit {
+            background-color: var(--info-light);
+            color: var(--info-color);
+            border: none;
+        }
+
+            .btn-edit:hover {
+                background-color: var(--info-color);
+                color: white;
+            }
+
+        .btn-delete {
+            background-color: var(--danger-light);
+            color: var(--danger-color);
+            border: none;
+        }
+
+            .btn-delete:hover {
+                background-color: var(--danger-color);
+                color: white;
+            }
+
+        /* Pagination */
+        .pagination-container {
+            padding: 1rem 0;
+        }
+
+        .pagination-info {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .pagination-controls .btn {
+            min-width: 40px;
+            height: 40px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 0.25rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+        }
+
+        /* Empty State */
+        .empty-state {
+            padding: 4rem 2rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .empty-state-img {
+            max-width: 200px;
+            margin-bottom: 1.5rem;
+        }
+
+        .empty-state-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .empty-state-text {
+            color: var(--text-secondary);
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        /* Review Detail Drawer */
+        .review-detail-drawer {
+            width: 500px;
+            max-width: 100%;
+        }
+
+            .review-detail-drawer .offcanvas-header {
+                background-color: var(--primary-color);
+                color: white;
+            }
+
+            .review-detail-drawer .btn-close {
+                filter: brightness(0) invert(1);
+            }
+
+        /* Animation for row updates */
+        @@keyframes highlightRow {
+            0%
+
+        {
+            background-color: rgba(79, 70, 229, 0.1);
+        }
+
+        100% {
+            background-color: transparent;
+        }
+
+        }
+
+        .highlight-row {
+            animation: highlightRow 2s ease;
+        }
+
+        /* Responsive adjustments */
+        @@media (max-width: 992px) {
+            .dashboard-header
+
+        {
+            padding: 2rem 0;
+        }
+
+        }
+
+        @@media (max-width: 768px) {
+            .stat-card-body
+
+        {
+            padding: 1rem;
+        }
+
+        .stat-icon {
+            width: 3rem;
+            height: 3rem;
+            font-size: 1.25rem;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+        }
+
+        }
+
+        @@media (max-width: 576px) {
+            .reviews-table th, .reviews-table td
+
+        {
+            padding: 0.75rem;
+        }
+
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        let currentPage = 1;
+        const pageSize = 10;
+        let currentFilter = 'all';
+        let searchQuery = '';
+        let reviewStats = {
+            total: 0,
+            approved: 0,
+            pending: 0,
+            averageRating: 0
+        };
+
+        function loadReviews(page = 1) {
+            // Build the query string with all parameters
+            const queryParams = new URLSearchParams({
+                page: page,
+                pageSize: pageSize,
+                filter: currentFilter,
+                search: searchQuery
+            });
+
+            fetch(`/Review/GetReviews?${queryParams.toString()}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const tbody = document.querySelector("#reviewsTable tbody");
+                    tbody.innerHTML = "";
+
+                    // Show/hide empty state
+                    document.getElementById('emptyState').style.display = data.items.length === 0 ? 'flex' : 'none';
+                    document.getElementById('errorState').style.display = 'none';
+
+                    // Show/hide table
+                    document.querySelector('.table-responsive').style.display = data.items.length === 0 ? 'none' : 'block';
+
+                    if (data.items.length > 0) {
+                        data.items.forEach(review => {
+                            // Generate star rating HTML
+                            let starsHtml = '';
+                            for (let i = 1; i <= 5; i++) {
+                                if (i <= review.rating) {
+                                    starsHtml += '<i class="bi bi-star-fill"></i>';
+                                } else {
+                                    starsHtml += '<i class="bi bi-star"></i>';
+                                }
+                            }
+
+                            const row = document.createElement("tr");
+                            row.innerHTML = `
+                                <td>
+                                    <div class="product-info">
+                                        <img src="${review.productImageUrl || '/images/placeholder-product.png'}"
+                                             alt="${review.productName}"
+                                             class="product-img">
+                                        <div>
+                                            <div class="product-name">${review.productName}</div>
+                                            <div class="product-sku">${review.productSku || 'No SKU'}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="customer-info">
+                                        <img src="${review.customerImageUrl || '/images/placeholder-user.png'}"
+                                             alt="${review.customerName}"
+                                             class="customer-img">
+                                        <div>
+                                            <div class="customer-name">${review.customerName}</div>
+                                            <div class="customer-date">${formatDate(review.createdAt)}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="star-rating">${starsHtml}</div>
+                                    <div class="small text-muted mt-1">${review.rating}/5</div>
+                                </td>
+                                <td>
+                                    <div class="truncate-text" title="${review.title}">${review.title}</div>
+                                </td>
+                                <td>
+                                    <div class="truncate-text" title="${review.content}">${review.content}</div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge ${review.isVerifiedPurchase ? 'badge-verified' : 'badge-unverified'}">
+                                        ${review.isVerifiedPurchase ? '<i class="bi bi-check-circle me-1"></i>Verified' : '<i class="bi bi-x-circle me-1"></i>Unverified'}
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="form-check form-switch d-flex justify-content-center">
+                                        <input class="form-check-input approval-toggle" type="checkbox"
+                                               id="approval-${review.id}"
+                                               data-review-id="${review.id}"
+                                               ${review.isApproved ? 'checked' : ''}>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex justify-content-center">
+                                        <button type="button" class="btn action-btn btn-view view-review" data-review-id="${review.id}">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        <a href="/Review/Edit/${review.id}" class="btn action-btn btn-edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <button type="button" class="btn action-btn btn-delete delete-review" data-review-id="${review.id}">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            `;
+                            tbody.appendChild(row);
+                        });
+
+                        // Add event listeners to approval toggles
+                        document.querySelectorAll('.approval-toggle').forEach(toggle => {
+                            toggle.addEventListener('change', handleApprovalToggle);
+                        });
+
+                        // Add event listeners to delete buttons
+                        document.querySelectorAll('.delete-review').forEach(button => {
+                            button.addEventListener('click', handleDeleteReview);
+                        });
+
+                        // Add event listeners to view buttons
+                        document.querySelectorAll('.view-review').forEach(button => {
+                            button.addEventListener('click', handleViewReview);
+                        });
+                    }
+
+                    // Update counts
+                    document.getElementById('currentCount').textContent = data.items.length;
+                    document.getElementById('totalCount').textContent = data.totalCount;
+
+                    // Update stats
+                    updateReviewStats(data);
+
+                    // Render pagination
+                    renderPagination(data.totalPages, data.currentPage);
+                })
+                .catch(error => {
+                    console.error("Error loading reviews:", error);
+
+                    // Show error state
+                    document.getElementById('emptyState').style.display = 'none';
+                    document.getElementById('errorState').style.display = 'flex';
+                    document.querySelector('.table-responsive').style.display = 'none';
+                });
+        }
+
+        function updateReviewStats(data) {
+            // This would typically come from an API endpoint that provides stats
+            // For now, we'll calculate from the current page data as an example
+            reviewStats.total = data.totalCount;
+
+            // Update the stats display
+            document.getElementById('totalReviewsCount').textContent = reviewStats.total;
+            document.getElementById('approvedReviewsCount').textContent = reviewStats.approved || '0';
+            document.getElementById('pendingReviewsCount').textContent = reviewStats.pending || '0';
+            document.getElementById('averageRating').textContent = reviewStats.averageRating?.toFixed(1) || '0.0';
+
+            // In a real implementation, you would fetch these stats from the server
+            // For example:
+            // fetch('/Review/GetReviewStats')
+            //     .then(response => response.json())
+            //     .then(stats => {
+            //         document.getElementById('totalReviewsCount').textContent = stats.total;
+            //         document.getElementById('approvedReviewsCount').textContent = stats.approved;
+            //         document.getElementById('pendingReviewsCount').textContent = stats.pending;
+            //         document.getElementById('averageRating').textContent = stats.averageRating.toFixed(1);
+            //     });
+        }
+
+        function renderPagination(totalPages, currentPage) {
+            const paginationContainer = document.getElementById("pagination");
+            paginationContainer.innerHTML = "";
+
+            // Previous button
+            const prevButton = document.createElement("button");
+            prevButton.type = "button";
+            prevButton.className = "btn btn-outline-primary" + (currentPage === 1 ? " disabled" : "");
+            prevButton.innerHTML = '<i class="bi bi-chevron-left"></i>';
+            prevButton.onclick = () => loadReviews(currentPage - 1);
+            paginationContainer.appendChild(prevButton);
+
+            // Page buttons
+            const maxButtons = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+            let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+
+            if (endPage - startPage + 1 < maxButtons) {
+                startPage = Math.max(1, endPage - maxButtons + 1);
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                const button = document.createElement("button");
+                button.type = "button";
+                button.textContent = i;
+                button.className = "btn " + (i === currentPage ? "btn-primary" : "btn-outline-primary");
+                button.onclick = () => loadReviews(i);
+                paginationContainer.appendChild(button);
+            }
+
+            // Next button
+            const nextButton = document.createElement("button");
+            nextButton.type = "button";
+            nextButton.className = "btn btn-outline-primary" + (currentPage === totalPages ? " disabled" : "");
+            nextButton.innerHTML = '<i class="bi bi-chevron-right"></i>';
+            nextButton.onclick = () => loadReviews(currentPage + 1);
+            paginationContainer.appendChild(nextButton);
+        }
+
+        function handleApprovalToggle(event) {
+            const reviewId = parseInt(event.target.dataset.reviewId);
+            const isApproved = event.target.checked;
+
+            // Highlight the row
+            const row = event.target.closest('tr');
+            row.classList.add('highlight-row');
+
+            // Send approval status update to server
+            fetch(`/Review/UpdateApproval/${reviewId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                },
+                body: JSON.stringify({ isApproved })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to update approval status');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Show success notification
+                showNotification('Success', `Review ${isApproved ? 'approved' : 'unapproved'} successfully`);
+
+                // Update stats if needed
+                if (isApproved) {
+                    reviewStats.approved++;
+                    reviewStats.pending--;
+                } else {
+                    reviewStats.approved--;
+                    reviewStats.pending++;
+                }
+
+                // Update stats display
+                document.getElementById('approvedReviewsCount').textContent = reviewStats.approved;
+                document.getElementById('pendingReviewsCount').textContent = reviewStats.pending;
+            })
+            .catch(error => {
+                console.error('Error updating approval status:', error);
+                // Revert the toggle
+                event.target.checked = !isApproved;
+                // Show error notification
+                showNotification('Error', 'Failed to update approval status', 'danger');
+            });
+        }
+
+        function handleDeleteReview(event) {
+            const reviewId = event.target.closest('button').dataset.reviewId;
+
+            if (confirm('Are you sure you want to delete this review? This action cannot be undone.')) {
+                fetch(`/Review/Delete/${reviewId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to delete review');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Reload reviews
+                    loadReviews(currentPage);
+                    // Show success notification
+                    showNotification('Success', 'Review deleted successfully');
+                })
+                .catch(error => {
+                    console.error('Error deleting review:', error);
+                    // Show error notification
+                    showNotification('Error', 'Failed to delete review', 'danger');
+                });
+            }
+        }
+
+        function handleViewReview(event) {
+            const reviewId = event.target.closest('button').dataset.reviewId;
+
+            // Fetch review details
+            fetch(`/Review/GetReviewDetails/${reviewId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch review details');
+                    }
+                    return response.json();
+                })
+                .then(review => {
+                    // Show review details in the drawer
+                    showReviewDetails(review);
+                })
+                .catch(error => {
+                    console.error('Error fetching review details:', error);
+                    showNotification('Error', 'Failed to load review details', 'danger');
+                });
+        }
+
+        function showReviewDetails(review) {
+            // Generate star rating HTML
+            let starsHtml = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= review.rating) {
+                    starsHtml += '<i class="bi bi-star-fill"></i>';
+                } else {
+                    starsHtml += '<i class="bi bi-star"></i>';
+                }
+            }
+
+            // Populate review detail content
+            const reviewDetailContent = document.getElementById('reviewDetailContent');
+            reviewDetailContent.innerHTML = `
+                <div class="review-detail">
+                    <div class="review-product mb-4">
+                        <div class="d-flex align-items-center">
+                            <img src="${review.productImageUrl || '/images/placeholder-product.png'}"
+                                 alt="${review.productName}"
+                                 class="product-img me-3" style="width: 60px; height: 60px;">
+                            <div>
+                                <h5 class="mb-1">${review.productName}</h5>
+                                <div class="text-muted small">${review.productSku || 'No SKU'}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="review-meta mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="star-rating" style="font-size: 1.25rem;">${starsHtml}</div>
+                            <span class="badge ${review.isApproved ? 'badge-approved' : 'badge-pending'}">
+                                ${review.isApproved ? 'Approved' : 'Pending'}
+                            </span>
+                        </div>
+
+                        <h4 class="review-title mb-3">${review.title}</h4>
+                        <p class="review-content mb-4">${review.content}</p>
+
+                        <div class="review-info mb-4">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Customer:</span>
+                                <span class="fw-medium">${review.customerName}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Date:</span>
+                                <span>${formatDate(review.createdAt)}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Verified Purchase:</span>
+                                <span>${review.isVerifiedPurchase ?
+                                    '<i class="bi bi-check-circle-fill text-success me-1"></i>Yes' :
+                                    '<i class="bi bi-x-circle-fill text-muted me-1"></i>No'}</span>
+                            </div>
+                        </div>
+
+                        ${review.reviewImages && review.reviewImages.length > 0 ? `
+                        <div class="review-images mb-4">
+                            <h6 class="mb-3">Attached Images</h6>
+                            <div class="row g-2">
+                                ${review.reviewImages.map(img => `
+                                    <div class="col-4">
+                                        <a href="${img.url}" target="_blank" class="d-block">
+                                            <img src="${img.url}" alt="Review image" class="img-fluid rounded border">
+                                        </a>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        ` : ''}
+
+                        ${review.adminResponse ? `
+                        <div class="admin-response p-3 border-start border-4 border-primary bg-light rounded">
+                            <h6 class="text-primary mb-2">
+                                <i class="bi bi-reply-fill me-2"></i>Admin Response
+                            </h6>
+                            <p class="mb-2">${review.adminResponse}</p>
+                            <div class="text-muted small">
+                                Responded on ${formatDate(review.adminResponseDate)}
+                            </div>
+                        </div>
+                        ` : `
+                        <div class="no-response p-3 bg-light rounded border text-center">
+                            <i class="bi bi-chat-left-text mb-2 d-block text-muted" style="font-size: 1.5rem;"></i>
+                            <p class="mb-0 text-muted">No response has been provided yet</p>
+                        </div>
+                        `}
+                    </div>
+
+                    <div class="review-actions mt-4">
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-outline-danger" onclick="confirmDeleteReview(${review.id})">
+                                <i class="bi bi-trash me-2"></i>Delete Review
+                            </button>
+                            <a href="/Review/Edit/${review.id}" class="btn btn-primary">
+                                <i class="bi bi-pencil me-2"></i>Edit Review
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Show the drawer
+            const reviewDetailDrawer = new bootstrap.Offcanvas(document.getElementById('reviewDetailDrawer'));
+            reviewDetailDrawer.show();
+        }
+
+        function confirmDeleteReview(reviewId) {
+            if (confirm('Are you sure you want to delete this review? This action cannot be undone.')) {
+                fetch(`/Review/Delete/${reviewId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to delete review');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Close the drawer
+                    const reviewDetailDrawer = bootstrap.Offcanvas.getInstance(document.getElementById('reviewDetailDrawer'));
+                    reviewDetailDrawer.hide();
+
+                    // Reload reviews
+                    loadReviews(currentPage);
+
+                    // Show success notification
+                    showNotification('Success', 'Review deleted successfully');
+                })
+                .catch(error => {
+                    console.error('Error deleting review:', error);
+                    showNotification('Error', 'Failed to delete review', 'danger');
+                });
+            }
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric'
+            });
+        }
+
+        function showNotification(title, message, type = 'success') {
+            // Create notification element if it doesn't exist
+            let notificationContainer = document.getElementById('notification-container');
+            if (!notificationContainer) {
+                notificationContainer = document.createElement('div');
+                notificationContainer.id = 'notification-container';
+                notificationContainer.className = 'position-fixed top-0 end-0 p-3';
+                notificationContainer.style.zIndex = '1050';
+                document.body.appendChild(notificationContainer);
+            }
+
+            // Create notification
+            const notificationId = 'notification-' + Date.now();
+            const notification = document.createElement('div');
+            notification.id = notificationId;
+            notification.className = `toast align-items-center text-white bg-${type} border-0`;
+            notification.setAttribute('role', 'alert');
+            notification.setAttribute('aria-live', 'assertive');
+            notification.setAttribute('aria-atomic', 'true');
+
+            notification.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <strong>${title}:</strong> ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            `;
+
+            notificationContainer.appendChild(notification);
+
+            // Show notification
+            const toast = new bootstrap.Toast(notification, {
+                autohide: true,
+                delay: 5000
+            });
+            toast.show();
+
+            // Remove notification when hidden
+            notification.addEventListener('hidden.bs.toast', function() {
+                notification.remove();
+            });
+        }
+
+        // Event listeners
+        document.addEventListener("DOMContentLoaded", () => {
+            // Initial load
+            loadReviews(currentPage);
+
+            // Search button click
+            document.getElementById('searchButton').addEventListener('click', () => {
+                searchQuery = document.getElementById('searchInput').value.trim();
+                currentPage = 1;
+                loadReviews(currentPage);
+            });
+
+            // Search input enter key
+            document.getElementById('searchInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    searchQuery = e.target.value.trim();
+                    currentPage = 1;
+                    loadReviews(currentPage);
+                }
+            });
+
+            // Filter options
+            document.querySelectorAll('.filter-option').forEach(option => {
+                option.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    currentFilter = e.target.dataset.filter;
+                    currentPage = 1;
+
+                    // Update dropdown button text
+                    const filterText = e.target.textContent;
+                    document.getElementById('filterDropdown').innerHTML = `<i class="bi bi-funnel me-2"></i> ${filterText}`;
+
+                    loadReviews(currentPage);
+                });
+            });
+
+            // Retry button
+            document.getElementById('retryButton').addEventListener('click', () => {
+                loadReviews(currentPage);
+            });
+        });
+    </script>
+}

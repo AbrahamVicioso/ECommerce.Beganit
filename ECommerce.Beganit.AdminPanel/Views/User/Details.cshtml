@@ -1,0 +1,437 @@
+﻿@model Microsoft.AspNetCore.Identity.IdentityUser
+
+@{
+    ViewData["Title"] = "User Details";
+    var isLocked = Model.LockoutEnd != null && Model.LockoutEnd > DateTimeOffset.Now;
+    var userId = Model.Id;
+    var userName = Model.UserName;
+}
+
+<div class="container-fluid py-4">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <div class="d-flex align-items-center">
+                <div class="me-3">
+                    <i class="bi bi-person-badge text-primary fs-1"></i>
+                </div>
+                <div>
+                    <h1 class="h2 mb-0">User Details</h1>
+                    <p class="text-muted mb-0">Viewing account information for @Model.UserName</p>
+                </div>
+            </div>
+        </div>
+        <div>
+            <a asp-action="Index" class="btn btn-outline-secondary me-2">
+                <i class="bi bi-arrow-left me-1"></i> Back to Users
+            </a>
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                <i class="bi bi-pencil me-1"></i> Edit User
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Left Column - User Information -->
+        <div class="col-lg-8">
+            <!-- Basic Information Card -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3 border-0">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-primary bg-opacity-10 p-2 me-3">
+                            <i class="bi bi-person text-primary"></i>
+                        </div>
+                        <h5 class="card-title mb-0">Basic Information</h5>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted small">Username</label>
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-person-fill text-primary me-2"></i>
+                                    <h6 class="mb-0">@Model.UserName</h6>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label text-muted small">Email Address</label>
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-envelope-fill text-primary me-2"></i>
+                                    <h6 class="mb-0">@Model.Email</h6>
+                                    @if (Model.EmailConfirmed)
+                                    {
+                                        <span class="ms-2 badge bg-success d-flex align-items-center">
+                                            <i class="bi bi-check-circle-fill me-1"></i> Verified
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="ms-2 badge bg-warning text-dark d-flex align-items-center">
+                                            <i class="bi bi-exclamation-circle-fill me-1"></i> Unverified
+                                        </span>
+                                    }
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="form-label text-muted small">Phone Number</label>
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-telephone-fill text-primary me-2"></i>
+                                    <h6 class="mb-0">
+                                        @if (!string.IsNullOrEmpty(Model.PhoneNumber))
+                                        {
+                                            @Model.PhoneNumber
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">Not provided</span>
+                                        }
+                                    </h6>
+                                    @if (!string.IsNullOrEmpty(Model.PhoneNumber))
+                                    {
+                                        @if (Model.PhoneNumberConfirmed)
+                                        {
+                                            <span class="ms-2 badge bg-success d-flex align-items-center">
+                                                <i class="bi bi-check-circle-fill me-1"></i> Verified
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="ms-2 badge bg-warning text-dark d-flex align-items-center">
+                                                <i class="bi bi-exclamation-circle-fill me-1"></i> Unverified
+                                            </span>
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted small">User ID</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control form-control-sm bg-light" value="@Model.Id" readonly />
+                                    <button class="btn btn-outline-secondary btn-sm" type="button" onclick="copyToClipboard('@Model.Id')" title="Copy to clipboard">
+                                        <i class="bi bi-clipboard"></i>
+                                    </button>
+                                </div>
+                                <div class="form-text">Unique identifier for this user</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label text-muted small">Security Stamp</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control form-control-sm bg-light" value="@Model.SecurityStamp" readonly />
+                                    <button class="btn btn-outline-secondary btn-sm" type="button" onclick="copyToClipboard('@Model.SecurityStamp')" title="Copy to clipboard">
+                                        <i class="bi bi-clipboard"></i>
+                                    </button>
+                                </div>
+                                <div class="form-text">Used for security validation</div>
+                            </div>
+
+                            <div>
+                                <label class="form-label text-muted small">Concurrency Stamp</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control form-control-sm bg-light" value="@Model.ConcurrencyStamp" readonly />
+                                    <button class="btn btn-outline-secondary btn-sm" type="button" onclick="copyToClipboard('@Model.ConcurrencyStamp')" title="Copy to clipboard">
+                                        <i class="bi bi-clipboard"></i>
+                                    </button>
+                                </div>
+                                <div class="form-text">Used for optimistic concurrency</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Settings Card -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3 border-0">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-primary bg-opacity-10 p-2 me-3">
+                            <i class="bi bi-shield-lock text-primary"></i>
+                        </div>
+                        <h5 class="card-title mb-0">Security Settings</h5>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card bg-light border-0 mb-4">
+                                <div class="card-body">
+                                    <h6 class="card-title">Account Status</h6>
+                                    <div class="d-flex align-items-center mt-3">
+                                        @if (isLocked)
+                                        {
+                                            <div class="rounded-circle bg-danger bg-opacity-10 p-2 me-3">
+                                                <i class="bi bi-lock-fill text-danger"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0">Account Locked</h6>
+                                                <p class="text-muted small mb-0">
+                                                    Locked until @Model.LockoutEnd.Value.LocalDateTime.ToString("MM/dd/yyyy HH:mm")
+                                                </p>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="rounded-circle bg-success bg-opacity-10 p-2 me-3">
+                                                <i class="bi bi-unlock-fill text-success"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0">Account Active</h6>
+                                                <p class="text-muted small mb-0">User can log in normally</p>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card bg-light border-0">
+                                <div class="card-body">
+                                    <h6 class="card-title">Login Security</h6>
+                                    <div class="list-group list-group-flush">
+                                        <div class="list-group-item d-flex justify-content-between align-items-center px-0 bg-transparent">
+                                            <span>Two-Factor Authentication</span>
+                                            @if (Model.TwoFactorEnabled)
+                                            {
+                                                <span class="badge bg-success d-flex align-items-center">
+                                                    <i class="bi bi-shield-check me-1"></i> Enabled
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary d-flex align-items-center">
+                                                    <i class="bi bi-shield-x me-1"></i> Disabled
+                                                </span>
+                                            }
+                                        </div>
+                                        <div class="list-group-item d-flex justify-content-between align-items-center px-0 bg-transparent">
+                                            <span>Account Lockout</span>
+                                            @if (Model.LockoutEnabled)
+                                            {
+                                                <span class="badge bg-info d-flex align-items-center">
+                                                    <i class="bi bi-lock me-1"></i> Enabled
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary d-flex align-items-center">
+                                                    <i class="bi bi-unlock me-1"></i> Disabled
+                                                </span>
+                                            }
+                                        </div>
+                                        <div class="list-group-item d-flex justify-content-between align-items-center px-0 bg-transparent">
+                                            <span>Failed Login Attempts</span>
+                                            @if (Model.AccessFailedCount > 0)
+                                            {
+                                                <span class="badge bg-danger">@Model.AccessFailedCount</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-success">0</span>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card h-100 bg-primary bg-opacity-10 border-0">
+                                <div class="card-body d-flex flex-column">
+                                    <h6 class="card-title text-primary">Security Recommendations</h6>
+                                    <ul class="list-unstyled mt-3 mb-4">
+                                        @if (!Model.EmailConfirmed)
+                                        {
+                                            <li class="mb-2 d-flex align-items-start">
+                                                <i class="bi bi-exclamation-triangle-fill text-warning me-2 mt-1"></i>
+                                                <span>Email address is not verified. User should verify their email for better account security.</span>
+                                            </li>
+                                        }
+
+                                        @if (!Model.TwoFactorEnabled)
+                                        {
+                                            <li class="mb-2 d-flex align-items-start">
+                                                <i class="bi bi-exclamation-triangle-fill text-warning me-2 mt-1"></i>
+                                                <span>Two-factor authentication is disabled. Enable it to improve account security.</span>
+                                            </li>
+                                        }
+
+                                        @if (Model.AccessFailedCount > 0)
+                                        {
+                                            <li class="mb-2 d-flex align-items-start">
+                                                <i class="bi bi-exclamation-triangle-fill text-warning me-2 mt-1"></i>
+                                                <span>User has @Model.AccessFailedCount failed login attempts. Consider resetting the counter.</span>
+                                            </li>
+                                        }
+
+                                        @if (isLocked)
+                                        {
+                                            <li class="mb-2 d-flex align-items-start">
+                                                <i class="bi bi-exclamation-triangle-fill text-danger me-2 mt-1"></i>
+                                                <span>Account is currently locked. User cannot log in until the lockout period ends or an administrator unlocks the account.</span>
+                                            </li>
+                                        }
+
+                                        @if (!Model.EmailConfirmed && !Model.TwoFactorEnabled && Model.AccessFailedCount == 0 && !isLocked)
+                                        {
+                                            <li class="mb-2 d-flex align-items-start">
+                                                <i class="bi bi-info-circle-fill text-info me-2 mt-1"></i>
+                                                <span>Consider implementing additional security measures for this account.</span>
+                                            </li>
+                                        }
+
+                                        @if (Model.EmailConfirmed && Model.TwoFactorEnabled && Model.AccessFailedCount == 0 && !isLocked)
+                                        {
+                                            <li class="mb-2 d-flex align-items-start">
+                                                <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
+                                                <span>This account has good security practices in place.</span>
+                                            </li>
+                                        }
+                                    </ul>
+
+                                    <div class="mt-auto">
+                                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary w-100">
+                                            <i class="bi bi-shield-check me-1"></i> Manage Security Settings
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Quick Actions -->
+        <div class="col-lg-4">
+            <!-- User Actions Card -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3 border-0">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-primary bg-opacity-10 p-2 me-3">
+                            <i class="bi bi-gear text-primary"></i>
+                        </div>
+                        <h5 class="card-title mb-0">Quick Actions</h5>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary d-flex align-items-center justify-content-center">
+                            <i class="bi bi-pencil me-2"></i> Edit User
+                        </a>
+
+                        <a href="#" class="btn btn-outline-info d-flex align-items-center justify-content-center" id="resetPasswordBtn">
+                            <i class="bi bi-key me-2"></i> Reset Password
+                        </a>
+
+                        @if (isLocked)
+                        {
+                            <a asp-action="UnlockUser" asp-route-id="@Model.Id" class="btn btn-outline-success d-flex align-items-center justify-content-center">
+                                <i class="bi bi-unlock me-2"></i> Unlock Account
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-action="LockUser" asp-route-id="@Model.Id" class="btn btn-outline-warning d-flex align-items-center justify-content-center">
+                                <i class="bi bi-lock me-2"></i> Lock Account
+                            </a>
+                        }
+
+                        <a href="#" class="btn btn-outline-secondary d-flex align-items-center justify-content-center" id="forceLogoutBtn">
+                            <i class="bi bi-box-arrow-right me-2"></i> Force Logout
+                        </a>
+
+                        <button type="button" class="btn btn-outline-danger d-flex align-items-center justify-content-center"
+                                data-bs-toggle="modal" data-bs-target="#deleteUserModal">
+                            <i class="bi bi-trash me-2"></i> Delete User
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Activity Card -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3 border-0">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-primary bg-opacity-10 p-2 me-3">
+                            <i class="bi bi-activity text-primary"></i>
+                        </div>
+                        <h5 class="card-title mb-0">Account Activity</h5>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- This section could be populated with actual user activity data if available -->
+                    <div class="text-center py-4">
+                        <div class="mb-3">
+                            <i class="bi bi-clock-history text-muted fs-1"></i>
+                        </div>
+                        <h6 class="text-muted">Activity data not available</h6>
+                        <p class="text-muted small mb-0">User activity tracking is not enabled or data is not available.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete User Modal -->
+<div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteUserModalLabel">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Delete User
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <p>Are you sure you want to delete the user <strong>@userName</strong>?</p>
+                <p class="mb-0 text-danger">This action cannot be undone. All user data will be permanently deleted.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form asp-action="Delete" asp-route-id="@userId" method="post">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash me-1"></i> Delete User
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                // Could show a toast notification here
+                alert('Copied to clipboard');
+            }, function() {
+                console.error('Failed to copy text');
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Reset Password Button Click
+            document.getElementById('resetPasswordBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm("Are you sure you want to reset this user's password?")) {
+                    window.location.href = '@Url.Action("ResetPassword", new { id = Model.Id })';
+                }
+            });
+
+            // Force Logout Button Click
+            document.getElementById('forceLogoutBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm("Are you sure you want to force this user to log out?")) {
+                    window.location.href = '@Url.Action("ForceLogout", new { id = Model.Id })';
+                }
+            });
+        });
+    </script>
+}

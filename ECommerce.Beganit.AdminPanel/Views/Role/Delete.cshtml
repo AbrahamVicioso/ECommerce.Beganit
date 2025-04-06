@@ -1,0 +1,38 @@
+﻿@using Microsoft.AspNetCore.Identity
+@model IdentityRole
+@{
+    ViewBag.Title = "Eliminar Rol";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Eliminar Rol</h2>
+
+<div class="alert alert-danger">
+    <h4>¿Está seguro que desea eliminar este rol?</h4>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        Detalles del Rol
+    </div>
+    <div class="panel-body">
+        <dl class="dl-horizontal">
+            <dt>
+                @Html.DisplayNameFor(model => model.Name)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.Name)
+            </dd>
+        </dl>
+
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="form-actions">
+                <input type="submit" value="Eliminar" class="btn btn-danger" />
+                @Html.ActionLink("Volver a la lista", "Index", null, new { @class = "btn btn-default" })
+            </div>
+        }
+    </div>
+</div>

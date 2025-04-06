@@ -1,0 +1,417 @@
+﻿@model IEnumerable<Microsoft.AspNetCore.Identity.IdentityUser>
+
+@{
+    ViewData["Title"] = "Users";
+
+    // User statistics
+    var totalUsers = Model?.Count() ?? 0;
+    var confirmedUsers = Model?.Count(u => u.EmailConfirmed) ?? 0;
+    var lockedUsers = Model?.Count(u => u.LockoutEnd != null && u.LockoutEnd > DateTimeOffset.Now) ?? 0;
+    var twoFactorUsers = Model?.Count(u => u.TwoFactorEnabled) ?? 0;
+}
+
+<div class="container-fluid py-4">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <div class="d-flex align-items-center">
+                <div class="me-3">
+                    <i class="bi bi-people-fill text-primary fs-1"></i>
+                </div>
+                <div>
+                    <h1 class="h2 mb-0">Users</h1>
+                    <p class="text-muted mb-0">Manage system user accounts and permissions</p>
+                </div>
+            </div>
+        </div>
+        <div>
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="bi bi-person-plus me-1"></i> Create New User
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100 bg-light">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-primary p-3 me-3 text-white">
+                            <i class="bi bi-people fs-4"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted mb-1">Total Users</h6>
+                            <h2 class="mb-0">@totalUsers</h2>
+                            <div class="mt-1">
+                                <span class="badge bg-success">@confirmedUsers Verified</span>
+                                <span class="badge bg-secondary">@(totalUsers - confirmedUsers) Unverified</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100 bg-light">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-success p-3 me-3 text-white">
+                            <i class="bi bi-check-circle fs-4"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted mb-1">Active Users</h6>
+                            <h2 class="mb-0">@(totalUsers - lockedUsers)</h2>
+                            <div class="text-muted small">Users with active accounts</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100 bg-light">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-danger p-3 me-3 text-white">
+                            <i class="bi bi-lock fs-4"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted mb-1">Locked Users</h6>
+                            <h2 class="mb-0">@lockedUsers</h2>
+                            <div class="text-muted small">Temporarily locked accounts</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100 bg-light">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-info p-3 me-3 text-white">
+                            <i class="bi bi-shield-check fs-4"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted mb-1">2FA Enabled</h6>
+                            <h2 class="mb-0">@twoFactorUsers</h2>
+                            <div class="text-muted small">Users with enhanced security</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="row mb-4 g-3">
+        <div class="col-md-5">
+            <label class="form-label">Search</label>
+            <div class="input-group">
+                <input type="text" id="searchUser" class="form-control" placeholder="Search by name, email or phone">
+            </div>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Status</label>
+            <select id="filterStatus" class="form-select">
+                <option value="">All Statuses</option>
+                <option value="active">Active</option>
+                <option value="locked">Locked</option>
+                <option value="verified">Verified</option>
+                <option value="unverified">Unverified</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Security</label>
+            <select id="filter2FA" class="form-select">
+                <option value="">All Security</option>
+                <option value="enabled">2FA Enabled</option>
+                <option value="disabled">2FA Disabled</option>
+            </select>
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+            <button type="button" id="applyFilters" class="btn btn-primary w-100">
+                Apply Filters
+            </button>
+        </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            @if (Model != null && Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>User</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Status</th>
+                                <th>Security</th>
+                                <th style="width: 120px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var user in Model)
+                            {
+                                var isLocked = user.LockoutEnd != null && user.LockoutEnd > DateTimeOffset.Now;
+
+                                <tr class="@(isLocked ? "table-danger bg-opacity-10" : "")">
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="rounded-circle bg-primary bg-opacity-10 p-2 me-3 text-primary">
+                                                <i class="bi bi-person"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-medium">@user.UserName</div>
+                                                <div class="small text-muted">ID: @user.Id.Substring(0, 8)...</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <span>@user.Email</span>
+                                            @if (user.EmailConfirmed)
+                                            {
+                                                <span class="ms-2 badge bg-success rounded-pill">
+                                                    <i class="bi bi-check-circle-fill"></i>
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="ms-2 badge bg-warning rounded-pill">
+                                                    <i class="bi bi-exclamation-circle-fill"></i>
+                                                </span>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(user.PhoneNumber))
+                                        {
+                                            <div class="d-flex align-items-center">
+                                                <span>@user.PhoneNumber</span>
+                                                @if (user.PhoneNumberConfirmed)
+                                                {
+                                                    <span class="ms-2 badge bg-success rounded-pill">
+                                                        <i class="bi bi-check-circle-fill"></i>
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="ms-2 badge bg-warning rounded-pill">
+                                                        <i class="bi bi-exclamation-circle-fill"></i>
+                                                    </span>
+                                                }
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">Not registered</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (isLocked)
+                                        {
+                                            <span class="badge bg-danger">
+                                                <i class="bi bi-lock-fill me-1"></i>
+                                                Locked until @user.LockoutEnd.Value.LocalDateTime.ToString("MM/dd/yyyy HH:mm")
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-unlock-fill me-1"></i>
+                                                Active
+                                            </span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="d-flex flex-column gap-1">
+                                            <span class="badge @(user.TwoFactorEnabled ? "bg-info" : "bg-secondary")">
+                                                <i class="bi @(user.TwoFactorEnabled ? "bi-shield-check" : "bi-shield") me-1"></i>
+                                                2FA @(user.TwoFactorEnabled ? "Enabled" : "Disabled")
+                                            </span>
+                                            @if (user.AccessFailedCount > 0)
+                                            {
+                                                <span class="badge bg-danger">
+                                                    <i class="bi bi-exclamation-triangle me-1"></i>
+                                                    @user.AccessFailedCount failed attempts
+                                                </span>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a asp-action="Details" asp-route-id="@user.Id" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="View details">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a asp-action="Edit" asp-route-id="@user.Id" class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" title="Edit user">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-outline-danger"
+                                                    data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                                    data-user-id="@user.Id" data-user-name="@user.UserName"
+                                                    title="Delete user">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <div class="mb-3">
+                        <i class="bi bi-people text-muted display-1"></i>
+                    </div>
+                    <h4 class="text-muted">No Users Found</h4>
+                    <p class="text-muted mb-4">There are no users registered in the system.</p>
+                    <a asp-action="Create" class="btn btn-primary">
+                        <i class="bi bi-person-plus me-1"></i> Create First User
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    @if (Model != null && Model.Any())
+    {
+        <div class="d-flex justify-content-between align-items-center mt-4">
+            <div class="text-muted small">
+                Showing <span id="itemsShowing">@Model.Count()</span> of <span id="itemsTotal">@Model.Count()</span> users
+            </div>
+            <nav aria-label="Page navigation">
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    }
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Delete User
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <p>Are you sure you want to delete the user <strong id="userNameToDelete"></strong>?</p>
+                <p class="mb-0 text-danger">This action cannot be undone. All user data will be permanently deleted.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" asp-action="Delete" method="post">
+                    <input type="hidden" id="userIdToDelete" name="id" />
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash me-1"></i> Delete User
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
+
+            // Delete modal functionality
+            const deleteModal = document.getElementById('deleteModal');
+            if (deleteModal) {
+                deleteModal.addEventListener('show.bs.modal', function(event) {
+                    const button = event.relatedTarget;
+                    const userId = button.getAttribute('data-user-id');
+                    const userName = button.getAttribute('data-user-name');
+
+                    document.getElementById('userIdToDelete').value = userId;
+                    document.getElementById('userNameToDelete').textContent = userName;
+                });
+            }
+
+            // Search and filter functionality
+            const searchInput = document.getElementById('searchUser');
+            const statusFilter = document.getElementById('filterStatus');
+            const twoFactorFilter = document.getElementById('filter2FA');
+            const applyFiltersBtn = document.getElementById('applyFilters');
+
+            if (applyFiltersBtn) {
+                applyFiltersBtn.addEventListener('click', function() {
+                    const searchTerm = searchInput.value.toLowerCase();
+                    const statusValue = statusFilter.value;
+                    const twoFactorValue = twoFactorFilter.value;
+
+                    const tableRows = document.querySelectorAll('tbody tr');
+                    let visibleCount = 0;
+
+                    tableRows.forEach(row => {
+                        const userName = row.querySelector('td:nth-child(1)').textContent.toLowerCase();
+                        const userEmail = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                        const userPhone = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+                        const isLocked = row.querySelector('td:nth-child(4) .badge').textContent.toLowerCase().includes('locked');
+                        const isVerified = row.querySelector('td:nth-child(2) .badge').classList.contains('bg-success');
+                        const has2FAEnabled = row.querySelector('td:nth-child(5) .badge').textContent.toLowerCase().includes('enabled');
+
+                        const matchesSearch = searchTerm === '' ||
+                                            userName.includes(searchTerm) ||
+                                            userEmail.includes(searchTerm) ||
+                                            userPhone.includes(searchTerm);
+
+                        let matchesStatus = true;
+                        if (statusValue === 'active') matchesStatus = !isLocked;
+                        else if (statusValue === 'locked') matchesStatus = isLocked;
+                        else if (statusValue === 'verified') matchesStatus = isVerified;
+                        else if (statusValue === 'unverified') matchesStatus = !isVerified;
+
+                        let matches2FA = true;
+                        if (twoFactorValue === 'enabled') matches2FA = has2FAEnabled;
+                        else if (twoFactorValue === 'disabled') matches2FA = !has2FAEnabled;
+
+                        if (matchesSearch && matchesStatus && matches2FA) {
+                            row.style.display = '';
+                            visibleCount++;
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+
+                    // Update showing count
+                    document.getElementById('itemsShowing').textContent = visibleCount;
+                });
+            }
+
+            // Reset filters on page load
+            if (searchInput) searchInput.value = '';
+            if (statusFilter) statusFilter.value = '';
+            if (twoFactorFilter) twoFactorFilter.value = '';
+        });
+    </script>
+}

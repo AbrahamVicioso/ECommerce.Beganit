@@ -69,6 +69,18 @@
                 </div>
 
                 <div class="nav-section">
+                    <h6 class="nav-section-title">REVIEWS</h6>
+                    <ul class="nav-items">
+                        <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")">
+                            <a asp-controller="Review" asp-action="Index" class="nav-link">
+                                <i class="bi bi-paperclip"></i>
+                                <span>Reviews</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="nav-section">
                     <h6 class="nav-section-title">CATALOG</h6>
                     <ul class="nav-items">
                         <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Product" ? "active" : "")">
@@ -93,6 +105,12 @@
                             <a asp-controller="Brand" asp-action="Index" class="nav-link">
                                 <i class="bi bi-tag"></i>
                                 <span>Brands</span>
+                            </a>
+                        </li>
+                        <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Bundles" ? "active" : "")">
+                            <a asp-controller="Bundle" asp-action="Index" class="nav-link">
+                                <i class="bi bi-boxes"></i>
+                                <span>Bundles</span>
                             </a>
                         </li>
                     </ul>

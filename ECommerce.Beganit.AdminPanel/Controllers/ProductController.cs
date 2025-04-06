@@ -4,12 +4,15 @@ using ECommerce.Beganit.AdminPanel.Models;
 using ECommerce.Beganit.AdminPanel.Models.ViewModels;
 using ECommerce.Beganit.AdminPanel.Services;
 using MapsterMapper;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 
 namespace ECommerce.Beganit.AdminPanel.Controllers
 {
+    [Authorize(Roles="Admin")]
     [ApiExplorerSettings(IgnoreApi = true)]
     public class ProductController : Controller
     {
@@ -63,21 +66,33 @@ namespace ECommerce.Beganit.AdminPanel.Controllers
         public async Task<IActionResult> CreateProduct()
         {
             ViewData["Brands"] = await _context.Brands.ToListAsync();
-            return View(new Product());
+            return View(new ProductViewModel());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateProduct(Product product)
+        public async Task<IActionResult> CreateProduct(ProductViewModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                ViewData["Brands"] = await _context.Brands.ToListAsync();
-                return View(product);
-            }
+            //if (!ModelState.IsValid)
+            //{
+            //    ViewData["Brands"] = await _context.Brands.ToListAsync();
+            //    return View(model);
+            //}
 
             try
             {
+                Product product = new Product();
+                _mapper.Map(model, product);
+                if (model.Attributes != null) {
+                    foreach (var item in model.Attributes)
+                    {
+                        product.ProductAttributes.Add(new ProductAttribute()
+                        {
+                            AttributeName = item.AttributeName,
+                            AttributeValue = item.AttributeValue
+                        });
+                    }
+                }
                 _context.Products.Add(product);
                 await _context.SaveChangesAsync();
                 TempData["SuccessMessage"] = "Product created successfully";
@@ -88,7 +103,7 @@ namespace ECommerce.Beganit.AdminPanel.Controllers
                 _logger.LogError(ex, "Error creating product");
                 ModelState.AddModelError(string.Empty, "An error occurred while saving the product.");
                 ViewData["Brands"] = await _context.Brands.ToListAsync();
-                return View(product);
+                return View(model);
             }
         }
 
@@ -98,6 +113,7 @@ namespace ECommerce.Beganit.AdminPanel.Controllers
             var product = await _context.Products
                 .Include(p => p.ProductImages)
                 .Include(p => p.Categories)
+                .Include(x => x.ProductAttributes)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (product == null)
@@ -118,6 +134,7 @@ namespace ECommerce.Beganit.AdminPanel.Controllers
         {
             Product product = _context.Products
                 .Include(x => x.Categories)
+                .Include(x => x.ProductAttributes)
                 .Where(x => x.Id == model.Id).FirstOrDefault();
 
             if (product == null)
@@ -127,10 +144,13 @@ namespace ECommerce.Beganit.AdminPanel.Controllers
 
             _mapper.Map(model,product);
 
-            if (product.Categories.Count > 0)
+            if (product.Categories.Count() > 0)
             {
                 product.Categories.Clear();
+            }
 
+            if (model.Categories != null)
+            {
                 foreach(string category in model.Categories)
                 {
                     Category categoryCurrent = _context.Categories.FirstOrDefault(x => x.Name == category);
@@ -138,6 +158,24 @@ namespace ECommerce.Beganit.AdminPanel.Controllers
                     {
                         product.Categories.Add(categoryCurrent);
                     }
+                }
+            }
+
+            if (product.ProductAttributes != null)
+            {
+                product.ProductAttributes.Clear();
+            }
+
+            if (model.Attributes != null)
+            {
+                foreach (var attribute in model.Attributes)
+                {
+                    product.ProductAttributes.Add(new ProductAttribute()
+                    {
+                        AttributeName = attribute.AttributeName,
+                        AttributeValue = attribute.AttributeValue,
+                        ProductId = product.Id,
+                    });
                 }
             }
 

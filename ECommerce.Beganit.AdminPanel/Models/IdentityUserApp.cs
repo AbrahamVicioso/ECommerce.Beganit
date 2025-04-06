@@ -2,9 +2,8 @@
 
 namespace ECommerce.Beganit.AdminPanel.Models
 {
-    public class IdentityUserCustom : IdentityUser
+    public class IdentityUserApp : IdentityUser
     {
-        public string UserName;
         public string UrlProfileImage;
     }
 }

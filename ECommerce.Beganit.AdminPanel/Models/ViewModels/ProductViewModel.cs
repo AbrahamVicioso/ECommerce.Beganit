@@ -50,6 +50,10 @@
 
         public ICollection<string> Categories { get; set; }
 
-        public ICollection<ProductImageViewModel> Images { get; set; }
+        public ICollection<ProductImageViewModel>? Images { get; set; }
+
+        public ICollection<ProductAttributeViewmodel>? Attributes { get; set; }
+
+        public ICollection<ProductVariantViewModel>? Variants { get; set; }
     }
 }

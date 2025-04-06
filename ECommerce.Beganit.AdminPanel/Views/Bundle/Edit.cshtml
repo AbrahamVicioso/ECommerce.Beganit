@@ -1,0 +1,1435 @@
+﻿@model ECommerce.Beganit.AdminPanel.Models.ViewModels.ProductBundleViewModel
+
+@{
+    ViewData["Title"] = "Edit Product Bundle";
+    var discountPreview = Model?.DiscountPercentage ?? 0;
+    var categories = ViewData["Categories"] as IEnumerable<ECommerce.Beganit.AdminPanel.Models.Category>;
+    var brands = ViewData["Brands"] as IEnumerable<ECommerce.Beganit.AdminPanel.Models.Brand>;
+    var bundleItemsWithProducts = ViewData["BundleItemsWithProducts"] as IEnumerable<dynamic>;
+
+}
+
+<div class="container-fluid py-4">
+    <!-- Hero Header Section -->
+    <div class="card border-0 shadow-lg mb-4 overflow-hidden">
+        <div class="card-body p-0">
+            <div class="row g-0">
+                <div class="col-lg-8 p-4 p-lg-5" style="background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-white p-3 me-3 shadow">
+                            <i class="bi bi-box2-heart text-primary fs-3"></i>
+                        </div>
+                        <div class="text-white">
+                            <h1 class="h2 mb-0 fw-bold">Edit Bundle: @Model.Name</h1>
+                            <p class="mb-0 opacity-75">Update your product bundle details and offerings</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 bg-white p-4 p-lg-5 d-flex align-items-center">
+                    <div class="w-100">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="badge bg-primary-subtle text-primary p-2">
+                                <i class="bi bi-calendar-check me-1"></i> Created: @Model.CreatedAt?.ToString("MMM dd, yyyy")
+                            </div>
+                            <div class="form-check form-switch">
+                                <input asp-for="IsActive" class="form-check-input" id="IsActiveInput" />
+                                <label class="form-check-label" for="IsActiveInput">
+                                    <span id="statusBadge" class="badge @(Model.IsActive == true ? "bg-success" : "bg-danger")">
+                                        @(Model.IsActive == true ? "Active" : "Inactive")
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-1"></i> Back to Bundles
+                            </a>
+                            <button type="submit" form="bundleForm" class="btn btn-primary">
+                                <i class="bi bi-save me-1"></i> Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-12">
+            <form asp-action="Edit" method="post" id="bundleForm" class="needs-validation" novalidate>
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 mb-4" role="alert"></div>
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="CreatedAt" />
+
+                <div class="row g-4">
+                    <!-- Left Column - Bundle Information -->
+                    <div class="col-lg-4">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-header bg-white py-3 border-0">
+                                <div class="d-flex align-items-center">
+                                    <div class="rounded-circle bg-primary bg-opacity-10 p-2 me-3">
+                                        <i class="bi bi-info-circle text-primary"></i>
+                                    </div>
+                                    <h5 class="card-title mb-0">Bundle Information</h5>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-4">
+                                    <label asp-for="Name" class="form-label fw-semibold">Bundle Name <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light">
+                                            <i class="bi bi-tag"></i>
+                                        </span>
+                                        <input asp-for="Name" class="form-control" required maxlength="100" placeholder="Enter bundle name" />
+                                    </div>
+                                    <span asp-validation-for="Name" class="text-danger small"></span>
+                                    <div class="form-text">A descriptive name for this product bundle</div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label asp-for="Description" class="form-label fw-semibold">Description <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light">
+                                            <i class="bi bi-file-text"></i>
+                                        </span>
+                                        <textarea asp-for="Description" class="form-control" rows="4" required placeholder="Describe the bundle and its benefits"></textarea>
+                                    </div>
+                                    <span asp-validation-for="Description" class="text-danger small"></span>
+                                    <div class="form-text">Explain what makes this bundle special</div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label asp-for="DiscountPercentage" class="form-label fw-semibold">Discount Percentage <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light">
+                                            <i class="bi bi-percent"></i>
+                                        </span>
+                                        <input asp-for="DiscountPercentage" type="number" class="form-control" min="0" max="100" step="0.1" required placeholder="0.0" />
+                                        <span class="input-group-text">%</span>
+                                    </div>
+                                    <span asp-validation-for="DiscountPercentage" class="text-danger small"></span>
+                                    <div class="form-text">Discount applied to the total price of all products</div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="form-label fw-semibold d-block">Bundle Status</label>
+                                    <div class="form-check form-switch">
+                                        <input asp-for="IsActive" class="form-check-input" id="IsActiveInputMain" />
+                                        <label class="form-check-label" for="IsActiveInputMain">
+                                            <span id="statusText">Bundle is active and visible to customers</span>
+                                        </label>
+                                    </div>
+                                    <div class="form-text">Toggle to show or hide the bundle on the store</div>
+                                </div>
+
+                                <div class="card bg-light border-0 mb-0">
+                                    <div class="card-body">
+                                        <h6 class="card-title d-flex align-items-center">
+                                            <i class="bi bi-clock-history text-primary me-2"></i>
+                                            Bundle History
+                                        </h6>
+                                        <div class="list-group list-group-flush small">
+                                            <div class="list-group-item d-flex justify-content-between align-items-center px-0 bg-transparent">
+                                                <span>Created</span>
+                                                <span class="text-muted">@Model.CreatedAt?.ToString("MMM dd, yyyy HH:mm")</span>
+                                            </div>
+                                            <div class="list-group-item d-flex justify-content-between align-items-center px-0 bg-transparent">
+                                                <span>Last Updated</span>
+                                                <span class="text-muted">@Model.UpdatedAt?.ToString("MMM dd, yyyy HH:mm")</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column - Bundle Products -->
+                    <div class="col-lg-8">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <div class="rounded-circle bg-primary bg-opacity-10 p-2 me-3">
+                                        <i class="bi bi-box-seam text-primary"></i>
+                                    </div>
+                                    <h5 class="card-title mb-0">Bundle Products</h5>
+                                </div>
+                                <span class="badge bg-primary rounded-pill" id="productCount">@(Model.Items?.Count ?? 0)</span>
+                            </div>
+                            <div class="card-body">
+                                <!-- Current Bundle Products -->
+                                <div class="mb-4">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h6 class="fw-bold mb-0">
+                                            <i class="bi bi-cart-check me-2"></i>Current Bundle Products
+                                        </h6>
+                                        <button type="button" id="clearAllProductsBtn" class="btn btn-sm btn-outline-danger" @(Model.Items?.Any() != true ? "disabled" : "")>
+                                            <i class="bi bi-trash me-1"></i> Clear All
+                                        </button>
+                                    </div>
+
+                                    <div id="noProductsMessage" class="text-center py-5 bg-light rounded-3 border" style="@(Model.Items?.Any() == true ? "display: none;" : "")">
+                                        <div class="mb-3">
+                                            <i class="bi bi-box2 text-muted fs-1"></i>
+                                        </div>
+                                        <h6 class="text-muted">No products added yet</h6>
+                                        <p class="text-muted mb-0">Search and add products to create your bundle</p>
+                                    </div>
+
+                                    <div id="bundleProductsList" class="mb-4" style="@(Model.Items?.Any() != true ? "display: none;" : "")">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover border">
+                                                <thead class="table-primary">
+                                                    <tr>
+                                                        <th style="width: 60px;" class="text-center">Image</th>
+                                                        <th>Product</th>
+                                                        <th style="width: 120px;">Price</th>
+                                                        <th style="width: 120px;">Quantity</th>
+                                                        <th style="width: 120px;">Subtotal</th>
+                                                        <th style="width: 80px;" class="text-center">Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="bundleProductsBody">
+                                                    @if (bundleItemsWithProducts != null)
+                                                    {
+                                                        @foreach (var item in bundleItemsWithProducts)
+                                                        {
+                                                            <tr class="bundle-product-row" data-product-id="@item.ProductId">
+                                                                <td class="text-center"><img src="@item.ProductImageUrl" alt="@item.ProductName" class="product-image"></td>
+                                                                <td>
+                                                                    <div class="fw-medium">@item.ProductName</div>
+                                                                    <div class="small text-muted">@item.ProductSku</div>
+                                                                </td>
+                                                                <td>$@item.ProductPrice.ToString("F2")</td>
+                                                                <td>
+                                                                    <div class="input-group input-group-sm">
+                                                                        <button type="button" class="btn btn-outline-secondary quantity-btn decrease-quantity">
+                                                                            <i class="bi bi-dash"></i>
+                                                                        </button>
+                                                                        <input type="number" class="form-control quantity-input" value="@item.Quantity" min="1" max="100">
+                                                                        <button type="button" class="btn btn-outline-secondary quantity-btn increase-quantity">
+                                                                            <i class="bi bi-plus"></i>
+                                                                        </button>
+                                                                    </div>
+                                                                </td>
+                                                                <td class="product-subtotal">$@((item.ProductPrice * item.Quantity).ToString("F2"))</td>
+                                                                <td class="text-center">
+                                                                    <button type="button" class="btn btn-sm btn-outline-danger remove-product">
+                                                                        <i class="bi bi-trash"></i>
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        }
+                                                    }
+                                                </tbody>
+                                                <tfoot class="table-light fw-bold">
+                                                    <tr>
+                                                        <td colspan="4" class="text-end">Total Regular Price:</td>
+                                                        <td id="totalRegularPrice">$0.00</td>
+                                                        <td></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan="4" class="text-end">Bundle Discount (<span id="discountPercentageDisplay">@discountPreview</span>%):</td>
+                                                        <td id="totalDiscount" class="text-danger">-$0.00</td>
+                                                        <td></td>
+                                                    </tr>
+                                                    <tr class="table-success">
+                                                        <td colspan="4" class="text-end">Final Bundle Price:</td>
+                                                        <td id="finalBundlePrice" class="text-success">$0.00</td>
+                                                        <td></td>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Product Search and Add Section -->
+                                <div class="card border bg-light mb-4">
+                                    <div class="card-header bg-primary bg-opacity-10 border-0">
+                                        <h6 class="card-title mb-0 fw-bold">
+                                            <i class="bi bi-search me-2"></i>Add More Products
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label for="productSearch" class="form-label">Search Products</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-white">
+                                                        <i class="bi bi-search"></i>
+                                                    </span>
+                                                    <input type="text" id="productSearch" class="form-control" placeholder="Search by name or SKU" />
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label for="productCategory" class="form-label">Filter by Category</label>
+                                                <select id="productCategory" class="form-select">
+                                                    <option value="">All Categories</option>
+                                                    @if (categories != null)
+                                                    {
+                                                        foreach (var category in categories)
+                                                        {
+                                                            <option value="@category.Id">@category.Name</option>
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label for="productBrand" class="form-label">Filter by Brand</label>
+                                                <select id="productBrand" class="form-select">
+                                                    <option value="">All Brands</option>
+                                                    @if (brands != null)
+                                                    {
+                                                        foreach (var brand in brands)
+                                                        {
+                                                            <option value="@brand.Id">@brand.Name</option>
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="mt-3">
+                                            <button type="button" id="searchProductsBtn" class="btn btn-primary">
+                                                <i class="bi bi-search me-1"></i> Search Products
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Search Results -->
+                                <div id="searchResults" class="mb-4" style="display: none;">
+                                    <div class="card border shadow-sm">
+                                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                                            <h6 class="mb-0 fw-bold"><i class="bi bi-list-ul me-2"></i>Search Results</h6>
+                                            <span class="badge bg-primary" id="resultsCount">0 products</span>
+                                        </div>
+                                        <div class="card-body p-0">
+                                            <div class="table-responsive">
+                                                <table class="table table-hover mb-0">
+                                                    <thead class="table-light">
+                                                        <tr>
+                                                            <th class="text-center">Image</th>
+                                                            <th>Product</th>
+                                                            <th>SKU</th>
+                                                            <th>Price</th>
+                                                            <th>Stock</th>
+                                                            <th class="text-center">Action</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="searchResultsBody">
+                                                        <!-- Search results will be populated here -->
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="card-footer bg-white">
+                                            <div id="searchPagination" class="d-flex justify-content-between align-items-center">
+                                                <div class="text-muted small">
+                                                    Showing <span id="resultsShowing">0</span> of <span id="resultsTotal">0</span> products
+                                                </div>
+                                                <div>
+                                                    <button type="button" id="prevPageBtn" class="btn btn-sm btn-outline-secondary" disabled>
+                                                        <i class="bi bi-chevron-left"></i> Previous
+                                                    </button>
+                                                    <span class="mx-2">
+                                                        Page <span id="currentPage">1</span> of <span id="totalPages">1</span>
+                                                    </span>
+                                                    <button type="button" id="nextPageBtn" class="btn btn-sm btn-outline-secondary" disabled>
+                                                        Next <i class="bi bi-chevron-right"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Bundle Preview -->
+                                <div class="card border-0 shadow-sm bg-gradient-light">
+                                    <div class="card-header bg-primary bg-opacity-10 border-0">
+                                        <h6 class="card-title d-flex align-items-center mb-0 fw-bold">
+                                            <i class="bi bi-eye me-2 text-primary"></i>
+                                            Bundle Preview
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-8">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="bundle-preview-icon me-3 p-3 bg-white rounded-circle shadow-sm">
+                                                        <i class="bi bi-box2-heart text-primary fs-3"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h5 id="previewBundleName" class="fw-bold">@Model.Name</h5>
+                                                        <p id="previewBundleDescription" class="text-muted mb-0 small">@Model.Description</p>
+                                                        <div class="mt-2">
+                                                            <span class="badge bg-success me-2" id="previewItemCount">@(Model.Items?.Count ?? 0) items</span>
+                                                            <span class="badge bg-danger" id="previewDiscount">Save @discountPreview%</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                                                <div class="text-muted small mb-1">Bundle Price</div>
+                                                <div class="d-flex flex-column align-items-md-end">
+                                                    <span class="text-decoration-line-through text-muted" id="previewRegularPrice">$0.00</span>
+                                                    <span class="fs-4 fw-bold text-success" id="previewFinalPrice">$0.00</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hidden inputs for bundle items -->
+                <div id="bundleItemsContainer">
+                    @if (Model.Items != null)
+                    {
+                        for (int i = 0; i < Model.Items.Count; i++)
+                        {
+                            <input type="hidden" name="Items[@i].ProductId" value="@Model.Items[i].ProductId" class="product-id-input" />
+                            <input type="hidden" name="Items[@i].Quantity" value="@Model.Items[i].Quantity" class="product-quantity-input" data-product-id="@Model.Items[i].ProductId" />
+                        }
+                    }
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-flex justify-content-between mt-4 pt-4 border-top">
+                    <div>
+                        <a asp-action="Index" class="btn btn-outline-secondary me-2">
+                            <i class="bi bi-x-lg me-1"></i> Cancel
+                        </a>
+                        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-primary">
+                            <i class="bi bi-eye me-1"></i> View Bundle
+                        </a>
+                    </div>
+                    <div>
+                        <button type="button" id="previewBundleBtn" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#previewModal">
+                            <i class="bi bi-eye me-1"></i> Preview Bundle
+                        </button>
+                        <button type="submit" id="saveBundleBtn" class="btn btn-primary">
+                            <i class="bi bi-save me-1"></i> Save Changes
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Preview Modal -->
+<div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header" style="background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%); color: white;">
+                <h5 class="modal-title" id="previewModalLabel">
+                    <i class="bi bi-eye me-2"></i>
+                    Bundle Preview
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="p-4 bg-light">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-white p-3 me-3 shadow-sm">
+                            <i class="bi bi-box2-heart text-primary fs-3"></i>
+                        </div>
+                        <div>
+                            <h4 id="modalBundleName">@Model.Name</h4>
+                            <p id="modalBundleDescription" class="text-muted mb-0">@Model.Description</p>
+                        </div>
+                        <div class="ms-auto text-end">
+                            <div class="text-muted small mb-1">Bundle Price</div>
+                            <div class="d-flex flex-column align-items-end">
+                                <span class="text-decoration-line-through text-muted" id="modalRegularPrice">$0.00</span>
+                                <span class="fs-4 fw-bold text-success" id="modalFinalPrice">$0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-4">
+                    <h6 class="mb-3 fw-bold">Bundle Contents</h6>
+                    <div class="table-responsive">
+                        <table class="table table-hover border">
+                            <thead class="table-primary">
+                                <tr>
+                                    <th style="width: 60px;" class="text-center">Image</th>
+                                    <th>Product</th>
+                                    <th style="width: 100px;">Price</th>
+                                    <th style="width: 80px;" class="text-center">Qty</th>
+                                    <th style="width: 120px;">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modalProductsBody">
+                                <!-- Products will be populated here -->
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr>
+                                    <td colspan="4" class="text-end">Total Regular Price:</td>
+                                    <td id="modalTotalRegularPrice">$0.00</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" class="text-end">Bundle Discount (<span id="modalDiscountPercentage">@discountPreview</span>%):</td>
+                                    <td id="modalTotalDiscount" class="text-danger">-$0.00</td>
+                                </tr>
+                                <tr class="fw-bold table-success">
+                                    <td colspan="4" class="text-end">Final Bundle Price:</td>
+                                    <td id="modalFinalBundlePrice" class="text-success">$0.00</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="p-4 bg-light border-top">
+                    <h6 class="mb-3 fw-bold">Customer View</h6>
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="bundle-preview-image bg-white rounded p-3 text-center mb-3 mb-md-0 border">
+                                        <i class="bi bi-box2-heart text-primary display-1"></i>
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <h5 id="customerBundleName" class="fw-bold">@Model.Name</h5>
+                                        <div class="badge bg-danger p-2">Save <span id="customerDiscountBadge">@discountPreview</span>%</div>
+                                    </div>
+                                    <p id="customerBundleDescription" class="mb-3">@Model.Description</p>
+                                    <div class="d-flex align-items-center mb-3">
+                                        <span class="text-decoration-line-through text-muted me-2" id="customerRegularPrice">$0.00</span>
+                                        <span class="fs-4 fw-bold text-success" id="customerFinalPrice">$0.00</span>
+                                    </div>
+                                    <div class="d-flex flex-wrap gap-2 mb-3" id="customerProductBadges">
+                                        <!-- Product badges will be populated here -->
+                                    </div>
+                                    <button type="button" class="btn btn-primary w-100">
+                                        <i class="bi bi-cart-plus me-1"></i> Add Bundle to Cart
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Continue Editing</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Spinner Modal -->
+<div class="modal fade" id="loadingModal" tabindex="-1" aria-labelledby="loadingModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow bg-light">
+            <div class="modal-body text-center p-4">
+                <div class="spinner-border text-primary mb-3" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <h6 class="mb-0" id="loadingMessage">Searching products...</h6>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        /* Base styling */
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        /* Card styling with enhanced shadows and transitions */
+        .card {
+            transition: all 0.3s ease;
+            border-radius: 0.75rem;
+            overflow: hidden;
+        }
+
+            .card:hover {
+                box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.1) !important;
+            }
+
+        .card-header {
+            border-top-left-radius: 0.75rem !important;
+            border-top-right-radius: 0.75rem !important;
+        }
+
+        /* Form styling */
+        .form-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .form-text {
+            font-size: 0.8rem;
+        }
+
+        .form-control, .form-select {
+            border-radius: 0.5rem;
+            padding: 0.6rem 0.75rem;
+            border-color: #e2e8f0;
+        }
+
+            .form-control:focus, .form-select:focus {
+                border-color: #6366F1;
+                box-shadow: 0 0 0 0.25rem rgba(99, 102, 241, 0.25);
+            }
+
+        /* Form switch styling */
+        .form-switch .form-check-input {
+            width: 3em;
+            height: 1.5em;
+            cursor: pointer;
+        }
+
+        .form-switch .form-check-label {
+            padding-left: 0.5em;
+        }
+
+        /* Button styling with hover effects */
+        .btn {
+            border-radius: 0.5rem;
+            font-weight: 500;
+            padding: 0.6rem 1.2rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+            border: none;
+            box-shadow: 0 4px 6px rgba(99, 102, 241, 0.25);
+        }
+
+            .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 12px rgba(99, 102, 241, 0.3);
+            }
+
+        .btn-outline-primary {
+            color: #6366F1;
+            border-color: #6366F1;
+        }
+
+            .btn-outline-primary:hover {
+                background-color: #6366F1;
+                color: white;
+            }
+
+        /* Table styling */
+        .table {
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+            .table th {
+                font-weight: 600;
+                text-transform: uppercase;
+                font-size: 0.8rem;
+                letter-spacing: 0.5px;
+            }
+
+        .table-primary {
+            background-color: rgba(99, 102, 241, 0.1);
+        }
+
+            .table-primary th {
+                color: #6366F1;
+            }
+
+        /* Product image styling */
+        .product-image {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            background-color: #fff;
+            border-radius: 0.5rem;
+            padding: 0.25rem;
+            border: 1px solid #e2e8f0;
+            transition: transform 0.2s ease;
+        }
+
+            .product-image:hover {
+                transform: scale(1.1);
+            }
+
+        /* Bundle product row styling with animations */
+        .bundle-product-row {
+            transition: all 0.3s ease;
+        }
+
+            .bundle-product-row:hover {
+                background-color: rgba(99, 102, 241, 0.05) !important;
+            }
+
+        @@keyframes slideIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        .bundle-product-row {
+            animation: slideIn 0.3s ease;
+        }
+
+        /* Quantity input styling */
+        .quantity-input {
+            width: 60px;
+            text-align: center;
+            border-radius: 0.25rem;
+        }
+
+        .quantity-btn {
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.25rem;
+        }
+
+        /* Badge styling */
+        .badge {
+            font-weight: 500;
+            padding: 0.5em 0.75em;
+            border-radius: 0.375rem;
+        }
+
+        /* Custom background gradients */
+        .bg-gradient-light {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        }
+
+        .bg-primary-subtle {
+            background-color: rgba(99, 102, 241, 0.1);
+        }
+
+        /* Bundle preview styling */
+        .bundle-preview-icon {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Search results highlight */
+        .search-highlight {
+            background-color: rgba(234, 179, 8, 0.2);
+            padding: 0 2px;
+            border-radius: 2px;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: #94a3b8;
+            }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        // Global variables
+        let bundleProducts = [];
+        let totalRegularPrice = 0;
+        let totalDiscount = 0;
+        let finalBundlePrice = 0;
+        let currentPage = 1;
+        let totalPages = 1;
+        let searchTerm = '';
+        let categoryId = '';
+        let brandId = '';
+        let loadingModal;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize loading modal
+            const loadingModalElement = document.getElementById('loadingModal');
+            loadingModal = new bootstrap.Modal(loadingModalElement);
+
+            // Form elements
+            const bundleForm = document.getElementById('bundleForm');
+            const bundleName = document.getElementById('Name');
+            const bundleDescription = document.getElementById('Description');
+            const discountPercentage = document.getElementById('DiscountPercentage');
+            const saveBundleBtn = document.getElementById('saveBundleBtn');
+            const isActiveInput = document.getElementById('IsActiveInput');
+            const isActiveInputMain = document.getElementById('IsActiveInputMain');
+            const statusText = document.getElementById('statusText');
+            const statusBadge = document.getElementById('statusBadge');
+
+            // Search elements
+            const productSearch = document.getElementById('productSearch');
+            const productCategory = document.getElementById('productCategory');
+            const productBrand = document.getElementById('productBrand');
+            const searchProductsBtn = document.getElementById('searchProductsBtn');
+            const searchResults = document.getElementById('searchResults');
+            const searchResultsBody = document.getElementById('searchResultsBody');
+            const prevPageBtn = document.getElementById('prevPageBtn');
+            const nextPageBtn = document.getElementById('nextPageBtn');
+            const resultsShowing = document.getElementById('resultsShowing');
+            const resultsTotal = document.getElementById('resultsTotal');
+            const currentPageEl = document.getElementById('currentPage');
+            const totalPagesEl = document.getElementById('totalPages');
+            const resultsCount = document.getElementById('resultsCount');
+
+            // Bundle products elements
+            const noProductsMessage = document.getElementById('noProductsMessage');
+            const bundleProductsList = document.getElementById('bundleProductsList');
+            const bundleProductsBody = document.getElementById('bundleProductsBody');
+            const clearAllProductsBtn = document.getElementById('clearAllProductsBtn');
+            const productCount = document.getElementById('productCount');
+            const bundleItemsContainer = document.getElementById('bundleItemsContainer');
+
+            // Price elements
+            const totalRegularPriceEl = document.getElementById('totalRegularPrice');
+            const totalDiscountEl = document.getElementById('totalDiscount');
+            const finalBundlePriceEl = document.getElementById('finalBundlePrice');
+            const discountPercentageDisplay = document.getElementById('discountPercentageDisplay');
+
+            // Preview elements
+            const previewBundleName = document.getElementById('previewBundleName');
+            const previewBundleDescription = document.getElementById('previewBundleDescription');
+            const previewItemCount = document.getElementById('previewItemCount');
+            const previewDiscount = document.getElementById('previewDiscount');
+            const previewRegularPrice = document.getElementById('previewRegularPrice');
+            const previewFinalPrice = document.getElementById('previewFinalPrice');
+
+            // Modal elements
+            const modalBundleName = document.getElementById('modalBundleName');
+            const modalBundleDescription = document.getElementById('modalBundleDescription');
+            const modalProductsBody = document.getElementById('modalProductsBody');
+            const modalRegularPrice = document.getElementById('modalRegularPrice');
+            const modalFinalPrice = document.getElementById('modalFinalPrice');
+            const modalTotalRegularPrice = document.getElementById('modalTotalRegularPrice');
+            const modalTotalDiscount = document.getElementById('modalTotalDiscount');
+            const modalFinalBundlePrice = document.getElementById('modalFinalBundlePrice');
+            const modalDiscountPercentage = document.getElementById('modalDiscountPercentage');
+
+            // Customer preview elements
+            const customerBundleName = document.getElementById('customerBundleName');
+            const customerBundleDescription = document.getElementById('customerBundleDescription');
+            const customerRegularPrice = document.getElementById('customerRegularPrice');
+            const customerFinalPrice = document.getElementById('customerFinalPrice');
+            const customerDiscountBadge = document.getElementById('customerDiscountBadge');
+            const customerProductBadges = document.getElementById('customerProductBadges');
+
+            // Initialize bundle products from existing items
+            initializeBundleProducts();
+
+            // Sync active toggle switches
+            syncActiveToggles();
+
+            // Update bundle pricing on load
+            updateBundlePricing();
+
+            // Initialize form validation
+            initFormValidation();
+
+            // Add event listeners
+            searchProductsBtn.addEventListener('click', searchProducts);
+            prevPageBtn.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    searchProducts(true);
+                }
+            });
+            nextPageBtn.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    searchProducts(true);
+                }
+            });
+            clearAllProductsBtn.addEventListener('click', clearAllProducts);
+            discountPercentage.addEventListener('input', updateBundlePricing);
+            bundleName.addEventListener('input', updateBundlePreview);
+            bundleDescription.addEventListener('input', updateBundlePreview);
+
+            // Add event listeners to existing quantity inputs and remove buttons
+            initializeExistingProductControls();
+
+            // Initialize bundle products from existing items
+            function initializeBundleProducts() {
+                const rows = bundleProductsBody.querySelectorAll('.bundle-product-row');
+
+                rows.forEach(row => {
+                    const productId = parseInt(row.dataset.productId);
+                    const quantityInput = row.querySelector('.quantity-input');
+                    const quantity = parseInt(quantityInput.value);
+                    const priceText = row.querySelector('td:nth-child(3)').textContent;
+                    const price = parseFloat(priceText.replace('$', ''));
+                    const name = row.querySelector('.fw-medium').textContent;
+                    const sku = row.querySelector('.small.text-muted').textContent;
+                    const image = row.querySelector('.product-image').src;
+
+                    bundleProducts.push({
+                        id: productId,
+                        name: name,
+                        sku: sku,
+                        price: price,
+                        image: image,
+                        quantity: quantity,
+                        subtotal: price * quantity
+                    });
+                });
+            }
+
+            // Initialize existing product controls
+            function initializeExistingProductControls() {
+                const rows = bundleProductsBody.querySelectorAll('.bundle-product-row');
+
+                rows.forEach(row => {
+                    const productId = parseInt(row.dataset.productId);
+                    const quantityInput = row.querySelector('.quantity-input');
+                    const decreaseBtn = row.querySelector('.decrease-quantity');
+                    const increaseBtn = row.querySelector('.increase-quantity');
+                    const subtotalCell = row.querySelector('.product-subtotal');
+                    const removeBtn = row.querySelector('.remove-product');
+                    const price = getProductPrice(productId);
+
+                    quantityInput.addEventListener('change', () => {
+                        updateProductQuantity(productId, parseInt(quantityInput.value));
+                        subtotalCell.textContent = `$${(price * parseInt(quantityInput.value)).toFixed(2)}`;
+                    });
+
+                    decreaseBtn.addEventListener('click', () => {
+                        if (parseInt(quantityInput.value) > 1) {
+                            quantityInput.value = parseInt(quantityInput.value) - 1;
+                            updateProductQuantity(productId, parseInt(quantityInput.value));
+                            subtotalCell.textContent = `$${(price * parseInt(quantityInput.value)).toFixed(2)}`;
+                        }
+                    });
+
+                    increaseBtn.addEventListener('click', () => {
+                        quantityInput.value = parseInt(quantityInput.value) + 1;
+                        updateProductQuantity(productId, parseInt(quantityInput.value));
+                        subtotalCell.textContent = `$${(price * parseInt(quantityInput.value)).toFixed(2)}`;
+                    });
+
+                    removeBtn.addEventListener('click', () => {
+                        removeProductFromBundle(productId);
+                        row.style.opacity = '0';
+                        row.style.transform = 'translateY(-10px)';
+                        setTimeout(() => {
+                            row.remove();
+                        }, 300);
+                    });
+                });
+            }
+
+            // Get product price by ID
+            function getProductPrice(productId) {
+                const product = bundleProducts.find(p => p.id === productId);
+                return product ? product.price : 0;
+            }
+
+            // Sync active toggle switches
+            function syncActiveToggles() {
+                if (isActiveInput && isActiveInputMain) {
+                    isActiveInput.addEventListener('change', function() {
+                        isActiveInputMain.checked = this.checked;
+                        updateStatusText();
+                    });
+
+                    isActiveInputMain.addEventListener('change', function() {
+                        isActiveInput.checked = this.checked;
+                        updateStatusText();
+                    });
+
+                    // Set initial state
+                    updateStatusText();
+                }
+            }
+
+            // Update status text and badge
+            function updateStatusText() {
+                if (isActiveInputMain.checked) {
+                    statusText.textContent = 'Bundle is active and visible to customers';
+                    statusBadge.textContent = 'Active';
+                    statusBadge.className = 'badge bg-success';
+                } else {
+                    statusText.textContent = 'Bundle is inactive and hidden from customers';
+                    statusBadge.textContent = 'Inactive';
+                    statusBadge.className = 'badge bg-danger';
+                }
+            }
+
+            // Search for products
+            function searchProducts(isPaging = false) {
+                // Get search parameters
+                if (!isPaging) {
+                    currentPage = 1;
+                    searchTerm = productSearch.value.trim();
+                    categoryId = productCategory.value;
+                    brandId = productBrand.value;
+                }
+
+                // Show loading modal
+                document.getElementById('loadingMessage').textContent = 'Searching products...';
+                // loadingModal.show();
+
+                // Make AJAX request to search products
+                fetch(`/Bundle/SearchProducts?searchTerm=${encodeURIComponent(searchTerm)}&categoryId=${categoryId}&brandId=${brandId}&page=${currentPage}&pageSize=10`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Hide loading modal
+                        loadingModal.hide();
+
+                        // Update pagination info
+                        totalPages = data.totalPages;
+                        resultsShowing.textContent = data.products.length;
+                        resultsTotal.textContent = data.totalCount;
+                        currentPageEl.textContent = currentPage;
+                        totalPagesEl.textContent = totalPages;
+                        resultsCount.textContent = `${data.totalCount} products`;
+
+                        // Enable/disable pagination buttons
+                        prevPageBtn.disabled = currentPage <= 1;
+                        nextPageBtn.disabled = currentPage >= totalPages;
+
+                        // Display search results
+                        displaySearchResults(data.products);
+                    })
+                    .catch(error => {
+                        console.error('Error searching products:', error);
+                        loadingModal.hide();
+
+                        // Show error message
+                        searchResultsBody.innerHTML = `
+                            <tr>
+                                <td colspan="6" class="text-center py-3 text-danger">
+                                    <i class="bi bi-exclamation-triangle me-2"></i>Error searching products. Please try again.
+                                </td>
+                            </tr>
+                        `;
+                        searchResults.style.display = 'block';
+                    });
+            }
+
+            // Display search results
+            function displaySearchResults(products) {
+                searchResultsBody.innerHTML = '';
+
+                if (products.length === 0) {
+                    searchResultsBody.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="text-center py-3">
+                                <i class="bi bi-search me-2"></i>No products found matching your criteria
+                            </td>
+                        </tr>
+                    `;
+                } else {
+                    products.forEach(product => {
+                        // Check if product is already in the bundle
+                        const isAdded = bundleProducts.some(p => p.id === product.id);
+
+                        // Highlight search term in product name
+                        let highlightedName = product.name;
+                        if (searchTerm) {
+                            highlightedName = product.name.replace(
+                                new RegExp(searchTerm, 'gi'),
+                                match => `<span class="search-highlight">${match}</span>`
+                            );
+                        }
+
+                        // Get image URL
+                        let imageUrl = product.imageUrl;
+                        if (product.imageUrl) {
+                            if (typeof product.imageUrl === 'string') {
+                                imageUrl = product.imageUrl;
+                            } else if (product.imageUrl.url) {
+                                imageUrl = product.imageUrl.url;
+                            }
+                        }
+
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td class="text-center"><img src="${imageUrl}" alt="${product.name}" class="product-image"></td>
+                            <td>
+                                <div class="fw-medium">${highlightedName}</div>
+                                <div class="small text-muted">${product.brandName || ''}</div>
+                            </td>
+                            <td>${product.sku || 'N/A'}</td>
+                            <td>$${product.price.toFixed(2)}</td>
+                            <td>${product.stockQuantity > 0 ? `<span class="badge bg-success">In Stock (${product.stockQuantity})</span>` : `<span class="badge bg-danger">Out of Stock</span>`}</td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-sm ${isAdded ? 'btn-success' : 'btn-primary'}"
+                                    ${isAdded ? 'disabled' : ''}
+                                    data-product-id="${product.id}">
+                                    ${isAdded ? '<i class="bi bi-check"></i> Added' : '<i class="bi bi-plus"></i> Add'}
+                                </button>
+                            </td>
+                        `;
+
+                        // Add event listener to add button
+                        const addButton = row.querySelector('button');
+                        if (!isAdded) {
+                            addButton.addEventListener('click', () => {
+                                addProductToBundle(product);
+                                addButton.innerHTML = '<i class="bi bi-check"></i> Added';
+                                addButton.classList.replace('btn-primary', 'btn-success');
+                                addButton.disabled = true;
+                            });
+                        }
+
+                        searchResultsBody.appendChild(row);
+                    });
+                }
+
+                // Show search results
+                searchResults.style.display = 'block';
+            }
+
+            // Add product to bundle
+            function addProductToBundle(product) {
+                // Check if product is already in the bundle
+                if (bundleProducts.some(p => p.id === product.id)) {
+                    return;
+                }
+
+                // Get image URL
+                let imageUrl = '/images/placeholder-product.png';
+                if (product.imageUrl) {
+                    if (typeof product.imageUrl === 'string') {
+                        imageUrl = product.imageUrl;
+                    } else if (product.imageUrl.url) {
+                        imageUrl = product.imageUrl.url;
+                    }
+                }
+
+                // Add product to bundle with quantity 1
+                const bundleProduct = {
+                    id: product.id,
+                    name: product.name,
+                    sku: product.sku || 'N/A',
+                    price: product.price,
+                    image: imageUrl,
+                    quantity: 1,
+                    subtotal: product.price
+                };
+
+                bundleProducts.push(bundleProduct);
+
+                // Hide no products message
+                noProductsMessage.style.display = 'none';
+
+                // Show bundle products list
+                bundleProductsList.style.display = 'block';
+
+                // Enable clear all button
+                clearAllProductsBtn.disabled = false;
+
+                // Add product to bundle products list
+                const row = document.createElement('tr');
+                row.className = 'bundle-product-row';
+                row.dataset.productId = product.id;
+                row.innerHTML = `
+                    <td class="text-center"><img src="${bundleProduct.image}" alt="${bundleProduct.name}" class="product-image"></td>
+                    <td>
+                        <div class="fw-medium">${bundleProduct.name}</div>
+                        <div class="small text-muted">${bundleProduct.sku}</div>
+                    </td>
+                    <td>$${bundleProduct.price.toFixed(2)}</td>
+                    <td>
+                        <div class="input-group input-group-sm">
+                            <button type="button" class="btn btn-outline-secondary quantity-btn decrease-quantity">
+                                <i class="bi bi-dash"></i>
+                            </button>
+                            <input type="number" class="form-control quantity-input" value="1" min="1" max="100">
+                            <button type="button" class="btn btn-outline-secondary quantity-btn increase-quantity">
+                                <i class="bi bi-plus"></i>
+                            </button>
+                        </div>
+                    </td>
+                    <td class="product-subtotal">$${bundleProduct.price.toFixed(2)}</td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-sm btn-outline-danger remove-product">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                `;
+
+                // Add event listeners to quantity buttons
+                const quantityInput = row.querySelector('.quantity-input');
+                const decreaseBtn = row.querySelector('.decrease-quantity');
+                const increaseBtn = row.querySelector('.increase-quantity');
+                const subtotalCell = row.querySelector('.product-subtotal');
+                const removeBtn = row.querySelector('.remove-product');
+
+                quantityInput.addEventListener('change', () => {
+                    updateProductQuantity(product.id, parseInt(quantityInput.value));
+                    subtotalCell.textContent = `$${(product.price * parseInt(quantityInput.value)).toFixed(2)}`;
+                });
+
+                decreaseBtn.addEventListener('click', () => {
+                    if (parseInt(quantityInput.value) > 1) {
+                        quantityInput.value = parseInt(quantityInput.value) - 1;
+                        updateProductQuantity(product.id, parseInt(quantityInput.value));
+                        subtotalCell.textContent = `$${(product.price * parseInt(quantityInput.value)).toFixed(2)}`;
+                    }
+                });
+
+                increaseBtn.addEventListener('click', () => {
+                    quantityInput.value = parseInt(quantityInput.value) + 1;
+                    updateProductQuantity(product.id, parseInt(quantityInput.value));
+                    subtotalCell.textContent = `$${(product.price * parseInt(quantityInput.value)).toFixed(2)}`;
+                });
+
+                removeBtn.addEventListener('click', () => {
+                    removeProductFromBundle(product.id);
+                    row.style.opacity = '0';
+                    row.style.transform = 'translateY(-10px)';
+                    setTimeout(() => {
+                        row.remove();
+                    }, 300);
+                });
+
+                bundleProductsBody.appendChild(row);
+
+                // Add hidden input fields for form submission
+                updateBundleItemInputs();
+
+                // Update bundle pricing
+                updateBundlePricing();
+
+                // Update product count
+                updateProductCount();
+            }
+
+            // Update product quantity
+            function updateProductQuantity(productId, quantity) {
+                const productIndex = bundleProducts.findIndex(p => p.id === productId);
+                if (productIndex !== -1) {
+                    bundleProducts[productIndex].quantity = quantity;
+                    bundleProducts[productIndex].subtotal = bundleProducts[productIndex].price * quantity;
+
+                    // Update hidden input field
+                    updateBundleItemInputs();
+
+                    // Update bundle pricing
+                    updateBundlePricing();
+                }
+            }
+
+            // Remove product from bundle
+            function removeProductFromBundle(productId) {
+                const productIndex = bundleProducts.findIndex(p => p.id === productId);
+                if (productIndex !== -1) {
+                    bundleProducts.splice(productIndex, 1);
+
+                    // Update hidden input fields
+                    updateBundleItemInputs();
+
+                    // Update bundle pricing
+                    updateBundlePricing();
+
+                    // Update product count
+                    updateProductCount();
+
+                    // Show no products message if no products left
+                    if (bundleProducts.length === 0) {
+                        noProductsMessage.style.display = 'block';
+                        bundleProductsList.style.display = 'none';
+                        clearAllProductsBtn.disabled = true;
+                    }
+                }
+            }
+
+            // Update bundle item inputs
+            function updateBundleItemInputs() {
+                // Clear existing inputs
+                bundleItemsContainer.innerHTML = '';
+
+                // Add new inputs
+                bundleProducts.forEach((product, index) => {
+                    const inputs = document.createElement('div');
+                    inputs.innerHTML = `
+                        <input type="hidden" name="Items[${index}].ProductId" value="${product.id}" class="product-id-input">
+                        <input type="hidden" name="Items[${index}].Quantity" value="${product.quantity}" class="product-quantity-input" data-product-id="${product.id}">
+                    `;
+                    bundleItemsContainer.appendChild(inputs);
+                });
+            }
+
+            // Clear all products
+            function clearAllProducts() {
+                if (confirm('Are you sure you want to remove all products from this bundle?')) {
+                    bundleProducts = [];
+                    bundleProductsBody.innerHTML = '';
+
+                    // Clear hidden input fields
+                    bundleItemsContainer.innerHTML = '';
+
+                    // Show no products message
+                    noProductsMessage.style.display = 'block';
+                    bundleProductsList.style.display = 'none';
+
+                    // Disable clear all button
+                    clearAllProductsBtn.disabled = true;
+
+                    // Update bundle pricing
+                    updateBundlePricing();
+
+                    // Update product count
+                    updateProductCount();
+                }
+            }
+
+            // Update bundle pricing
+            function updateBundlePricing() {
+                // Calculate total regular price
+                totalRegularPrice = bundleProducts.reduce((total, product) => total + (product.price * product.quantity), 0);
+
+                // Get discount percentage
+                const discount = parseFloat(discountPercentage.value) || 0;
+                discountPercentageDisplay.textContent = discount.toFixed(1);
+
+                // Calculate total discount
+                totalDiscount = (totalRegularPrice * discount) / 100;
+
+                // Calculate final bundle price
+                finalBundlePrice = totalRegularPrice - totalDiscount;
+
+                // Update price displays
+                totalRegularPriceEl.textContent = `$${totalRegularPrice.toFixed(2)}`;
+                totalDiscountEl.textContent = `-$${totalDiscount.toFixed(2)}`;
+                finalBundlePriceEl.textContent = `$${finalBundlePrice.toFixed(2)}`;
+
+                // Update bundle preview
+                updateBundlePreview();
+            }
+
+            // Update product count
+            function updateProductCount() {
+                const count = bundleProducts.length;
+                productCount.textContent = count;
+
+                // Update preview item count
+                previewItemCount.textContent = `${count} item${count !== 1 ? 's' : ''}`;
+            }
+
+            // Update bundle preview
+            function updateBundlePreview() {
+                const name = bundleName.value || 'Bundle Name';
+                const description = bundleDescription.value || 'Bundle description';
+                const discount = parseFloat(discountPercentage.value) || 0;
+
+                // Update preview elements
+                previewBundleName.textContent = name;
+                previewBundleDescription.textContent = description;
+                previewDiscount.textContent = `Save ${discount.toFixed(1)}%`;
+                previewRegularPrice.textContent = `$${totalRegularPrice.toFixed(2)}`;
+                previewFinalPrice.textContent = `$${finalBundlePrice.toFixed(2)}`;
+
+                // Update modal preview elements
+                modalBundleName.textContent = name;
+                modalBundleDescription.textContent = description;
+                modalRegularPrice.textContent = `$${totalRegularPrice.toFixed(2)}`;
+                modalFinalPrice.textContent = `$${finalBundlePrice.toFixed(2)}`;
+                modalTotalRegularPrice.textContent = `$${totalRegularPrice.toFixed(2)}`;
+                modalTotalDiscount.textContent = `-$${totalDiscount.toFixed(2)}`;
+                modalFinalBundlePrice.textContent = `$${finalBundlePrice.toFixed(2)}`;
+                modalDiscountPercentage.textContent = discount.toFixed(1);
+
+                // Update customer preview elements
+                customerBundleName.textContent = name;
+                customerBundleDescription.textContent = description;
+                customerRegularPrice.textContent = `$${totalRegularPrice.toFixed(2)}`;
+                customerFinalPrice.textContent = `$${finalBundlePrice.toFixed(2)}`;
+                customerDiscountBadge.textContent = discount.toFixed(1);
+
+                // Update modal products
+                updateModalProducts();
+            }
+
+            // Update modal products
+            function updateModalProducts() {
+                modalProductsBody.innerHTML = '';
+                customerProductBadges.innerHTML = '';
+
+                bundleProducts.forEach(product => {
+                    // Add to modal products table
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="text-center"><img src="${product.image}" alt="${product.name}" class="product-image"></td>
+                        <td>
+                            <div class="fw-medium">${product.name}</div>
+                            <div class="small text-muted">${product.sku}</div>
+                        </td>
+                        <td>$${product.price.toFixed(2)}</td>
+                        <td class="text-center">${product.quantity}</td>
+                        <td>$${(product.price * product.quantity).toFixed(2)}</td>
+                    `;
+                    modalProductsBody.appendChild(row);
+
+                    // Add to customer product badges
+                    const badge = document.createElement('span');
+                    badge.className = 'badge bg-light text-dark border';
+                    badge.innerHTML = `
+                        <i class="bi bi-box me-1"></i>
+                        ${product.name} (${product.quantity})
+                    `;
+                    customerProductBadges.appendChild(badge);
+                });
+            }
+
+            // Initialize form validation
+            function initFormValidation() {
+                bundleForm.addEventListener('submit', function(event) {
+                    if (!this.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+
+                    // Check if there are products in the bundle
+                    if (bundleProducts.length === 0) {
+                        event.preventDefault();
+                        alert('Please add at least one product to the bundle.');
+                    }
+
+                    this.classList.add('was-validated');
+                }, false);
+            }
+        });
+    </script>
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

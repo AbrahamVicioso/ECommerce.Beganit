@@ -124,11 +124,13 @@ namespace ECommerce.Beganit.AdminPanel.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit([FromForm] IFormFile Image, BrandViewModel model)
+        public async Task<IActionResult> Edit([FromForm] IFormFile? Image, BrandViewModel model)
         {
             // Check if the model is valid
             if (!ModelState.IsValid)
             {
+                var errors = ModelState.Values.SelectMany(v => v.Errors);
+
                 return View(model);
             }
 

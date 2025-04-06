@@ -1,0 +1,588 @@
+﻿@model IEnumerable<ECommerce.Beganit.AdminPanel.Models.ViewModels.ProductBundleViewModel>
+
+@{
+    ViewData["Title"] = "Product Bundles";
+    Layout = "_Layout";
+    // Calculate statistics
+    var totalBundles = Model?.Count() ?? 0;
+    var activeBundles = Model?.Count(b => b.IsActive == true) ?? 0;
+    var inactiveBundles = totalBundles - activeBundles;
+    var totalProducts = Model?.Sum(b => b.Items?.Count ?? 0) ?? 0;
+    var avgDiscount = Model?.Any() == true ? Model.Average(b => b.DiscountPercentage ?? 0) : 0;
+}
+
+<div class="py-4 container-fluid">
+    <!-- Header -->
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center mb-4">
+        <div>
+            <h1 class="display-5 fw-bold mb-1">
+                <i class="bi bi-box2-heart text-primary me-2"></i>Product Bundles
+            </h1>
+            <p class="text-muted mb-0">Manage your product bundles and special offers</p>
+        </div>
+        <div class="mt-3 mt-lg-0">
+            <a asp-action="Create" class="btn btn-primary btn rounded-pill shadow-sm">
+                <i class="bi bi-plus-circle me-2"></i> Create New Bundle
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100 bg-primary bg-opacity-10">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="stats-icon bg-primary text-white rounded-circle p-3 me-3">
+                            <i class="bi bi-box2-heart fs-4"></i>
+                        </div>
+                        <h5 class="card-title mb-0">Total Bundles</h5>
+                    </div>
+                    <h2 class="display-6 fw-bold mb-0">@totalBundles</h2>
+                    <div class="d-flex align-items-center mt-2">
+                        <span class="badge bg-success rounded-pill me-2">@activeBundles Active</span>
+                        <span class="badge bg-danger rounded-pill">@inactiveBundles Inactive</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100 bg-success bg-opacity-10">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="stats-icon bg-success text-white rounded-circle p-3 me-3">
+                            <i class="bi bi-boxes fs-4"></i>
+                        </div>
+                        <h5 class="card-title mb-0">Bundled Products</h5>
+                    </div>
+                    <h2 class="display-6 fw-bold mb-0">@totalProducts</h2>
+                    <div class="d-flex align-items-center mt-2">
+                        <span class="badge bg-info rounded-pill">@(totalBundles > 0 ? Math.Round((double)totalProducts / totalBundles, 1) : 0) Avg. per bundle</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100 bg-info bg-opacity-10">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="stats-icon bg-info text-white rounded-circle p-3 me-3">
+                            <i class="bi bi-percent fs-4"></i>
+                        </div>
+                        <h5 class="card-title mb-0">Avg. Discount</h5>
+                    </div>
+                    <h2 class="display-6 fw-bold mb-0">@avgDiscount.ToString("0.0")%</h2>
+                    <div class="d-flex align-items-center mt-2">
+                        <span class="text-muted">Average discount across all bundles</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100 bg-warning bg-opacity-10">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="stats-icon bg-warning text-white rounded-circle p-3 me-3">
+                            <i class="bi bi-calendar-check fs-4"></i>
+                        </div>
+                        <h5 class="card-title mb-0">Active Rate</h5>
+                    </div>
+                    <h2 class="display-6 fw-bold mb-0">@(totalBundles > 0 ? Math.Round((double)activeBundles / totalBundles * 100, 0) : 0)%</h2>
+                    <div class="d-flex align-items-center mt-2">
+                        <span class="text-muted">Percentage of active bundles</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid py-4">
+    <div class="card shadow-sm border-0">
+        <!-- Filters -->
+        <div class="card-body border-bottom bg-light py-3">
+            <form id="bundleFilters">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label for="searchBundle" class="form-label small text-muted mb-1">Search</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                            <input type="text" class="form-control" id="searchBundle" placeholder="Search by name or description">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="discountFilter" class="form-label small text-muted mb-1">Discount</label>
+                        <select class="form-select" id="discountFilter">
+                            <option value="" selected>All Discounts</option>
+                            <option value="low">Low (0-10%)</option>
+                            <option value="medium">Medium (10-25%)</option>
+                            <option value="high">High (25%+)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="statusFilter" class="form-label small text-muted mb-1">Status</label>
+                        <select class="form-select" id="statusFilter">
+                            <option value="" selected>All Statuses</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="productsFilter" class="form-label small text-muted mb-1">Products</label>
+                        <select class="form-select" id="productsFilter">
+                            <option value="" selected>All Bundles</option>
+                            <option value="small">Small (1-3)</option>
+                            <option value="medium">Medium (4-6)</option>
+                            <option value="large">Large (7+)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            Apply Filters
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Bulk Actions -->
+        <div class="card-body border-bottom py-2">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <div class="bulk-actions d-flex align-items-center" id="bulkActionsContainer" style="display: none !important;">
+                        <div class="me-3">
+                            <span class="selected-count fw-bold">0</span> bundles selected
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="bulkActionsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                Bulk Actions
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="bulkActionsDropdown">
+                                <li><a class="dropdown-item text-success" href="#"><i class="bi bi-check-circle me-2"></i>Activate</a></li>
+                                <li><a class="dropdown-item text-warning" href="#"><i class="bi bi-pause-circle me-2"></i>Disable</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-trash me-2"></i>Delete</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-md-end align-items-center">
+                        <div class="me-3 text-muted small">
+                            <span>Show</span>
+                            <select class="form-select form-select-sm d-inline-block w-auto mx-1">
+                                <option>10</option>
+                                <option>25</option>
+                                <option>50</option>
+                                <option>100</option>
+                            </select>
+                            <span>entries</span>
+                        </div>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-secondary btn-sm active">
+                                <i class="bi bi-table"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm">
+                                <i class="bi bi-grid-3x3-gap"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bundles Table -->
+        <div class="card-body p-0">
+            @if (Model != null && Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th width="40">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="selectAll">
+                                        <label class="form-check-label" for="selectAll"></label>
+                                    </div>
+                                </th>
+                                <th width="60"></th> <!-- Icon column -->
+                                <th>
+                                    <a href="#" class="text-decoration-none text-dark d-flex align-items-center">
+                                        Bundle Name
+                                        <i class="bi bi-arrow-down-up ms-1 text-muted"></i>
+                                    </a>
+                                </th>
+                                <th>
+                                    <a href="#" class="text-decoration-none text-dark d-flex align-items-center">
+                                        Products
+                                        <i class="bi bi-arrow-down-up ms-1 text-muted"></i>
+                                    </a>
+                                </th>
+                                <th>
+                                    <a href="#" class="text-decoration-none text-dark d-flex align-items-center">
+                                        Discount
+                                        <i class="bi bi-arrow-down-up ms-1 text-muted"></i>
+                                    </a>
+                                </th>
+                                <th>
+                                    <a href="#" class="text-decoration-none text-dark d-flex align-items-center">
+                                        Status
+                                        <i class="bi bi-arrow-down-up ms-1 text-muted"></i>
+                                    </a>
+                                </th>
+                                <th>
+                                    <a href="#" class="text-decoration-none text-dark d-flex align-items-center">
+                                        Created
+                                        <i class="bi bi-arrow-down-up ms-1 text-muted"></i>
+                                    </a>
+                                </th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var bundle in Model)
+                            {
+                                <tr class="bundle-row variant-row"
+                                    data-bundle-name="@bundle.Name.ToLower()"
+                                    data-bundle-description="@(bundle.Description?.ToLower() ?? "")"
+                                    data-bundle-status="@(bundle.IsActive == true ? "active" : "inactive")"
+                                    data-bundle-discount="@(bundle.DiscountPercentage ?? 0)"
+                                    data-bundle-products="@(bundle.Items?.Count ?? 0)">
+                                    <td>
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input bundle-select" value="@bundle.Id">
+                                            <label class="form-check-label"></label>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="rounded-circle bg-primary bg-opacity-10 p-2 d-inline-flex">
+                                            <i class="bi bi-box2-heart text-primary"></i>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex flex-column">
+                                            <a href="#" class="fw-medium text-decoration-none text-reset">@bundle.Name</a>
+                                            <div class="text-muted small text-truncate" style="max-width: 250px;" title="@bundle.Description">
+                                                @bundle.Description
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info rounded-pill">
+                                            <i class="bi bi-boxes me-1"></i>
+                                            @(bundle.Items?.Count ?? 0) products
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @{
+                                            var discountValue = bundle.DiscountPercentage ?? 0;
+                                            var discountClass = discountValue >= 25 ? "bg-danger" :
+                                            discountValue >= 10 ? "bg-warning text-dark" : "bg-success";
+                                        }
+                                        <span class="badge @discountClass">
+                                            <i class="bi bi-tag-fill me-1"></i>
+                                            @(bundle.DiscountPercentage?.ToString("0.0") ?? "0.0")%
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @if (bundle.IsActive == true)
+                                        {
+                                            <div class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">
+                                                <i class="bi bi-check-circle-fill me-1"></i> Active
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2">
+                                                <i class="bi bi-x-circle-fill me-1"></i> Inactive
+                                            </div>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="small text-muted">
+                                            <i class="bi bi-calendar3 me-1"></i>
+                                            @(bundle.CreatedAt?.ToString("MMM dd, yyyy") ?? "N/A")
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex justify-content-end gap-1">
+                                            <a asp-action="Edit" asp-route-id="@bundle.Id" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="Edit Bundle">
+                                                <i class="bi bi-pencil-fill"></i>
+                                            </a>
+                                            <a asp-action="Details" asp-route-id="@bundle.Id" class="btn btn-sm btn-outline-info" data-bs-toggle="tooltip" title="View Details">
+                                                <i class="bi bi-info-circle"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-outline-danger delete-bundle-btn"
+                                                    data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                                    data-bundle-id="@bundle.Id" data-bundle-name="@bundle.Name"
+                                                    title="Delete Bundle">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- No Results Message (Initially Hidden) -->
+                <div id="noFilterResults" class="text-center py-5 d-none">
+                    <div class="mb-3">
+                        <i class="bi bi-search text-muted display-1"></i>
+                    </div>
+                    <h4 class="text-muted">No Matching Bundles Found</h4>
+                    <p class="text-muted mb-4">Try adjusting your search criteria or filters.</p>
+                    <button id="clearFiltersBtn" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i> Clear Filters
+                    </button>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <div class="mb-3">
+                        <i class="bi bi-box2 text-muted display-1"></i>
+                    </div>
+                    <h4 class="text-muted">No Bundles Found</h4>
+                    <p class="text-muted mb-4">You haven't created any product bundles yet.</p>
+                    <a asp-action="Create" class="btn btn-primary">
+                        <i class="bi bi-plus-lg me-1"></i> Create Your First Bundle
+                    </a>
+                </div>
+            }
+        </div>
+
+        <!-- Pagination -->
+        @if (Model != null && Model.Any())
+        {
+            <div class="card-footer bg-white d-flex justify-content-between align-items-center py-3">
+                <div class="text-muted small">
+                    Showing <span class="fw-medium">1</span> to <span class="fw-medium">@Model.Count()</span> of <span class="fw-medium">@Model.Count()</span> entries
+                </div>
+                <nav aria-label="Bundle pagination">
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                        </li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Delete Bundle
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="text-center mb-4">
+                    <div class="display-1 text-danger">
+                        <i class="bi bi-trash"></i>
+                    </div>
+                </div>
+                <p class="text-center">Are you sure you want to delete the bundle <strong id="bundleNameToDelete"></strong>?</p>
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    This action cannot be undone. All bundle information will be permanently removed.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i> Cancel
+                </button>
+                <form id="deleteForm" asp-action="Delete" method="post">
+                    <input type="hidden" id="bundleIdToDelete" name="id" />
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash me-1"></i> Delete Bundle
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        /* Custom styling */
+        .stats-icon {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Animation for row hover */
+        .variant-row {
+            transition: all 0.2s ease;
+        }
+
+            .variant-row:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                z-index: 10;
+                position: relative;
+            }
+
+        /* Status badges */
+        .bg-success-subtle {
+            background-color: rgba(25, 135, 84, 0.1);
+        }
+
+        .bg-danger-subtle {
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+
+        .badge {
+            font-weight: 500;
+            padding: 0.5em 0.75em;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Initialize tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
+
+            // Select all checkbox functionality
+            $("#selectAll").change(function() {
+                $(".bundle-select").prop('checked', $(this).prop('checked'));
+                updateBulkActionsVisibility();
+            });
+
+            // Individual checkbox change handler
+            $(".bundle-select").change(function() {
+                if (!$(this).prop('checked')) {
+                    $("#selectAll").prop('checked', false);
+                } else if ($(".bundle-select:checked").length === $(".bundle-select").length) {
+                    $("#selectAll").prop('checked', true);
+                }
+                updateBulkActionsVisibility();
+            });
+
+            // Update bulk actions visibility
+            function updateBulkActionsVisibility() {
+                var selectedCount = $(".bundle-select:checked").length;
+                $(".selected-count").text(selectedCount);
+
+                if (selectedCount > 0) {
+                    $("#bulkActionsContainer").show();
+                } else {
+                    $("#bulkActionsContainer").hide();
+                }
+            }
+
+            // Handle delete confirmation modal
+            $('#deleteModal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget);
+                var id = button.data('bundle-id');
+                var name = button.data('bundle-name');
+
+                document.getElementById('bundleIdToDelete').value = id;
+                document.getElementById('bundleNameToDelete').textContent = name;
+            });
+
+            // Filter functionality
+            $("#bundleFilters").on("submit", function(e) {
+                e.preventDefault();
+                applyFilters();
+            });
+
+            function applyFilters() {
+                const searchTerm = $("#searchBundle").val().toLowerCase();
+                const discountFilter = $("#discountFilter").val();
+                const statusFilter = $("#statusFilter").val();
+                const productsFilter = $("#productsFilter").val();
+
+                let visibleCount = 0;
+
+                $(".bundle-row").each(function() {
+                    const $row = $(this);
+                    const bundleName = $row.data("bundle-name");
+                    const bundleDescription = $row.data("bundle-description");
+                    const bundleStatus = $row.data("bundle-status");
+                    const bundleDiscount = parseFloat($row.data("bundle-discount"));
+                    const bundleProducts = parseInt($row.data("bundle-products"));
+
+                    // Search match
+                    const matchesSearch = searchTerm === "" ||
+                                        bundleName.includes(searchTerm) ||
+                                        bundleDescription.includes(searchTerm);
+
+                    // Status match
+                    const matchesStatus = statusFilter === "" || bundleStatus === statusFilter;
+
+                    // Discount match
+                    let matchesDiscount = true;
+                    if (discountFilter === "low") {
+                        matchesDiscount = bundleDiscount < 10;
+                    } else if (discountFilter === "medium") {
+                        matchesDiscount = bundleDiscount >= 10 && bundleDiscount < 25;
+                    } else if (discountFilter === "high") {
+                        matchesDiscount = bundleDiscount >= 25;
+                    }
+
+                    // Products match
+                    let matchesProducts = true;
+                    if (productsFilter === "small") {
+                        matchesProducts = bundleProducts >= 1 && bundleProducts <= 3;
+                    } else if (productsFilter === "medium") {
+                        matchesProducts = bundleProducts >= 4 && bundleProducts <= 6;
+                    } else if (productsFilter === "large") {
+                        matchesProducts = bundleProducts >= 7;
+                    }
+
+                    // Apply all filters
+                    if (matchesSearch && matchesStatus && matchesDiscount && matchesProducts) {
+                        $row.show();
+                        visibleCount++;
+                    } else {
+                        $row.hide();
+                    }
+                });
+
+                // Show/hide no results message
+                if (visibleCount === 0 && $(".bundle-row").length > 0) {
+                    $("#noFilterResults").removeClass("d-none");
+                } else {
+                    $("#noFilterResults").addClass("d-none");
+                }
+
+                // Update showing count
+                $("#itemsShowing").text(visibleCount);
+            }
+
+            // Clear filters
+            $("#clearFiltersBtn").on("click", function() {
+                $("#searchBundle").val("");
+                $("#discountFilter").val("");
+                $("#statusFilter").val("");
+                $("#productsFilter").val("");
+
+                $(".bundle-row").show();
+                $("#noFilterResults").addClass("d-none");
+                $("#itemsShowing").text($(".bundle-row").length);
+            });
+        });
+    </script>
+}

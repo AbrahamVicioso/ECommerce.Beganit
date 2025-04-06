@@ -4,24 +4,34 @@
     ViewData["Title"] = "Upload Product Image";
 }
 
-<div class="container py-4">
+<div class="container-fluid py-4">
     <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
-                    <div>
-                        <nav aria-label="breadcrumb">
-                            <ol class="breadcrumb mb-1">
-                                <li class="breadcrumb-item"><a asp-controller="Product" asp-action="Index">Products</a></li>
-                                <li class="breadcrumb-item"><a asp-controller="Product" asp-action="Details" asp-route-id="@Model.ProductId">Product Details</a></li>
-                                <li class="breadcrumb-item active" aria-current="page">Upload Image</li>
-                            </ol>
-                        </nav>
-                        <h1 class="h3 mb-0">Upload Product Image</h1>
+        <div class="col-lg-10">
+            <!-- Header Card -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body bg-primary bg-opacity-10 p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-primary text-white p-3 me-3">
+                            <i class="bi bi-image fs-3"></i>
+                        </div>
+                        <div>
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb mb-1">
+                                    <li class="breadcrumb-item"><a asp-controller="Product" asp-action="Index">Products</a></li>
+                                    <li class="breadcrumb-item"><a asp-controller="Product" asp-action="Details" asp-route-id="@Model.ProductId">Product Details</a></li>
+                                    <li class="breadcrumb-item active" aria-current="page">Upload Image</li>
+                                </ol>
+                            </nav>
+                            <h1 class="h3 mb-0">Upload Product Image</h1>
+                            <p class="text-muted mb-0">Add high-quality images to showcase your product</p>
+                        </div>
                     </div>
                 </div>
+            </div>
 
-                <div class="card-body">
+            <!-- Main Content Card -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
                     <form asp-controller="Product" asp-action="UploadImage" method="post" enctype="multipart/form-data" id="uploadForm">
                         @Html.AntiForgeryToken()
                         @Html.HiddenFor(m => m.ProductId)
@@ -30,29 +40,40 @@
                             <!-- Image Preview and Upload -->
                             <div class="col-md-6 mb-4">
                                 <div class="card h-100 border-0 bg-light">
-                                    <div class="card-body text-center d-flex flex-column justify-content-center align-items-center" style="min-height: 300px;">
-                                        <div id="imagePreviewContainer" class="mb-3 d-none">
-                                            <img id="imagePreview" src="#" alt="Preview" class="img-fluid rounded shadow-sm" style="max-height: 200px;">
+                                    <div class="card-body text-center d-flex flex-column justify-content-center align-items-center p-4" style="min-height: 350px;">
+                                        <div id="imagePreviewContainer" class="mb-3 d-none position-relative">
+                                            <img id="imagePreview" src="#" alt="Preview" class="img-fluid rounded shadow-sm" style="max-height: 250px;">
                                             <button type="button" id="removeImage" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2">
-                                                <i class="fas fa-times"></i>
+                                                <i class="bi bi-x-lg"></i>
                                             </button>
                                         </div>
 
-                                        <div id="uploadPlaceholder">
-                                            <i class="fas fa-cloud-upload-alt text-primary mb-3" style="font-size: 3rem;"></i>
-                                            <h5>Upload Product Image</h5>
-                                            <p class="text-muted small">Supported formats: JPG, PNG, GIF<br>Max size: 5MB</p>
+                                        <div id="uploadPlaceholder" class="upload-placeholder">
+                                            <div class="upload-icon-container mb-3">
+                                                <i class="bi bi-cloud-arrow-up-fill text-primary"></i>
+                                            </div>
+                                            <h5 class="mb-2">Upload Product Image</h5>
+                                            <p class="text-muted small mb-4">Supported formats: JPG, PNG, GIF<br>Max size: 5MB</p>
 
                                             <div class="mt-3">
-                                                <label for="Image" class="btn btn-outline-primary">
-                                                    <i class="fas fa-folder-open me-2"></i> Browse Files
+                                                <label for="imageInput" class="btn btn-outline-primary">
+                                                    <i class="bi bi-folder2-open me-2"></i> Browse Files
                                                 </label>
-                                                @* @Html.TextBoxFor(m => m.Image, new { @class = "d-none", type = "file", accept = "image/*" }) *@
+                                                <input type="file" id="imageInput" name="Image" class="d-none" accept="image/*" />
+                                            </div>
+
+                                            <div class="mt-3">
+                                                <div class="dropzone-area" id="dropZone">
+                                                    <p class="text-muted small mb-0">Or drag and drop files here</p>
+                                                </div>
                                             </div>
                                         </div>
 
-                                        <div class="mt-3 small text-danger">
-                                            @* @Html.ValidationMessageFor(m => m.Image) *@
+                                        <div class="mt-3 small text-danger" id="imageValidationMessage">
+                                            @if (ViewData.ModelState["Image"] != null && ViewData.ModelState["Image"].Errors.Count > 0)
+                                            {
+                                                <div class="text-danger">@ViewData.ModelState["Image"].Errors.First().ErrorMessage</div>
+                                            }
                                         </div>
                                     </div>
                                 </div>
@@ -61,81 +82,164 @@
                             <!-- Image Details -->
                             <div class="col-md-6 mb-4">
                                 <div class="card h-100 border-0">
-                                    <div class="card-body">
-                                        <h5 class="card-title mb-4">Image Details</h5>
+                                    <div class="card-body p-4">
+                                        <h5 class="card-title mb-4">
+                                            <i class="bi bi-info-circle me-2 text-primary"></i>
+                                            Image Details
+                                        </h5>
 
-                                        <div class="mb-3">
+                                        <div class="mb-4">
                                             <div class="form-check form-switch">
-                                                @Html.CheckBoxFor(m => m.IsPrimary, new { @class = "form-check-input", role = "switch" })
+                                                @Html.CheckBoxFor(m => m.IsPrimary, new { @class = "form-check-input", role = "switch", id = "IsPrimary" })
                                                 <label class="form-check-label" for="IsPrimary">
                                                     Set as Primary Image
-                                                    <i class="fas fa-question-circle text-muted ms-1"
+                                                    <i class="bi bi-question-circle text-muted ms-1"
                                                        data-bs-toggle="tooltip"
                                                        title="The primary image will be displayed as the main product image in listings and detail pages."></i>
                                                 </label>
                                             </div>
+                                            <div class="form-text text-muted small">
+                                                Primary images appear first in product galleries and search results
+                                            </div>
                                         </div>
 
-                                        <div class="mb-3">
-                                            <label for="DisplayOrder" class="form-label">Display Order</label>
+                                        <div class="mb-4">
+                                            <label for="DisplayOrder" class="form-label">
+                                                <i class="bi bi-sort-numeric-down me-2 text-primary-subtle"></i>
+                                                Display Order
+                                            </label>
                                             <div class="input-group">
-                                                <span class="input-group-text"><i class="fas fa-sort-numeric-down"></i></span>
+                                                <span class="input-group-text bg-light">
+                                                    <i class="bi bi-sort-numeric-down"></i>
+                                                </span>
                                                 @Html.TextBoxFor(m => m.DisplayOrder, new { @class = "form-control", type = "number", min = "1" })
                                             </div>
-                                            <div class="form-text text-muted">
+                                            <div class="form-text text-muted small">
                                                 Determines the order in which images are displayed. Lower numbers appear first.
                                             </div>
-                                            <div class="text-danger">
+                                            <div class="text-danger small">
                                                 @Html.ValidationMessageFor(m => m.DisplayOrder)
                                             </div>
                                         </div>
 
-                                        <div class="mb-3">
+                                        <div class="mb-4">
                                             <label for="AltText" class="form-label">
+                                                <i class="bi bi-file-earmark-text me-2 text-primary-subtle"></i>
                                                 Alternative Text
-                                                <i class="fas fa-question-circle text-muted ms-1"
+                                                <i class="bi bi-question-circle text-muted ms-1"
                                                    data-bs-toggle="tooltip"
                                                    title="Alt text is important for accessibility and SEO. Describe what's in the image."></i>
                                             </label>
                                             @Html.TextAreaFor(m => m.AltText, new { @class = "form-control", rows = "3", placeholder = "Describe the image content for accessibility" })
-                                            <div class="form-text text-muted">
+                                            <div class="form-text text-muted small">
                                                 Provide a descriptive text of the image for screen readers and SEO.
                                             </div>
-                                            <div class="text-danger">
+                                            <div class="text-danger small">
                                                 @Html.ValidationMessageFor(m => m.AltText)
+                                            </div>
+                                        </div>
+
+                                        <div class="alert alert-info d-flex align-items-start p-3 mt-4">
+                                            <i class="bi bi-info-circle-fill me-3 fs-4 text-info"></i>
+                                            <div>
+                                                <strong>Image Guidelines:</strong>
+                                                <ul class="mb-0 ps-3 mt-2">
+                                                    <li>Use high-quality images with good lighting</li>
+                                                    <li>Maintain consistent aspect ratios across product images</li>
+                                                    <li>Recommended size: 1200 × 1200 pixels</li>
+                                                    <li>Keep file size under 5MB for optimal performance</li>
+                                                </ul>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-
-                        <div class="alert alert-info d-flex align-items-center" role="alert">
-                            <i class="fas fa-info-circle me-2 fs-4"></i>
-                            <div>
-                                <strong>Image Guidelines:</strong>
-                                <ul class="mb-0 ps-3">
-                                    <li>Use high-quality images with good lighting</li>
-                                    <li>Maintain consistent aspect ratios across product images</li>
-                                    <li>Recommended size: 1200 × 1200 pixels</li>
-                                </ul>
-                            </div>
-                        </div>
                     </form>
                 </div>
 
-                <div class="card-footer bg-white d-flex justify-content-between py-3">
+                <div class="card-footer bg-white d-flex justify-content-between p-4">
                     <a href="javascript:history.back()" class="btn btn-outline-secondary">
-                        <i class="fas fa-arrow-left me-1"></i> Cancel
+                        <i class="bi bi-arrow-left me-2"></i> Cancel
                     </a>
                     <button type="submit" form="uploadForm" class="btn btn-primary">
-                        <i class="fas fa-cloud-upload-alt me-1"></i> Upload Image
+                        <i class="bi bi-cloud-upload me-2"></i> Upload Image
                     </button>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+@section Styles {
+    <style>
+        .upload-placeholder {
+            width: 100%;
+            padding: 2rem;
+        }
+
+        .upload-icon-container {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: rgba(var(--bs-primary-rgb), 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+            .upload-icon-container i {
+                font-size: 2.5rem;
+            }
+
+        .dropzone-area {
+            border: 2px dashed var(--bs-gray-300);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+            .dropzone-area:hover, .dropzone-area.dragover {
+                border-color: var(--bs-primary);
+                background-color: rgba(var(--bs-primary-rgb), 0.05);
+            }
+
+        #imagePreviewContainer {
+            width: 100%;
+            max-width: 100%;
+            overflow: hidden;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+            #imagePreviewContainer:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+            }
+
+        #imagePreview {
+            transition: transform 0.3s ease;
+        }
+
+        /* Dark mode support */
+        .dark-mode .upload-icon-container {
+            background-color: rgba(var(--bs-primary-rgb), 0.2);
+        }
+
+        .dark-mode .dropzone-area {
+            border-color: #444;
+        }
+
+            .dark-mode .dropzone-area:hover, .dark-mode .dropzone-area.dragover {
+                border-color: var(--bs-primary);
+                background-color: rgba(var(--bs-primary-rgb), 0.1);
+            }
+    </style>
+}
 
 @section Scripts {
     <script>
@@ -147,18 +251,79 @@
             });
 
             // Image preview functionality
-            $("#Image").change(function() {
-                if (this.files && this.files[0]) {
-                    var reader = new FileReader();
+            $("#imageInput").change(function() {
+                handleFileSelection(this.files);
+            });
 
+            // Drag and drop functionality
+            var dropZone = document.getElementById('dropZone');
+
+            // Prevent default drag behaviors
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+                document.body.addEventListener(eventName, preventDefaults, false);
+            });
+
+            // Highlight drop zone when item is dragged over it
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, highlight, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, unhighlight, false);
+            });
+
+            // Handle dropped files
+            dropZone.addEventListener('drop', handleDrop, false);
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            function highlight() {
+                dropZone.classList.add('dragover');
+            }
+
+            function unhighlight() {
+                dropZone.classList.remove('dragover');
+            }
+
+            function handleDrop(e) {
+                var dt = e.dataTransfer;
+                var files = dt.files;
+                handleFileSelection(files);
+            }
+
+            function handleFileSelection(files) {
+                if (files && files[0]) {
+                    var file = files[0];
+
+                    // Validate file type
+                    var fileType = file.type;
+                    if (!fileType.match('image.*')) {
+                        showValidationError("Please select an image file (JPG, PNG, GIF).");
+                        return;
+                    }
+
+                    // Validate file size
+                    var fileSize = file.size / 1024 / 1024; // in MB
+                    if (fileSize > 5) {
+                        showValidationError("File size exceeds 5MB. Please choose a smaller file.");
+                        clearFileInput();
+                        return;
+                    }
+
+                    var reader = new FileReader();
                     reader.onload = function(e) {
                         $("#imagePreview").attr("src", e.target.result);
                         $("#imagePreviewContainer").removeClass("d-none");
                         $("#uploadPlaceholder").addClass("d-none");
+                        $("#imageValidationMessage").html("");
 
                         // Auto-generate alt text based on filename if empty
                         if ($("#AltText").val() === "") {
-                            var fileName = $("#Image").val().split("\\").pop().split(".")[0];
+                            var fileName = file.name.split(".")[0];
                             // Convert filename to readable format (replace dashes and underscores with spaces, capitalize words)
                             fileName = fileName.replace(/[-_]/g, " ")
                                 .replace(/\w\S*/g, function(txt) {
@@ -168,31 +333,39 @@
                         }
                     }
 
-                    reader.readAsDataURL(this.files[0]);
+                    reader.readAsDataURL(file);
 
-                    // Validate file size
-                    var fileSize = this.files[0].size / 1024 / 1024; // in MB
-                    if (fileSize > 5) {
-                        alert("File size exceeds 5MB. Please choose a smaller file.");
-                        $(this).val(""); // Clear the file input
-                        $("#imagePreviewContainer").addClass("d-none");
-                        $("#uploadPlaceholder").removeClass("d-none");
+                    // If using drag and drop, we need to set the file input value
+                    if (document.getElementById('imageInput').files.length === 0) {
+                        // Create a new FileList object
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(file);
+                        document.getElementById('imageInput').files = dataTransfer.files;
                     }
                 }
-            });
+            }
+
+            function showValidationError(message) {
+                $("#imageValidationMessage").html(`<div class="text-danger">${message}</div>`);
+            }
+
+            function clearFileInput() {
+                $("#imageInput").val("");
+                $("#imagePreviewContainer").addClass("d-none");
+                $("#uploadPlaceholder").removeClass("d-none");
+            }
 
             // Remove image button
             $("#removeImage").click(function() {
-                $("#Image").val("");
-                $("#imagePreviewContainer").addClass("d-none");
-                $("#uploadPlaceholder").removeClass("d-none");
+                clearFileInput();
+                $("#AltText").val("");
             });
 
             // Form validation
             $("#uploadForm").submit(function(e) {
-                if ($("#Image").val() === "") {
+                if ($("#imageInput").val() === "") {
                     e.preventDefault();
-                    alert("Please select an image file to upload.");
+                    showValidationError("Please select an image file to upload.");
                     return false;
                 }
 
@@ -206,6 +379,16 @@
 
                 return true;
             });
+
+            // Add animation when hovering over the image preview
+            $("#imagePreviewContainer").hover(
+                function() {
+                    $(this).find("img").css("transform", "scale(1.05)");
+                },
+                function() {
+                    $(this).find("img").css("transform", "scale(1)");
+                }
+            );
         });
     </script>
 }

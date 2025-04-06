@@ -16,7 +16,6 @@ namespace ECommerce.Beganit.AdminPanel.Models.ViewModels
         [StringLength(255, ErrorMessage = "Description cannot exceed 255 characters")]
         public string Description { get; set; }
 
-        [StringLength(500, ErrorMessage = "Logo URL cannot exceed 500 characters")]
         public string? LogoUrl { get; set; }
 
         public bool IsActive { get; set; }
@@ -29,10 +28,8 @@ namespace ECommerce.Beganit.AdminPanel.Models.ViewModels
         [DataType(DataType.DateTime)]
         public DateTime? UpdatedAt { get; set; }
 
-        [Range(1, int.MaxValue, ErrorMessage = "Invalid Creator ID")]
         public int? CreatedBy { get; set; }
 
-        [Range(1, int.MaxValue, ErrorMessage = "Invalid Updater ID")]
         public int? UpdatedBy { get; set; }
     }
 }
