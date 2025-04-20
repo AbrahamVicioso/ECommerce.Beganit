@@ -2,39 +2,377 @@
 
 @{
     ViewData["Title"] = "Editar Reseña";
+    var productName = ViewBag.ProductName ?? "Producto";
+    var customerName = ViewBag.CustomerName ?? "Cliente";
+    var reviewDate = Model.CreatedAt;
 }
 
-<h2>@ViewData["Title"]</h2>
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Inicio</a></li>
+                    <li class="breadcrumb-item"><a asp-controller="Review" asp-action="Index">Reseñas</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Editar Reseña</li>
+                </ol>
+            </nav>
 
-<form asp-action="Edit">
-    <input type="hidden" asp-for="Id" />
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-1">Editar Reseña</h1>
+                    <p class="text-muted">Modifica los detalles de la reseña del cliente</p>
+                </div>
+                <div>
+                    <span class="badge bg-primary rounded-pill">ID: @Model.Id</span>
+                </div>
+            </div>
 
-    <div class="form-group">
-        <label asp-for="Title"></label>
-        <input asp-for="Title" class="form-control" />
+            <div class="row g-4">
+                <!-- Product Info Card -->
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-header bg-light py-3">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-box-open text-primary me-2"></i>Información del Producto
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="text-center mb-3">
+                                <div class="bg-light rounded p-3 d-inline-block mb-3">
+                                    <i class="fas fa-image fa-3x text-secondary"></i>
+                                </div>
+                                <h5 class="mb-1">@productName</h5>
+                                <p class="text-muted small mb-0">SKU: @(ViewBag.ProductSKU ?? "N/A")</p>
+                            </div>
+
+                            <hr class="my-3">
+
+                            <div class="mb-3">
+                                <h6 class="fw-bold mb-2">Detalles de la Reseña</h6>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted">Cliente:</span>
+                                    <span class="fw-medium">@customerName</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted">Fecha:</span>
+                                    <span class="fw-medium">@reviewDate</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted">Estado:</span>
+                                    <span class="badge @(Model.IsApproved ? "bg-success" : "bg-warning text-dark")">
+                                        @(Model.IsApproved ? "Aprobada" : "Pendiente")
+                                    </span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-muted">Compra Verificada:</span>
+                                    <span class="badge @(Model.IsVerifiedPurchase ? "bg-info" : "bg-secondary")">
+                                        @(Model.IsVerifiedPurchase ? "Verificada" : "No Verificada")
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <a href="#" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye me-2"></i>Ver Producto
+                                </a>
+                                <a href="#" class="btn btn-outline-secondary btn-sm">
+                                    <i class="fas fa-user me-2"></i>Ver Cliente
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Edit Form -->
+                <div class="col-md-8">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-light py-3">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-edit text-primary me-2"></i>Formulario de Edición
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form asp-action="Edit" id="reviewForm">
+                                <input type="hidden" asp-for="Id" />
+
+                                <div class="mb-4">
+                                    <label asp-for="Title" class="form-label fw-medium">Título de la Reseña</label>
+                                    <input asp-for="Title" class="form-control form-control-lg" placeholder="Ej: Excelente producto, muy recomendable" />
+                                    <span asp-validation-for="Title" class="text-danger"></span>
+                                    <div class="form-text">Un título conciso que resuma la opinión del cliente.</div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label asp-for="Rating" class="form-label fw-medium">Calificación</label>
+                                    <div class="star-rating mb-2">
+                                        <div class="stars">
+                                            @for (int i = 1; i <= 5; i++)
+                                            {
+                                                <i class="star fas fa-star @(i <= Model.Rating ? "active" : "")" data-value="@i"></i>
+                                            }
+                                        </div>
+                                        <input asp-for="Rating" type="hidden" />
+                                    </div>
+                                    <span asp-validation-for="Rating" class="text-danger"></span>
+                                    <div class="form-text">Calificación de 1 a 5 estrellas.</div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label asp-for="Content" class="form-label fw-medium">Contenido de la Reseña</label>
+                                    <textarea asp-for="Content" class="form-control" rows="5" placeholder="Descripción detallada de la experiencia del cliente con el producto..."></textarea>
+                                    <span asp-validation-for="Content" class="text-danger"></span>
+                                    <div class="form-text">La opinión completa del cliente sobre el producto.</div>
+                                </div>
+
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <div class="form-check form-switch">
+                                            <input asp-for="IsVerifiedPurchase" class="form-check-input" />
+                                            <label asp-for="IsVerifiedPurchase" class="form-check-label">Compra Verificada</label>
+                                        </div>
+                                        <div class="form-text">Indica si el cliente realmente compró el producto.</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check form-switch">
+                                            <input asp-for="IsApproved" class="form-check-input" />
+                                            <label asp-for="IsApproved" class="form-check-label">Reseña Aprobada</label>
+                                        </div>
+                                        <div class="form-text">Las reseñas aprobadas se muestran públicamente.</div>
+                                    </div>
+                                </div>
+
+                                <!-- Admin Notes Section -->
+                                <div class="mb-4">
+                                    <label for="AdminNotes" class="form-label fw-medium">Notas del Administrador</label>
+                                    <textarea id="AdminNotes" name="AdminNotes" class="form-control" rows="2" placeholder="Notas internas sobre esta reseña (no visibles para el cliente)...">@(ViewBag.AdminNotes ?? "")</textarea>
+                                    <div class="form-text">Notas internas que no se muestran al cliente.</div>
+                                </div>
+
+                                <!-- Preview Section -->
+                                <div class="card bg-light border mb-4">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">Vista Previa de la Reseña</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <div class="bg-secondary bg-opacity-25 rounded-circle p-2 me-3">
+                                                <i class="fas fa-user text-secondary"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0 preview-title">@Model.Title</h6>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="preview-stars me-2">
+                                                        @for (int i = 1; i <= 5; i++)
+                                                        {
+                                                            <i class="fas fa-star @(i <= Model.Rating ? "text-warning" : "text-muted")"></i>
+                                                        }
+                                                    </div>
+                                                    <small class="text-muted">@customerName - @reviewDate</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <p class="preview-content mb-0">@Model.Content</p>
+                                        @if (Model.IsVerifiedPurchase)
+                                        {
+                                            <div class="mt-2">
+                                                <span class="badge bg-info">
+                                                    <i class="fas fa-check-circle me-1"></i>Compra Verificada
+                                                </span>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-between">
+                                    <a asp-action="Index" class="btn btn-outline-secondary">
+                                        <i class="fas fa-arrow-left me-2"></i>Volver
+                                    </a>
+                                    <div>
+                                        <button type="button" class="btn btn-danger me-2" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                            <i class="fas fa-trash-alt me-2"></i>Eliminar
+                                        </button>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save me-2"></i>Guardar Cambios
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
 
-    <div class="form-group">
-        <label asp-for="Content"></label>
-        <textarea asp-for="Content" class="form-control"></textarea>
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel">Confirmar Eliminación</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Está seguro que desea eliminar esta reseña? Esta acción no se puede deshacer.</p>
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    La eliminación de reseñas puede afectar la calificación general del producto.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">
+                    <i class="fas fa-trash-alt me-2"></i>Eliminar Reseña
+                </a>
+            </div>
+        </div>
     </div>
+</div>
 
-    <div class="form-group">
-        <label asp-for="Rating"></label>
-        <input asp-for="Rating" type="number" class="form-control" />
-    </div>
+@section Styles {
+    <style>
+        /* Star Rating Styles */
+        .star-rating {
+            display: flex;
+            flex-direction: column;
+        }
 
-    <div class="form-check">
-        <input asp-for="IsVerifiedPurchase" class="form-check-input" />
-        <label asp-for="IsVerifiedPurchase" class="form-check-label"></label>
-    </div>
+        .stars {
+            display: inline-flex;
+            font-size: 1.5rem;
+        }
 
-    <div class="form-check">
-        <input asp-for="IsApproved" class="form-check-input" />
-        <label asp-for="IsApproved" class="form-check-label"></label>
-    </div>
+        .star {
+            color: #e0e0e0;
+            cursor: pointer;
+            transition: color 0.2s ease;
+            margin-right: 5px;
+        }
 
-    <br />
-    <button type="submit" class="btn btn-success">Guardar</button>
-    <a asp-action="Index" class="btn btn-secondary">Volver</a>
-</form>
+            .star:hover, .star.active {
+                color: #ffc107;
+            }
+
+        /* Preview Styles */
+        .preview-stars {
+            font-size: 0.875rem;
+        }
+
+        /* Form Styles */
+        .form-control:focus {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+
+        .form-check-input:checked {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+
+        /* Card hover effect */
+        .card {
+            transition: transform 0.3s ease;
+        }
+
+            .card:hover {
+                transform: translateY(-5px);
+            }
+
+        /* Responsive adjustments */
+        @@media (max-width: 768px) {
+            .col-md-4
+
+        {
+            margin-bottom: 1.5rem;
+        }
+
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Star rating functionality
+            $('.star').on('click', function() {
+                const value = $(this).data('value');
+                $('#Rating').val(value);
+
+                // Update stars
+                $('.star').each(function() {
+                    if ($(this).data('value') <= value) {
+                        $(this).addClass('active');
+                    } else {
+                        $(this).removeClass('active');
+                    }
+                });
+
+                // Update preview
+                updatePreview();
+            });
+
+            // Live preview updates
+            $('#Title, #Content').on('input', function() {
+                updatePreview();
+            });
+
+            // Update preview function
+            function updatePreview() {
+                const title = $('#Title').val();
+                const content = $('#Content').val();
+                const rating = $('#Rating').val();
+
+                $('.preview-title').text(title);
+                $('.preview-content').text(content);
+
+                // Update stars in preview
+                $('.preview-stars i').each(function(index) {
+                    if (index < rating) {
+                        $(this).removeClass('text-muted').addClass('text-warning');
+                    } else {
+                        $(this).removeClass('text-warning').addClass('text-muted');
+                    }
+                });
+            }
+
+            // Form validation
+            $('#reviewForm').on('submit', function(e) {
+                let isValid = true;
+
+                // Validate title
+                if ($('#Title').val().trim() === '') {
+                    $('#Title').addClass('is-invalid');
+                    isValid = false;
+                } else {
+                    $('#Title').removeClass('is-invalid');
+                }
+
+                // Validate rating
+                if ($('#Rating').val() < 1 || $('#Rating').val() > 5) {
+                    $('.star-rating').after('<div class="text-danger">Por favor seleccione una calificación válida.</div>');
+                    isValid = false;
+                }
+
+                // Validate content
+                if ($('#Content').val().trim() === '') {
+                    $('#Content').addClass('is-invalid');
+                    isValid = false;
+                } else {
+                    $('#Content').removeClass('is-invalid');
+                }
+
+                return isValid;
+            });
+
+            // Initialize tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
+        });
+    </script>
+}

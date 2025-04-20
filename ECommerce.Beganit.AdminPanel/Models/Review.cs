@@ -19,9 +19,9 @@ public partial class Review
 
     public string Content { get; set; }
 
-    public bool? IsVerifiedPurchase { get; set; }
+    public bool IsVerifiedPurchase { get; set; }
 
-    public bool? IsApproved { get; set; }
+    public bool IsApproved { get; set; }
 
     public DateTime? CreatedAt { get; set; }
 
