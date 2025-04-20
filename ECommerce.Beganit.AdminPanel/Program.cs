@@ -28,7 +28,7 @@ namespace ECommerce.Beganit.AdminPanel
 
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-            builder.Services.AddDefaultIdentity<IdentityUserApp>(options => options.SignIn.RequireConfirmedAccount = false)
+            builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
                 .AddRoles<IdentityRole>()
                 .AddDefaultTokenProviders()
                 .AddEntityFrameworkStores<ECommerceDBContext>();
@@ -37,7 +37,7 @@ namespace ECommerce.Beganit.AdminPanel
 
             builder.Services.AddControllersWithViews();
 
-            // Configuración de cookies para Identity
+            // Configuraciï¿½n de cookies para Identity
             builder.Services.ConfigureApplicationCookie(options =>
             {
                 options.Cookie.HttpOnly = true;

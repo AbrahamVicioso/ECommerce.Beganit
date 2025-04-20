@@ -10,7 +10,7 @@ using ECommerce.Beganit.AdminPanel.Models.ViewModels;
 
 namespace ECommerce.Beganit.AdminPanel.Data;
 
-public partial class ECommerceDBContext : IdentityDbContext<IdentityUserApp>
+public partial class ECommerceDBContext : IdentityDbContext
 {
     public ECommerceDBContext(DbContextOptions<ECommerceDBContext> options)
         : base(options)
