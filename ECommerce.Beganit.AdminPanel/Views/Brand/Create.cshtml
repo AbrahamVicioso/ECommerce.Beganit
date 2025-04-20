@@ -4,81 +4,119 @@
     ViewData["Title"] = "Create New Brand";
 }
 
-<div class="container py-4">
+<div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
-                    <div>
-                        <nav aria-label="breadcrumb">
-                            <ol class="breadcrumb mb-1">
-                                <li class="breadcrumb-item"><a asp-controller="Brand" asp-action="Index">Brands</a></li>
-                                <li class="breadcrumb-item active" aria-current="page">Create New</li>
-                            </ol>
-                        </nav>
-                        <h1 class="h3 mb-0">Create New Brand</h1>
+        <div class="col-lg-10">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <!-- Header with gradient background -->
+                <div class="card-header border-0 bg-gradient-primary text-white p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb mb-1">
+                                    <li class="breadcrumb-item"><a class="text-white opacity-75" asp-controller="Brand" asp-action="Index">Brands</a></li>
+                                    <li class="breadcrumb-item active text-white" aria-current="page">Create New</li>
+                                </ol>
+                            </nav>
+                            <h1 class="h3 mb-0 fw-bold">Create New Brand</h1>
+                            <p class="mb-0 opacity-75">Add a new brand to your product catalog</p>
+                        </div>
+                        <div class="d-none d-md-block">
+                            <i class="fas fa-building-flag fa-3x text-white opacity-25"></i>
+                        </div>
                     </div>
                 </div>
 
-                <div class="card-body">
-                    <form asp-controller="Brand" asp-action="Create" method="post" enctype="multipart/form-data" id="createBrandForm">
+                <div class="card-body p-4">
+                    <form asp-controller="Brand" asp-action="Create" method="post" enctype="multipart/form-data" id="createBrandForm" class="needs-validation" novalidate>
                         @Html.AntiForgeryToken()
 
-                        <div class="row">
+                        <div class="row g-4">
                             <!-- Brand Logo Upload -->
-                            <div class="col-md-4 mb-4">
-                                <div class="card h-100 border-0 bg-light">
-                                    <div class="card-body text-center d-flex flex-column justify-content-center align-items-center" style="min-height: 250px;">
+                            <div class="col-lg-4 mb-4">
+                                <div class="card h-100 border-0 shadow-sm rounded-4 bg-light">
+                                    <div class="card-body text-center d-flex flex-column justify-content-center align-items-center p-4" style="min-height: 280px;">
                                         <div id="logoPreviewContainer" class="mb-3 d-none position-relative">
-                                            <img id="logoPreview" src="#" alt="Logo Preview" class="img-fluid rounded shadow-sm" style="max-height: 150px; max-width: 100%;">
-                                            <button type="button" id="removeLogo" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1">
+                                            <div class="position-relative rounded-4 shadow-sm overflow-hidden" style="width: 180px; height: 180px;">
+                                                <img id="logoPreview" src="#" alt="Logo Preview" class="img-fluid position-absolute top-50 start-50 translate-middle" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                                            </div>
+                                            <button type="button" id="removeLogo" class="btn btn-sm btn-danger rounded-circle position-absolute top-0 end-0 shadow-sm" style="margin-top: -10px; margin-right: -10px; width: 32px; height: 32px;">
                                                 <i class="fas fa-times"></i>
                                             </button>
                                         </div>
 
-                                        <div id="uploadPlaceholder">
-                                            <i class="fas fa-building text-primary mb-3" style="font-size: 3rem;"></i>
-                                            <h5>Brand Logo</h5>
-                                            <p class="text-muted small">Upload a high-quality logo<br>Recommended: 400×400px</p>
+                                        <div id="uploadPlaceholder" class="py-4">
+                                            <div class="rounded-circle bg-white shadow-sm d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px;">
+                                                <i class="fas fa-building text-primary" style="font-size: 2.5rem;"></i>
+                                            </div>
+                                            <h5 class="fw-bold">Brand Logo</h5>
+                                            <p class="text-muted small mb-4">Upload a high-quality logo<br>Recommended: 400×400px</p>
 
-                                            <div class="mt-3">
-                                                <label for="Image" class="btn btn-outline-primary">
+                                            <div class="mt-2">
+                                                <label for="Image" class="btn btn-primary rounded-pill px-4 shadow-sm">
                                                     <i class="fas fa-upload me-2"></i> Upload Logo
                                                 </label>
                                                 <input type="file" name="Image" id="Image" class="d-none" accept="image/*" />
                                             </div>
                                         </div>
 
-                                        <div class="mt-3 small text-danger">
-                                            @* @Html.ValidationMessageFor(Image) *@
+                                        <div class="mt-2 small text-danger">
+                                            @* @Html.ValidationMessageFor(model => model.Image) *@
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Brand Details -->
-                            <div class="col-md-8 mb-4">
-                                <div class="card h-100 border-0">
-                                    <div class="card-body">
-                                        <h5 class="card-title mb-4">Brand Information</h5>
+                            <div class="col-lg-8 mb-4">
+                                <div class="card h-100 border-0 shadow-sm rounded-4">
+                                    <div class="card-body p-4">
+                                        <h5 class="card-title fw-bold mb-4">
+                                            <i class="fas fa-info-circle text-primary me-2"></i>
+                                            Brand Information
+                                        </h5>
 
-                                        <div class="mb-3">
-                                            <label for="Name" class="form-label">
+                                        <div class="mb-4">
+                                            <label for="Name" class="form-label fw-medium">
                                                 Brand Name <span class="text-danger">*</span>
                                             </label>
-                                            <div class="input-group">
-                                                <span class="input-group-text"><i class="fas fa-tag"></i></span>
-                                                @Html.TextBoxFor(model => model.Name, new { @class = "form-control", placeholder = "e.g. Apple, Samsung, Nike" })
+                                            <div class="input-group input-group-lg">
+                                                <span class="input-group-text bg-light border-0 shadow-sm"><i class="fas fa-tag text-primary"></i></span>
+                                                @Html.TextBoxFor(model => model.Name, new { @class = "form-control form-control-lg shadow-sm border-0", placeholder = "e.g. Apple, Samsung, Nike" })
                                             </div>
-                                            <div class="text-danger mt-1">
+                                            <div class="form-text text-muted">Choose a unique and recognizable name for your brand</div>
+                                            <div class="invalid-feedback" id="nameError">
                                                 @Html.ValidationMessageFor(model => model.Name)
                                             </div>
                                         </div>
+
                                         <div class="mb-3">
-                                            <label for="Description" class="form-label">Brand Description</label>
-                                            @Html.TextAreaFor(model => model.Description, new { @class = "form-control", rows = 5, placeholder = "Provide a brief description of the brand..." })
-                                            <div class="text-danger mt-1">
+                                            <label for="Description" class="form-label fw-medium">Brand Description</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-0 shadow-sm align-self-start" style="height: 58px;"><i class="fas fa-align-left text-primary"></i></span>
+                                                @Html.TextAreaFor(model => model.Description, new { @class = "form-control shadow-sm border-0", rows = 5, placeholder = "Provide a brief description of the brand and its key values..." })
+                                            </div>
+                                            <div class="form-text text-muted">A concise description helps customers understand the brand's identity</div>
+                                            <div class="invalid-feedback">
                                                 @Html.ValidationMessageFor(model => model.Description)
+                                            </div>
+                                        </div>
+
+                                        <!-- Additional fields could be added here -->
+                                        <div class="row mt-4">
+                                            <div class="col-md-6 mb-3">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="isActive" name="IsActive" checked>
+                                                    <label class="form-check-label" for="isActive">Active Brand</label>
+                                                </div>
+                                                <div class="form-text text-muted">Inactive brands won't appear in the store</div>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="isFeatured" name="IsFeatured">
+                                                    <label class="form-check-label" for="isFeatured">Featured Brand</label>
+                                                </div>
+                                                <div class="form-text text-muted">Featured brands appear on the homepage</div>
                                             </div>
                                         </div>
                                     </div>
@@ -86,32 +124,182 @@
                             </div>
                         </div>
 
-                        <div class="alert alert-info d-flex align-items-center" role="alert">
-                            <i class="fas fa-info-circle me-2 fs-4"></i>
+                        <div class="alert alert-info border-0 shadow-sm rounded-4 d-flex align-items-center p-4 mt-3" role="alert">
+                            <div class="bg-info bg-opacity-25 rounded-circle p-3 me-3">
+                                <i class="fas fa-lightbulb text-info fs-4"></i>
+                            </div>
                             <div>
-                                <strong>Brand Guidelines:</strong>
+                                <h6 class="fw-bold mb-1">Brand Guidelines</h6>
                                 <ul class="mb-0 ps-3">
                                     <li>Brand names should be unique and recognizable</li>
                                     <li>Use high-quality logos with transparent backgrounds when possible</li>
                                     <li>Provide a concise but informative description</li>
+                                    <li>Featured brands will appear in special sections of your store</li>
                                 </ul>
                             </div>
                         </div>
                     </form>
                 </div>
 
-                <div class="card-footer bg-white d-flex justify-content-between py-3">
-                    <a asp-controller="Brand" asp-action="Index" class="btn btn-outline-secondary">
-                        <i class="fas fa-arrow-left me-1"></i> Back to Brands
+                <div class="card-footer bg-light border-0 d-flex justify-content-between p-4">
+                    <a asp-controller="Brand" asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4">
+                        <i class="fas fa-arrow-left me-2"></i> Back to Brands
                     </a>
-                    <button type="submit" form="createBrandForm" class="btn btn-primary">
-                        <i class="fas fa-save me-1"></i> Create Brand
+                    <button type="submit" form="createBrandForm" class="btn btn-primary rounded-pill px-5 shadow-sm">
+                        <i class="fas fa-save me-2"></i> Create Brand
                     </button>
+                </div>
+            </div>
+
+            <!-- Recently Added Brands Preview -->
+            <div class="card border-0 shadow-sm rounded-4 mt-4">
+                <div class="card-header bg-light border-0 p-3">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-history text-primary me-2"></i> Recently Added Brands</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col" width="80">Logo</th>
+                                    <th scope="col">Brand Name</th>
+                                    <th scope="col">Added</th>
+                                    <th scope="col" class="text-end">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Sample data - this would be populated from your backend -->
+                                <tr>
+                                    <td>
+                                        <div class="rounded bg-light d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                            <i class="fas fa-building text-primary"></i>
+                                        </div>
+                                    </td>
+                                    <td class="fw-medium">Sample Brand</td>
+                                    <td><small class="text-muted">Today</small></td>
+                                    <td class="text-end"><span class="badge bg-success rounded-pill">Active</span></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="rounded bg-light d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                            <i class="fas fa-building text-primary"></i>
+                                        </div>
+                                    </td>
+                                    <td class="fw-medium">Another Brand</td>
+                                    <td><small class="text-muted">Yesterday</small></td>
+                                    <td class="text-end"><span class="badge bg-secondary rounded-pill">Inactive</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Toast notification for success/error messages -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="liveToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header bg-success text-white">
+            <i class="fas fa-check-circle me-2"></i>
+            <strong class="me-auto">Success</strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            Brand created successfully!
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        /* Custom gradient background */
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+        }
+
+        /* Smooth transitions */
+        .card, .btn, .form-control, .input-group-text {
+            transition: all 0.3s ease;
+        }
+
+            /* Hover effects */
+            .card:hover {
+                transform: translateY(-5px);
+            }
+
+            .form-control:focus, .btn:hover {
+                transform: translateY(-2px);
+            }
+
+        /* Custom rounded corners */
+        .rounded-4 {
+            border-radius: 0.75rem !important;
+        }
+
+        /* Custom form styling */
+        .form-control, .input-group-text {
+            padding: 0.75rem 1rem;
+        }
+
+            .form-control:focus {
+                box-shadow: 0 0 0 0.25rem rgba(78, 115, 223, 0.25);
+                border-color: #bac8f3;
+            }
+
+        /* Custom button styling */
+        .btn-primary {
+            background-color: #4e73df;
+            border-color: #4e73df;
+        }
+
+            .btn-primary:hover, .btn-primary:focus {
+                background-color: #2e59d9;
+                border-color: #2653d4;
+            }
+
+        /* Animation for logo upload */
+        @@keyframes fadeIn {
+            from
+
+        {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        }
+
+        #logoPreviewContainer {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 10px;
+        }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: #a8a8a8;
+            }
+    </style>
+}
 
 @section Scripts {
     <script>
@@ -122,26 +310,7 @@
                 return new bootstrap.Tooltip(tooltipTriggerEl)
             });
 
-            // Auto-generate slug from name
-            $("#Name").on("keyup change", function() {
-                if ($("#Slug").val() === "" || $("#Slug").data("auto-generated") === true) {
-                    var slug = $(this).val()
-                        .toLowerCase()
-                        .replace(/[^\w\s-]/g, "") // Remove special chars except hyphens and underscores
-                        .replace(/\s+/g, "-")     // Replace spaces with hyphens
-                        .replace(/--+/g, "-")     // Replace multiple hyphens with single hyphen
-                        .trim();
-
-                    $("#Slug").val(slug).data("auto-generated", true);
-                }
-            });
-
-            // When user manually edits slug, stop auto-generation
-            $("#Slug").on("keyup change", function() {
-                $(this).data("auto-generated", false);
-            });
-
-            // Logo preview functionality
+            // Logo preview functionality with enhanced animation
             $("#Image").change(function() {
                 if (this.files && this.files[0]) {
                     var reader = new FileReader();
@@ -150,14 +319,28 @@
                         $("#logoPreview").attr("src", e.target.result);
                         $("#logoPreviewContainer").removeClass("d-none");
                         $("#uploadPlaceholder").addClass("d-none");
+
+                        // Add animation
+                        $("#logoPreviewContainer").css("animation", "fadeIn 0.5s ease-out");
                     }
 
                     reader.readAsDataURL(this.files[0]);
 
-                    // Validate file size
+                    // Validate file size and type
                     var fileSize = this.files[0].size / 1024 / 1024; // in MB
+                    var fileType = this.files[0].type;
+                    var validImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml'];
+
                     if (fileSize > 2) {
-                        alert("File size exceeds 2MB. Please choose a smaller file.");
+                        showToast("File size exceeds 2MB. Please choose a smaller file.", "error");
+                        $(this).val(""); // Clear the file input
+                        $("#logoPreviewContainer").addClass("d-none");
+                        $("#uploadPlaceholder").removeClass("d-none");
+                        return;
+                    }
+
+                    if (!validImageTypes.includes(fileType)) {
+                        showToast("Please select a valid image file (JPEG, PNG, GIF, SVG).", "error");
                         $(this).val(""); // Clear the file input
                         $("#logoPreviewContainer").addClass("d-none");
                         $("#uploadPlaceholder").removeClass("d-none");
@@ -165,24 +348,161 @@
                 }
             });
 
-            // Remove logo button
+            // Remove logo button with animation
             $("#removeLogo").click(function() {
-                $("#Image").val("");
-                $("#logoPreviewContainer").addClass("d-none");
-                $("#uploadPlaceholder").removeClass("d-none");
+                $("#logoPreviewContainer").css("animation", "fadeOut 0.3s ease-out");
+
+                setTimeout(function() {
+                    $("#Image").val("");
+                    $("#logoPreviewContainer").addClass("d-none");
+                    $("#uploadPlaceholder").removeClass("d-none");
+                }, 300);
             });
 
-            // Form validation
+            // Enhanced form validation
             $("#createBrandForm").submit(function(e) {
-                if ($("#Name").val() === "") {
+                let isValid = true;
+
+                // Validate brand name
+                if ($("#Name").val().trim() === "") {
+                    $("#Name").addClass("is-invalid");
+                    $("#nameError").text("Brand name is required.");
+                    isValid = false;
+                } else {
+                    $("#Name").removeClass("is-invalid").addClass("is-valid");
+                }
+
+                if (!isValid) {
                     e.preventDefault();
-                    alert("Brand name is required.");
-                    $("#Name").focus();
+                    showToast("Please fix the errors in the form.", "error");
                     return false;
                 }
 
+                // Show loading state on button
+                $("button[type='submit']").html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Creating...');
+                $("button[type='submit']").prop("disabled", true);
+
+                // In a real implementation, you'd handle the form submission via AJAX
+                // For demo purposes, we'll just show a success toast after a delay
+                setTimeout(function() {
+                    showToast("Brand created successfully!", "success");
+                    $("button[type='submit']").html('<i class="fas fa-save me-2"></i> Create Brand');
+                    $("button[type='submit']").prop("disabled", false);
+                }, 1500);
+
                 return true;
             });
+
+            // Toast notification function
+            function showToast(message, type = "success") {
+                const toast = $("#liveToast");
+
+                // Set toast type
+                if (type === "error") {
+                    $(".toast-header").removeClass("bg-success").addClass("bg-danger");
+                    $(".toast-header i").removeClass("fa-check-circle").addClass("fa-exclamation-circle");
+                    $(".toast-header strong").text("Error");
+                } else {
+                    $(".toast-header").removeClass("bg-danger").addClass("bg-success");
+                    $(".toast-header i").removeClass("fa-exclamation-circle").addClass("fa-check-circle");
+                    $(".toast-header strong").text("Success");
+                }
+
+                // Set message
+                $(".toast-body").text(message);
+
+                // Show toast
+                const bsToast = new bootstrap.Toast(toast);
+                bsToast.show();
+            }
+
+            // Character counter for description
+            $("#Description").on("input", function() {
+                const maxLength = 500;
+                const currentLength = $(this).val().length;
+                const remainingChars = maxLength - currentLength;
+
+                // Create counter element if it doesn't exist
+                if ($("#char-counter").length === 0) {
+                    $(this).after('<div id="char-counter" class="form-text text-end"></div>');
+                }
+
+                // Update counter
+                $("#char-counter").text(`${currentLength}/${maxLength} characters`);
+
+                // Change color when approaching limit
+                if (remainingChars < 50) {
+                    $("#char-counter").addClass("text-danger");
+                } else {
+                    $("#char-counter").removeClass("text-danger");
+                }
+            });
+
+            // Floating labels animation
+            $(".form-control").on("focus blur", function(e) {
+                $(this).parents(".form-group").toggleClass("focused", e.type === "focus");
+            });
+
+            // Initialize any floating labels that may have pre-filled values
+            $(".form-control").each(function() {
+                if ($(this).val() !== "") {
+                    $(this).parents(".form-group").addClass("focused");
+                }
+            });
+
+            // Add smooth scrolling to form sections
+            $('a[href^="#"]').on('click', function(event) {
+                var target = $(this.getAttribute('href'));
+                if (target.length) {
+                    event.preventDefault();
+                    $('html, body').stop().animate({
+                        scrollTop: target.offset().top - 100
+                    }, 800);
+                }
+            });
+
+            // Add input mask for special fields if needed
+            // Example: $("#phoneNumber").mask("(999) 999-9999");
+
+            // Add drag and drop functionality for logo upload
+            const dropArea = document.querySelector('.card-body');
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+
+            function highlight() {
+                dropArea.classList.add('bg-light');
+            }
+
+            function unhighlight() {
+                dropArea.classList.remove('bg-light');
+            }
+
+            dropArea.addEventListener('drop', handleDrop, false);
+
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+
+                if (files.length) {
+                    $("#Image")[0].files = files;
+                    $("#Image").trigger('change');
+                }
+            }
         });
     </script>
 }
