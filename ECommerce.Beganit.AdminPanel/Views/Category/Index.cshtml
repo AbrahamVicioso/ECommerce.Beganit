@@ -5,53 +5,365 @@
     var childCategories = ViewBag.ChildCategories as Dictionary<int?, List<ECommerce.Beganit.AdminPanel.Models.ViewModels.CategoryViewModel>>;
 }
 
-<div class="container-fluid">
-    <div class="row mb-3">
-        <div class="mt-5">
-            <h1 class="h3 mb-0">Category Management</h1>
-            <p class="text-muted">Manage your store brands and manufacturers</p>
+<div class="container-fluid py-4">
+    <!-- Header Section -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+        <div class="mb-3 mb-md-0">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1">
+                    <li class="breadcrumb-item"><a href="/admin">Dashboard</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Categories</li>
+                </ol>
+            </nav>
+            <h1 class="h3 mb-1 fw-bold">Category Management</h1>
+            <p class="text-muted">Organize your products with a hierarchical category structure</p>
         </div>
-        <div class="col-auto d-flex align-items-center">
-            <button class="btn btn-outline-secondary me-2" id="expandAll">
-                <i class="fas fa-expand-alt"></i> Expand All
-            </button>
-            <button class="btn btn-outline-secondary me-2" id="collapseAll">
-                <i class="fas fa-compress-alt"></i> Collapse All
-            </button>
+        <div class="d-flex flex-wrap gap-2">
+            <div class="btn-group me-2" role="group" aria-label="Tree controls">
+                <button class="btn btn-outline-secondary" id="expandAll" data-bs-toggle="tooltip" title="Expand all categories">
+                    <i class="fas fa-expand-alt me-md-2"></i><span class="d-none d-md-inline">Expand All</span>
+                </button>
+                <button class="btn btn-outline-secondary" id="collapseAll" data-bs-toggle="tooltip" title="Collapse all categories">
+                    <i class="fas fa-compress-alt me-md-2"></i><span class="d-none d-md-inline">Collapse All</span>
+                </button>
+            </div>
             <a asp-action="Create" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Add New Category
+                <i class="fas fa-plus me-md-2"></i><span class="d-none d-md-inline">Add New Category</span>
             </a>
         </div>
     </div>
 
-    <div class="card">
+    <!-- Search and Filter Section -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
+                        <input type="text" id="categorySearch" class="form-control border-start-0" placeholder="Search categories...">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select id="statusFilter" class="form-select">
+                        <option value="">All Statuses</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select id="levelFilter" class="form-select">
+                        <option value="">All Levels</option>
+                        <option value="0">Top Level</option>
+                        <option value="1">Second Level</option>
+                        <option value="2">Third Level</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button id="resetFilters" class="btn btn-outline-secondary w-100">
+                        <i class="fas fa-undo me-2"></i>Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Categories Table -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white py-3">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-folder me-2 text-primary"></i>Categories</h5>
+                </div>
+                <div class="col-auto">
+                    <span class="badge bg-primary rounded-pill" id="categoryCount">
+                        @Model.Count() categories
+                    </span>
+                </div>
+            </div>
+        </div>
         <div class="card-body p-0">
-            <table class="table table-hover mb-0">
-                <thead>
-                    <tr>
-                        <th style="width: 30%">Category Name</th>
-                        <th>Slug</th>
-                        <th>Order</th>
-                        <th>Status</th>
-                        <th>Last Updated</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var category in Model)
-                    {
-                        @await Html.PartialAsync("_CategoryTreeItem", new { Category = category, ChildCategories = childCategories, Level = 0 })
-                    }
-                </tbody>
-            </table>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 category-table">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 30%">Category Name</th>
+                            <th>Slug</th>
+                            <th style="width: 80px">Order</th>
+                            <th style="width: 120px">Status</th>
+                            <th>Last Updated</th>
+                            <th style="width: 150px" class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Any())
+                        {
+                            @foreach (var category in Model)
+                            {
+                                @await Html.PartialAsync("_CategoryTreeItem", new { Category = category, ChildCategories = childCategories, Level = 0 })
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center py-5">
+                                    <div class="py-5">
+                                        <i class="fas fa-folder-open text-muted mb-3" style="font-size: 3rem;"></i>
+                                        <h5>No Categories Found</h5>
+                                        <p class="text-muted">Start by adding your first category</p>
+                                        <a asp-action="Create" class="btn btn-primary mt-2">
+                                            <i class="fas fa-plus me-2"></i>Add New Category
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer bg-white py-3">
+            <div class="row align-items-center">
+                <div class="col">
+                    <small class="text-muted">Showing <span id="visibleCount">@Model.Count()</span> of <span id="totalCount">@Model.Count()</span> categories</small>
+                </div>
+                <div class="col-auto">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="exportCSV">
+                            <i class="fas fa-file-csv me-2"></i>Export CSV
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="printCategories">
+                            <i class="fas fa-print me-2"></i>Print
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Quick Edit Modal -->
+    <div class="modal fade" id="quickEditModal" tabindex="-1" aria-labelledby="quickEditModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="quickEditModalLabel">Quick Edit Category</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="quickEditForm">
+                        <input type="hidden" id="editCategoryId" name="Id" />
+                        <div class="mb-3">
+                            <label for="editName" class="form-label">Category Name</label>
+                            <input type="text" class="form-control" id="editName" name="Name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editSlug" class="form-label">Slug</label>
+                            <input type="text" class="form-control" id="editSlug" name="Slug">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editOrder" class="form-label">Display Order</label>
+                            <input type="number" class="form-control" id="editOrder" name="DisplayOrder" min="0">
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="editIsActive" name="IsActive">
+                                <label class="form-check-label" for="editIsActive">Active</label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveQuickEdit">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this category? This action cannot be undone.</p>
+                    <p class="mb-0"><strong>Category: </strong><span id="deleteCategoryName"></span></p>
+                    <div class="alert alert-warning mt-3 mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <small>Deleting a parent category will also delete all its subcategories.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <a href="#" id="confirmDelete" class="btn btn-danger">Delete</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 5">
+        <div id="liveToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header bg-success text-white">
+                <i class="fas fa-check-circle me-2"></i>
+                <strong class="me-auto">Success</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                Category updated successfully!
+            </div>
         </div>
     </div>
 </div>
 
+@section Styles {
+    <style>
+        /* Category tree styling */
+        .category-indent {
+            display: inline-block;
+            border-left: 1px dashed #dee2e6;
+            height: 1.5em;
+            margin-right: 0.5rem;
+            position: relative;
+            top: -2px;
+        }
+
+        .category-branch {
+            display: inline-block;
+            border-bottom: 1px dashed #dee2e6;
+            width: 0.75rem;
+            height: 1.5em;
+            margin-right: 0.5rem;
+            position: relative;
+            top: -0.75em;
+        }
+
+        .toggle-children {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-right: 0.5rem;
+        }
+
+            .toggle-children:hover {
+                background-color: #e9ecef;
+            }
+
+            .toggle-children i {
+                transition: transform 0.2s;
+            }
+
+        .child-category {
+            transition: background-color 0.3s;
+        }
+
+            .child-category.level-1 {
+                background-color: rgba(0, 0, 0, 0.01);
+            }
+
+            .child-category.level-2 {
+                background-color: rgba(0, 0, 0, 0.02);
+            }
+
+            .child-category.level-3 {
+                background-color: rgba(0, 0, 0, 0.03);
+            }
+
+        /* Hover effects */
+        .category-table tr:hover {
+            background-color: rgba(13, 110, 253, 0.04);
+        }
+
+        /* Status badges */
+        .status-badge {
+            width: 80px;
+            text-align: center;
+        }
+
+        /* Action buttons */
+        .action-buttons .btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .action-buttons .dropdown-item {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @@keyframes fadeIn {
+            from
+
+        {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+
+        }
+
+        /* Highlight effect for search results */
+        .highlight-row {
+            animation: highlightRow 1.5s ease-in-out;
+        }
+
+        @@keyframes highlightRow {
+            0%
+
+        {
+            background-color: rgba(13, 110, 253, 0.1);
+        }
+
+        100% {
+            background-color: transparent;
+        }
+
+        }
+
+        /* Empty state styling */
+        .empty-state {
+            padding: 3rem 0;
+            text-align: center;
+        }
+
+        /* Responsive adjustments */
+        @@media (max-width: 768px) {
+            .category-table th:nth-child(2), .category-table td:nth-child(2), .category-table th:nth-child(5), .category-table td:nth-child(5)
+
+        {
+            display: none;
+        }
+
+        }
+    </style>
+}
+
 @section Scripts {
     <script>
         $(document).ready(function() {
-            // Toggle child categories
+            // Initialize tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
+
+            // Toggle child categories with animation
             $('.toggle-children').on('click', function(e) {
                 e.preventDefault();
                 const $this = $(this);
@@ -61,12 +373,15 @@
                 if ($icon.hasClass('fa-chevron-right')) {
                     $icon.removeClass('fa-chevron-right').addClass('fa-chevron-down');
                     $children.removeClass('d-none');
+                    $children.addClass('fade-in');
+
                     // Also show any expanded children
                     $children.each(function() {
                         const childId = $(this).data('id');
                         const $expandedChildren = $('.child-category[data-parent="' + childId + '"]');
                         if ($(this).find('.toggle-children i').hasClass('fa-chevron-down')) {
                             $expandedChildren.removeClass('d-none');
+                            $expandedChildren.addClass('fade-in');
                         }
                     });
                 } else {
@@ -75,18 +390,29 @@
                     // Also hide all descendants
                     hideAllDescendants($this.data('id'));
                 }
+
+                updateVisibleCount();
             });
 
             // Expand all categories
             $('#expandAll').on('click', function() {
                 $('.toggle-children i').removeClass('fa-chevron-right').addClass('fa-chevron-down');
                 $('.child-category').removeClass('d-none');
+                $('.child-category').addClass('fade-in');
+                updateVisibleCount();
+
+                // Show success toast
+                showToast('All categories expanded', 'info');
             });
 
             // Collapse all categories
             $('#collapseAll').on('click', function() {
                 $('.toggle-children i').removeClass('fa-chevron-down').addClass('fa-chevron-right');
                 $('.child-category').addClass('d-none');
+                updateVisibleCount();
+
+                // Show success toast
+                showToast('All categories collapsed', 'info');
             });
 
             function hideAllDescendants(parentId) {
@@ -96,6 +422,298 @@
                     hideAllDescendants($(this).data('id'));
                 });
             }
+
+            // Search functionality
+            $('#categorySearch').on('input', function() {
+                const searchTerm = $(this).val().toLowerCase();
+                let matchCount = 0;
+
+                if (searchTerm.length > 0) {
+                    // First collapse all
+                    $('#collapseAll').click();
+
+                    // Then search and show matches
+                    $('.category-row').each(function() {
+                        const categoryName = $(this).find('.category-name').text().toLowerCase();
+                        const categorySlug = $(this).find('.category-slug').text().toLowerCase();
+
+                        if (categoryName.includes(searchTerm) || categorySlug.includes(searchTerm)) {
+                            $(this).removeClass('d-none');
+                            $(this).addClass('highlight-row');
+                            matchCount++;
+
+                            // If it's a child, make sure all parent categories are visible
+                            if ($(this).hasClass('child-category')) {
+                                showParents($(this));
+                            }
+                        } else {
+                            if (!$(this).hasClass('child-category')) {
+                                $(this).removeClass('highlight-row');
+
+                                // Only hide parent categories if none of their children match
+                                const categoryId = $(this).data('id');
+                                const hasMatchingChild = $('.child-category[data-parent="' + categoryId + '"]').hasClass('highlight-row');
+
+                                if (!hasMatchingChild) {
+                                    $(this).addClass('d-none');
+                                }
+                            } else {
+                                $(this).removeClass('highlight-row');
+                                $(this).addClass('d-none');
+                            }
+                        }
+                    });
+                } else {
+                    // Clear search - show all parent categories and reset highlighting
+                    $('.parent-category').removeClass('d-none highlight-row');
+                    $('.child-category').removeClass('highlight-row');
+
+                    // Respect current expand/collapse state
+                    $('.child-category').each(function() {
+                        const parentId = $(this).data('parent');
+                        const $parentRow = $('tr[data-id="' + parentId + '"]');
+                        const $toggleIcon = $parentRow.find('.toggle-children i');
+
+                        if ($toggleIcon.hasClass('fa-chevron-down')) {
+                            $(this).removeClass('d-none');
+                        } else {
+                            $(this).addClass('d-none');
+                        }
+                    });
+
+                    matchCount = $('.category-row:not(.d-none)').length;
+                }
+
+                updateVisibleCount();
+            });
+
+            // Show all parent categories of a given child
+            function showParents($child) {
+                const parentId = $child.data('parent');
+                if (parentId) {
+                    const $parent = $('tr[data-id="' + parentId + '"]');
+                    $parent.removeClass('d-none');
+
+                    // Make sure the expand icon is pointing down
+                    $parent.find('.toggle-children i').removeClass('fa-chevron-right').addClass('fa-chevron-down');
+
+                    // Recursively show parents of parents
+                    if ($parent.hasClass('child-category')) {
+                        showParents($parent);
+                    }
+                }
+            }
+
+            // Status filter
+            $('#statusFilter').on('change', function() {
+                const status = $(this).val().toLowerCase();
+
+                if (status) {
+                    $('.category-row').each(function() {
+                        const categoryStatus = $(this).find('.status-badge').text().toLowerCase();
+
+                        if (categoryStatus === status) {
+                            $(this).removeClass('d-none');
+
+                            // If it's a child, make sure all parent categories are visible
+                            if ($(this).hasClass('child-category')) {
+                                showParents($(this));
+                            }
+                        } else {
+                            if (!$(this).hasClass('child-category')) {
+                                $(this).addClass('d-none');
+                            } else {
+                                $(this).addClass('d-none');
+                            }
+                        }
+                    });
+                } else {
+                    // Clear filter
+                    $('#resetFilters').click();
+                }
+
+                updateVisibleCount();
+            });
+
+            // Level filter
+            $('#levelFilter').on('change', function() {
+                const level = $(this).val();
+
+                if (level !== '') {
+                    // First hide all
+                    $('.category-row').addClass('d-none');
+
+                    // Then show only the selected level
+                    if (level === '0') {
+                        $('.parent-category').removeClass('d-none');
+                    } else {
+                        $('.level-' + level).removeClass('d-none');
+
+                        // Show parents of visible children
+                        $('.level-' + level).each(function() {
+                            showParents($(this));
+                        });
+                    }
+                } else {
+                    // Clear filter
+                    $('#resetFilters').click();
+                }
+
+                updateVisibleCount();
+            });
+
+            // Reset filters
+            $('#resetFilters').on('click', function() {
+                $('#categorySearch').val('');
+                $('#statusFilter').val('');
+                $('#levelFilter').val('');
+
+                // Show all parent categories
+                $('.parent-category').removeClass('d-none highlight-row');
+
+                // Show child categories based on expand/collapse state
+                $('.child-category').removeClass('highlight-row');
+                $('.child-category').each(function() {
+                    const parentId = $(this).data('parent');
+                    const $parentRow = $('tr[data-id="' + parentId + '"]');
+                    const $toggleIcon = $parentRow.find('.toggle-children i');
+
+                    if ($toggleIcon.hasClass('fa-chevron-down')) {
+                        $(this).removeClass('d-none');
+                    } else {
+                        $(this).addClass('d-none');
+                    }
+                });
+
+                updateVisibleCount();
+
+                // Show success toast
+                showToast('Filters reset', 'info');
+            });
+
+            // Update visible count
+            function updateVisibleCount() {
+                const visibleCount = $('.category-row:not(.d-none)').length;
+                $('#visibleCount').text(visibleCount);
+            }
+
+            // Quick edit functionality
+            $('.quick-edit-btn').on('click', function() {
+                const categoryId = $(this).data('id');
+                const categoryName = $(this).closest('tr').find('.category-name').text().trim();
+                const categorySlug = $(this).closest('tr').find('.category-slug').text().trim();
+                const categoryOrder = $(this).closest('tr').find('.category-order').text().trim();
+                const categoryStatus = $(this).closest('tr').find('.status-badge').text().trim() === 'Active';
+
+                // Populate the modal
+                $('#editCategoryId').val(categoryId);
+                $('#editName').val(categoryName);
+                $('#editSlug').val(categorySlug);
+                $('#editOrder').val(categoryOrder);
+                $('#editIsActive').prop('checked', categoryStatus);
+
+                // Show the modal
+                const quickEditModal = new bootstrap.Modal(document.getElementById('quickEditModal'));
+                quickEditModal.show();
+            });
+
+            // Save quick edit
+            $('#saveQuickEdit').on('click', function() {
+                // In a real application, you would submit the form via AJAX
+                // For this example, we'll just simulate a successful update
+
+                const categoryId = $('#editCategoryId').val();
+                const categoryName = $('#editName').val();
+                const categorySlug = $('#editSlug').val();
+                const categoryOrder = $('#editOrder').val();
+                const categoryStatus = $('#editIsActive').is(':checked') ? 'Active' : 'Inactive';
+
+                // Update the row in the table
+                const $row = $('tr[data-id="' + categoryId + '"]');
+                $row.find('.category-name').text(categoryName);
+                $row.find('.category-slug').text(categorySlug);
+                $row.find('.category-order').text(categoryOrder);
+
+                if (categoryStatus === 'Active') {
+                    $row.find('.status-badge').removeClass('bg-secondary').addClass('bg-success').text('Active');
+                } else {
+                    $row.find('.status-badge').removeClass('bg-success').addClass('bg-secondary').text('Inactive');
+                }
+
+                // Highlight the updated row
+                $row.addClass('highlight-row');
+                setTimeout(function() {
+                    $row.removeClass('highlight-row');
+                }, 1500);
+
+                // Close the modal
+                const quickEditModal = bootstrap.Modal.getInstance(document.getElementById('quickEditModal'));
+                quickEditModal.hide();
+
+                // Show success toast
+                showToast('Category updated successfully');
+            });
+
+            // Delete confirmation
+            $('.delete-btn').on('click', function() {
+                const categoryId = $(this).data('id');
+                const categoryName = $(this).closest('tr').find('.category-name').text().trim();
+
+                // Populate the modal
+                $('#deleteCategoryName').text(categoryName);
+                $('#confirmDelete').attr('href', '/Category/Delete/' + categoryId);
+
+                // Show the modal
+                const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+                deleteModal.show();
+            });
+
+            // Export to CSV
+            $('#exportCSV').on('click', function() {
+                // In a real application, you would trigger a download
+                // For this example, we'll just show a toast
+                showToast('Categories exported to CSV', 'success');
+            });
+
+            // Print categories
+            $('#printCategories').on('click', function() {
+                // In a real application, you would open a print view
+                // For this example, we'll just show a toast
+                showToast('Preparing categories for printing...', 'info');
+                setTimeout(function() {
+                    window.print();
+                }, 1000);
+            });
+
+            // Toast notification function
+            function showToast(message, type = 'success') {
+                const toast = $('#liveToast');
+
+                // Set toast type
+                if (type === 'error') {
+                    $('.toast-header').removeClass('bg-success bg-info').addClass('bg-danger');
+                    $('.toast-header i').removeClass('fa-check-circle fa-info-circle').addClass('fa-exclamation-circle');
+                    $('.toast-header strong').text('Error');
+                } else if (type === 'info') {
+                    $('.toast-header').removeClass('bg-success bg-danger').addClass('bg-info');
+                    $('.toast-header i').removeClass('fa-check-circle fa-exclamation-circle').addClass('fa-info-circle');
+                    $('.toast-header strong').text('Information');
+                } else {
+                    $('.toast-header').removeClass('bg-danger bg-info').addClass('bg-success');
+                    $('.toast-header i').removeClass('fa-exclamation-circle fa-info-circle').addClass('fa-check-circle');
+                    $('.toast-header strong').text('Success');
+                }
+
+                // Set message
+                $('.toast-body').text(message);
+
+                // Show toast
+                const bsToast = new bootstrap.Toast(toast);
+                bsToast.show();
+            }
+
+            // Initialize visible count
+            updateVisibleCount();
         });
     </script>
 }

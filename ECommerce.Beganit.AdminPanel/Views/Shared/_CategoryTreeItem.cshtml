@@ -1,78 +1,96 @@
-﻿@using ECommerce.Beganit.AdminPanel.Models.ViewModels
-@model dynamic
+﻿@model dynamic
 @{
-    var category = Model.Category as CategoryViewModel;
-    var childCategories = Model.ChildCategories as Dictionary<int?, List<CategoryViewModel>>;
-    var level = (int)(Model.Level ?? 0);
-    var paddingLeft = level * 20; // 20px padding for each level
+    var category = Model.Category;
+    var childCategories = Model.ChildCategories;
+    var level = Model.Level;
 
-    var hasChildren = childCategories != null &&
-                      childCategories.ContainsKey(category.Id) &&
-                      childCategories[category.Id].Count > 0;
+    var hasChildren = childCategories.ContainsKey(category.Id) && childCategories[category.Id].Any();
+    var isParent = level == 0;
+    var rowClass = isParent ? "parent-category" : $"child-category level-{level}";
 }
-<tr class="@(level == 0 ? "parent-category" : "child-category")"
-    data-id="@category.Id"
-    data-parent="@(category.ParentId ?? 0)"
-@(level > 0 ? "style=background-color:#f9f9f9" : "")
-@(level > 0 ? "class=d-none" : "")>
+
+<tr class="category-row @rowClass" data-id="@category.Id" data-parent="@(level > 0 ? category.ParentCategoryId : null)">
     <td>
-        <div class="d-flex align-items-center" style="padding-left: @(paddingLeft)px;">
+        <div class="d-flex align-items-center">
+            @for (int i = 0; i < level; i++)
+            {
+                <span class="category-indent"></span>
+            }
+
+            @if (level > 0)
+            {
+                <span class="category-branch"></span>
+            }
+
             @if (hasChildren)
             {
-                <a href="#" class="toggle-children me-2" data-id="@category.Id">
+                <button class="toggle-children" data-id="@category.Id" title="Toggle subcategories">
                     <i class="fas fa-chevron-right"></i>
-                </a>
+                </button>
             }
             else
             {
-                <span class="me-2" style="width: 16px;"></span>
+                <span style="width: 24px; margin-right: 0.5rem;"></span>
             }
-            @if (!string.IsNullOrEmpty(category.ImageUrl))
-            {
-                <img src="@category.ImageUrl" alt="@category.Name" class="img-thumbnail me-2" style="width: 30px; height: 30px;" />
-            }
-            else
-            {
-                <div class="bg-secondary rounded me-2" style="width: 30px; height: 30px;"></div>
-            }
-            <span>@category.Name</span>
+
+            <div>
+                <span class="category-name fw-medium">@category.Name</span>
+                @if (category.IsFeatured)
+                {
+                    <span class="badge bg-warning text-dark ms-2">Featured</span>
+                }
+                @if (!string.IsNullOrEmpty(category.Description))
+                {
+                    <small class="d-block text-muted mt-1">@(category.Description.Length > 50 ? category.Description.Substring(0, 50) + "..." : category.Description)</small>
+                }
+            </div>
         </div>
-        @if (!string.IsNullOrEmpty(category.Description))
-        {
-            <small class="text-muted d-block" style="padding-left: @(paddingLeft + 40)px;">@category.Description</small>
-        }
     </td>
-    <td>@category.Slug</td>
-    <td>@category.DisplayOrder</td>
+    <td class="category-slug">@category.Slug</td>
+    <td class="category-order text-center">@category.DisplayOrder</td>
     <td>
-        @if (category.IsActive == true)
-        {
-            <span class="badge bg-success">Active</span>
-        }
-        else
-        {
-            <span class="badge bg-secondary">Inactive</span>
-        }
+        <span class="badge status-badge @(category.IsActive ? "bg-success" : "bg-secondary") rounded-pill">
+            @(category.IsActive ? "Active" : "Inactive")
+        </span>
     </td>
     <td>
-        @(category.UpdatedAt?.ToString("MMM dd, yyyy") ?? category.CreatedAt?.ToString("MMM dd, yyyy"))
-        <br />
-        <small class="text-muted">by @(category.UpdatedBy ?? category.CreatedBy)</small>
+        <small class="text-muted">@(category.UpdatedAt?.ToString("MMM dd, yyyy") ?? category.CreatedAt.ToString("MMM dd, yyyy"))</small>
     </td>
     <td>
-        <div class="btn-group">
-            <a asp-action="Edit" asp-route-id="@category.Id" class="btn btn-sm btn-outline-primary">
-                    <i class="bi bi-pencil-fill"></i>
+        <div class="action-buttons d-flex justify-content-end">
+            <a href="/Category/Edit/@category.Id" class="btn btn-sm btn-outline-primary me-1" data-bs-toggle="tooltip" title="Edit Category">
+                <i class="fas fa-edit"></i>
             </a>
-            @* <a asp-action="Details" asp-route-id="@category.Id" class="btn btn-sm btn-outline-info"> *@
-            @*         <i class="bi bi-info-circle"></i> *@
-            @* </a> *@
-            @* <a asp-action="Delete" asp-route-id="@category.Id" class="btn btn-sm btn-outline-danger"> *@
-            @*         <i class="bi bi-ban"></i> *@
-            </a>
+            <button type="button" class="btn btn-sm btn-outline-info me-1 quick-edit-btn" data-id="@category.Id" data-bs-toggle="tooltip" title="Quick Edit">
+                <i class="fas fa-pencil-alt"></i>
+            </button>
+            <div class="dropdown d-inline-block">
+                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton@(category.Id)" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton@(category.Id)">
+                    <li>
+                        <a class="dropdown-item" href="/Category/Create?parentId=@category.Id">
+                            <i class="fas fa-plus-circle me-2 text-success"></i>Add Subcategory
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="/Category/Duplicate/@category.Id">
+                            <i class="fas fa-copy me-2 text-primary"></i>Duplicate
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <button type="button" class="dropdown-item text-danger delete-btn" data-id="@category.Id">
+                            <i class="fas fa-trash-alt me-2"></i>Delete
+                        </button>
+                    </li>
+                </ul>
+            </div>
         </div>
     </td>
 </tr>
+
 @if (hasChildren)
 {
     foreach (var childCategory in childCategories[category.Id])

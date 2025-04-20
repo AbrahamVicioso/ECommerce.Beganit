@@ -7,7 +7,12 @@
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-10">
+<<<<<<< Updated upstream
             <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+=======
+            <!-- Main Card -->
+            <div class="card border-0 shadow-lg rounded-3 overflow-hidden">
+>>>>>>> Stashed changes
                 <!-- Header with gradient background -->
                 <div class="card-header border-0 bg-gradient-primary text-white p-4">
                     <div class="d-flex justify-content-between align-items-center">
@@ -22,7 +27,11 @@
                             <p class="mb-0 opacity-75">Add a new brand to your product catalog</p>
                         </div>
                         <div class="d-none d-md-block">
+<<<<<<< Updated upstream
                             <i class="fas fa-building-flag fa-3x text-white opacity-25"></i>
+=======
+                            <i class="fas fa-building fa-3x text-white opacity-25"></i>
+>>>>>>> Stashed changes
                         </div>
                     </div>
                 </div>
@@ -34,10 +43,17 @@
                         <div class="row g-4">
                             <!-- Brand Logo Upload -->
                             <div class="col-lg-4 mb-4">
+<<<<<<< Updated upstream
                                 <div class="card h-100 border-0 shadow-sm rounded-4 bg-light">
                                     <div class="card-body text-center d-flex flex-column justify-content-center align-items-center p-4" style="min-height: 280px;">
                                         <div id="logoPreviewContainer" class="mb-3 d-none position-relative">
                                             <div class="position-relative rounded-4 shadow-sm overflow-hidden" style="width: 180px; height: 180px;">
+=======
+                                <div class="card h-100 border-0 shadow-sm rounded-3 bg-light">
+                                    <div class="card-body text-center d-flex flex-column justify-content-center align-items-center p-4" style="min-height: 280px;">
+                                        <div id="logoPreviewContainer" class="mb-3 d-none position-relative">
+                                            <div class="position-relative rounded-3 shadow-sm overflow-hidden" style="width: 180px; height: 180px;">
+>>>>>>> Stashed changes
                                                 <img id="logoPreview" src="#" alt="Logo Preview" class="img-fluid position-absolute top-50 start-50 translate-middle" style="max-height: 100%; max-width: 100%; object-fit: contain;">
                                             </div>
                                             <button type="button" id="removeLogo" class="btn btn-sm btn-danger rounded-circle position-absolute top-0 end-0 shadow-sm" style="margin-top: -10px; margin-right: -10px; width: 32px; height: 32px;">
@@ -69,7 +85,11 @@
 
                             <!-- Brand Details -->
                             <div class="col-lg-8 mb-4">
+<<<<<<< Updated upstream
                                 <div class="card h-100 border-0 shadow-sm rounded-4">
+=======
+                                <div class="card h-100 border-0 shadow-sm rounded-3">
+>>>>>>> Stashed changes
                                     <div class="card-body p-4">
                                         <h5 class="card-title fw-bold mb-4">
                                             <i class="fas fa-info-circle text-primary me-2"></i>
@@ -124,7 +144,11 @@
                             </div>
                         </div>
 
+<<<<<<< Updated upstream
                         <div class="alert alert-info border-0 shadow-sm rounded-4 d-flex align-items-center p-4 mt-3" role="alert">
+=======
+                        <div class="alert alert-info border-0 shadow-sm rounded-3 d-flex align-items-center p-4 mt-3" role="alert">
+>>>>>>> Stashed changes
                             <div class="bg-info bg-opacity-25 rounded-circle p-3 me-3">
                                 <i class="fas fa-lightbulb text-info fs-4"></i>
                             </div>
@@ -152,7 +176,11 @@
             </div>
 
             <!-- Recently Added Brands Preview -->
+<<<<<<< Updated upstream
             <div class="card border-0 shadow-sm rounded-4 mt-4">
+=======
+            <div class="card border-0 shadow-sm rounded-3 mt-4">
+>>>>>>> Stashed changes
                 <div class="card-header bg-light border-0 p-3">
                     <h5 class="mb-0 fw-bold"><i class="fas fa-history text-primary me-2"></i> Recently Added Brands</h5>
                 </div>
@@ -233,11 +261,14 @@
                 transform: translateY(-2px);
             }
 
+<<<<<<< Updated upstream
         /* Custom rounded corners */
         .rounded-4 {
             border-radius: 0.75rem !important;
         }
 
+=======
+>>>>>>> Stashed changes
         /* Custom form styling */
         .form-control, .input-group-text {
             padding: 0.75rem 1rem;
@@ -275,6 +306,24 @@
 
         }
 
+<<<<<<< Updated upstream
+=======
+        @@keyframes fadeOut {
+            from
+
+        {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        to {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+
+        }
+
+>>>>>>> Stashed changes
         #logoPreviewContainer {
             animation: fadeIn 0.5s ease-out;
         }
@@ -298,18 +347,140 @@
             ::-webkit-scrollbar-thumb:hover {
                 background: #a8a8a8;
             }
+<<<<<<< Updated upstream
+=======
+
+        /* Dark mode toggle */
+        .dark-mode-toggle {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 1000;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+            .dark-mode-toggle:hover {
+                transform: scale(1.1);
+            }
+
+        /* Dark mode styles */
+        body.dark-mode {
+            background-color: #1a1a2e;
+            color: #f0f0f0;
+        }
+
+            body.dark-mode .card {
+                background-color: #16213e;
+                border-color: #0f3460;
+            }
+
+            body.dark-mode .card-header:not(.bg-gradient-primary),
+            body.dark-mode .card-footer {
+                background-color: #1a1a2e !important;
+                border-color: #0f3460;
+            }
+
+            body.dark-mode .form-control,
+            body.dark-mode .input-group-text {
+                background-color: #0f3460;
+                border-color: #16213e;
+                color: #f0f0f0;
+            }
+
+            body.dark-mode .btn-outline-secondary {
+                color: #f0f0f0;
+                border-color: #f0f0f0;
+            }
+
+            body.dark-mode .text-muted,
+            body.dark-mode .form-text {
+                color: #a0a0a0 !important;
+            }
+
+            body.dark-mode .table {
+                color: #f0f0f0;
+            }
+
+            body.dark-mode .table-light th {
+                background-color: #16213e;
+                color: #f0f0f0;
+            }
+
+            body.dark-mode .bg-light {
+                background-color: #16213e !important;
+            }
+
+            body.dark-mode .alert-info {
+                background-color: #0f3460;
+                color: #f0f0f0;
+                border-color: #224abe;
+            }
+>>>>>>> Stashed changes
     </style>
 }
 
 @section Scripts {
     <script>
         $(document).ready(function() {
+            // Add dark mode toggle
+            $('body').append('<div class="dark-mode-toggle" title="Toggle Dark Mode"><i class="fas fa-moon"></i></div>');
+
+            // Check for saved dark mode preference
+            if (localStorage.getItem('darkMode') === 'enabled') {
+                $('body').addClass('dark-mode');
+                $('.dark-mode-toggle i').removeClass('fa-moon').addClass('fa-sun');
+            }
+
+            // Dark mode toggle functionality
+            $('.dark-mode-toggle').click(function() {
+                if ($('body').hasClass('dark-mode')) {
+                    $('body').removeClass('dark-mode');
+                    $('.dark-mode-toggle i').removeClass('fa-sun').addClass('fa-moon');
+                    localStorage.setItem('darkMode', 'disabled');
+                } else {
+                    $('body').addClass('dark-mode');
+                    $('.dark-mode-toggle i').removeClass('fa-moon').addClass('fa-sun');
+                    localStorage.setItem('darkMode', 'enabled');
+                }
+            });
+
             // Initialize tooltips
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
             var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl)
             });
 
+<<<<<<< Updated upstream
+=======
+            // Auto-generate slug from name (keeping this functionality from original)
+            $("#Name").on("keyup change", function() {
+                if ($("#Slug").val() === "" || $("#Slug").data("auto-generated") === true) {
+                    var slug = $(this).val()
+                        .toLowerCase()
+                        .replace(/[^\w\s-]/g, "") // Remove special chars except hyphens and underscores
+                        .replace(/\s+/g, "-")     // Replace spaces with hyphens
+                        .replace(/--+/g, "-")     // Replace multiple hyphens with single hyphen
+                        .trim();
+
+                    $("#Slug").val(slug).data("auto-generated", true);
+                }
+            });
+
+            // When user manually edits slug, stop auto-generation
+            $("#Slug").on("keyup change", function() {
+                $(this).data("auto-generated", false);
+            });
+
+>>>>>>> Stashed changes
             // Logo preview functionality with enhanced animation
             $("#Image").change(function() {
                 if (this.files && this.files[0]) {
@@ -438,6 +609,7 @@
                 }
             });
 
+<<<<<<< Updated upstream
             // Floating labels animation
             $(".form-control").on("focus blur", function(e) {
                 $(this).parents(".form-group").toggleClass("focused", e.type === "focus");
@@ -464,6 +636,8 @@
             // Add input mask for special fields if needed
             // Example: $("#phoneNumber").mask("(999) 999-9999");
 
+=======
+>>>>>>> Stashed changes
             // Add drag and drop functionality for logo upload
             const dropArea = document.querySelector('.card-body');
 
